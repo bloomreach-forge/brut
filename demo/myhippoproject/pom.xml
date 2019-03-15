@@ -74,6 +74,7 @@
 
     <hippo.cms.locales>nl,de,fr,es,zh</hippo.cms.locales>
     <buildNumber>${maven.build.timestamp}</buildNumber>
+    <brxm-unit-tester.version>0.3.0-SNAPSHOT</brxm-unit-tester.version>
   </properties>
 
   <repositories>
@@ -99,7 +100,7 @@
       <dependency>
         <groupId>com.bloomreach.ps</groupId>
         <artifactId>brxm-unit-tester</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>${brxm-unit-tester.version}</version>
         <scope>test</scope>
       </dependency>
 
