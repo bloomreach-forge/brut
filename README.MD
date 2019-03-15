@@ -32,7 +32,7 @@ Within the package there are classes to extend from:
 * SimpleHippoTest
 
 ### Importing nodes
-Use com.bloomreach.brxm.jcr.repository.utils.YamlImporter for importing YAML files.[Example](https://code.onehippo.org/sandbox/brxm-unit-tester/blob/master/demo/myhippoproject/site/src/test/java/org/example/EssentialsListComponentTest.java)
+Use com.bloomreach.ps.brxm.jcr.repository.utils.YamlImporter for importing YAML files.[Example](https://code.onehippo.org/sandbox/brxm-unit-tester/blob/master/demo/myhippoproject/site/src/test/java/org/example/EssentialsListComponentTest.java)
 
 #### YAML
 
