@@ -10,7 +10,7 @@
 
   <groupId>com.bloomreach.ps</groupId>
   <artifactId>brxm-unit-tester</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0-SNAPSHOT</version>
 
   <name>brXM Unit Tester</name>
   <description>Unit testing framework for brXM's delivery tier</description>
@@ -44,7 +44,7 @@
     <connection>scm:git:git@code.onehippo.org:prof-services/brxm-unit-tester.git</connection>
     <developerConnection>scm:git:git@code.onehippo.org:prof-services/brxm-unit-tester.git</developerConnection>
     <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
-    <tag>brxm-unit-tester-0.2.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <organization>
