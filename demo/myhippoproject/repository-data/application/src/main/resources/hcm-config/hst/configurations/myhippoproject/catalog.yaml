@@ -1,0 +1,6 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/myhippoproject/hst:catalog:
+      jcr:primaryType: hst:catalog
+      /myhippoproject-catalog:
+        jcr:primaryType: hst:containeritempackage

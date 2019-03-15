@@ -1,0 +1,4 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/myhippoproject/hst:components:
+      jcr:primaryType: hst:components

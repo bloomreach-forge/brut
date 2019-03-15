@@ -1,0 +1,3 @@
+/hst:hst/hst:configurations/myhippoproject/hst:workspace/hst:sitemenus/main/news:
+  jcr:primaryType: hst:sitemenuitem
+  hst:referencesitemapitem: news

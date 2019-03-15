@@ -1,0 +1,4 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/myhippoproject/hst:abstractpages:
+      jcr:primaryType: hst:pages

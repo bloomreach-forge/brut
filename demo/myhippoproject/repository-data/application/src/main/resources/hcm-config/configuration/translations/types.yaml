@@ -1,0 +1,48 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:translations/hippo:types/myhippoproject:newsdocument:
+      jcr:primaryType: hipposys:resourcebundles
+      /en:
+        jcr:primaryType: hipposys:resourcebundle
+        jcr:name: News Item
+        myhippoproject:author: Author
+        myhippoproject:content: Content
+        myhippoproject:date: Date
+        myhippoproject:image: Image
+        myhippoproject:introduction: Introduction
+        myhippoproject:location: Location
+        myhippoproject:source: Source
+        myhippoproject:title: Title
+      /nl:
+        jcr:primaryType: hipposys:resourcebundle
+        jcr:name: Nieuwsbericht
+        myhippoproject:author: Auteur
+        myhippoproject:content: Inhoud
+        myhippoproject:date: Datum
+        myhippoproject:image: Afbeelding
+        myhippoproject:introduction: Introductie
+        myhippoproject:location: Locatie
+        myhippoproject:source: Bron
+        myhippoproject:title: Titel
+      /de:
+        jcr:primaryType: hipposys:resourcebundle
+        jcr:name: News
+        myhippoproject:author: Verfasser
+        myhippoproject:content: Inhalt
+        myhippoproject:date: Datum
+        myhippoproject:image: Abbildung
+        myhippoproject:introduction: Einführung
+        myhippoproject:location: Standort
+        myhippoproject:source: Quelle
+        myhippoproject:title: Titel
+      /fr:
+        jcr:primaryType: hipposys:resourcebundle
+        jcr:name: Message d'info
+        myhippoproject:author: Auteur
+        myhippoproject:content: Contenu
+        myhippoproject:date: Date
+        myhippoproject:image: Image
+        myhippoproject:introduction: Introduction
+        myhippoproject:location: Lieu
+        myhippoproject:source: Source
+        myhippoproject:title: Titre

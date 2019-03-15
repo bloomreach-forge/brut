@@ -1,0 +1,15 @@
+/blogFacets:
+  jcr:primaryType: hippofacnav:facetnavigation
+  hippo:docbase: 4143bbcf-784f-4385-9252-0dc47630a6ad
+  hippofacnav:facetnodenames: [Authors, Categories, Tags, Date]
+  hippofacnav:facets: ['ns:authornames', 'ns:categories', 'hippostd:tags', "ns:publicationdate$[\n\
+      \                {name:'Last 7 days',resolution:'day', begin:-6, end:1},\n \
+      \               {name:'Last month',resolution:'day', begin:-30, end:1},\n  \
+      \              {name:'Last 3 months',resolution:'day', begin:-91, end:1},\n\
+      \                {name:'Last 6 months',resolution:'day', begin:-182, end:1},\n\
+      \                {name:'Last year',resolution:'day', begin:-365, end:1}\n  \
+      \              ]"]
+  hippofacnav:filters: ['jcr:primaryType = ns:blogpost']
+  hippofacnav:limit: 100
+  hippofacnav:sortby: ['ns:publicationdate']
+  hippofacnav:sortorder: [descending]
