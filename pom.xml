@@ -14,7 +14,7 @@
 
   <name>brXM Unit Tester</name>
   <description>Unit testing framework for brXM's delivery tier</description>
-  <url>https://code.onehippo.org/sandbox/brxm-unit-tester</url>
+  <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
   <licenses>
     <license>
@@ -41,9 +41,9 @@
   </properties>
 
   <scm>
-    <connection>scm:git:git@code.onehippo.org:sandbox/brxm-unit-tester.git</connection>
-    <developerConnection>scm:git:git@code.onehippo.org:sandbox/brxm-unit-tester.git</developerConnection>
-    <url>https://code.onehippo.org/sandbox/brxm-unit-tester</url>
+    <connection>scm:git:git@code.onehippo.org:prof-services/brxm-unit-tester.git</connection>
+    <developerConnection>scm:git:git@code.onehippo.org:prof-services/brxm-unit-tester.git</developerConnection>
+    <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
     <tag>HEAD</tag>
   </scm>
 
