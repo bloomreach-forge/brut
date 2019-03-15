@@ -41,7 +41,7 @@ in the classpath.
 
 ```java
 java.net.URL resource = getClass().getResource("/news.yaml");
-YamlImporter.importYaml(resource, rootNode, "/content/documents/mychannel", "hippostd:folder");
+ImporterUtils.importYaml(resource, rootNode, "/content/documents/mychannel", "hippostd:folder");
 
 ```
 
