@@ -18,6 +18,13 @@
   <description>BloomReach Unit Testing Library for BrXM Delivery Tier</description>
   <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
+  <contributors>
+    <contributor>
+      <name>Baris Can Vural</name>
+      <organization>BloomReach</organization>
+    </contributor>
+  </contributors>
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>

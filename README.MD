@@ -233,7 +233,7 @@ public class JaxrsTest extends AbstractJaxrsTest {
 
 ### Example spring config
 
-Note that as the user of this library you provide the cnd and yaml file to be imported in the repository.
+Note that as the user of this library you provide the cnd and yaml files to be imported in the repository.
 
 ```xml
 
