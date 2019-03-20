@@ -80,26 +80,29 @@ an HST Container from scratch to test different HST pipelines.
 ```java
 package client.packagename;
 
+
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.github.bcanvural.AbstractPageModelTest;
+import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A user (client) of the testing library providing his/her own config/content
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PageModelTest extends AbstractPageModelTest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PageModelTest.class);
 
     @BeforeAll
     public void init() {
@@ -113,12 +116,12 @@ public class PageModelTest extends AbstractPageModelTest {
 
     @Override
     protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:client/packagename/beans/*.class,";
+        return "classpath*:org/example/beans/*.class,";
     }
 
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/client/packagename/*.xml");
+        return Collections.singletonList("/org/example/custom-pagemodel.xml");
     }
 
     @Override
@@ -127,14 +130,17 @@ public class PageModelTest extends AbstractPageModelTest {
     }
 
     @Test
+    @DisplayName("Component rendering url response")
     public void test() throws IOException {
         getHstRequest().setRequestURI("/site/resourceapi/news");
         getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
-        String response1 = invokeFilter();
-        String response2 = invokeFilter();
+        String response = invokeFilter();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
+        assertTrue(jsonNode.get("page").size() > 0);
+        assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
     }
 }
-
 ```
 
 ### Example with Jaxrsrestplainpipeline (under test directory):
@@ -226,6 +232,8 @@ public class JaxrsTest extends AbstractJaxrsTest {
 ```
 
 ### Example spring config
+
+Note that as the user of this library you provide the cnd and yaml file to be imported in the repository.
 
 ```xml
 
