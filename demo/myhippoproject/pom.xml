@@ -74,7 +74,6 @@
 
     <hippo.cms.locales>nl,de,fr,es,zh</hippo.cms.locales>
     <buildNumber>${maven.build.timestamp}</buildNumber>
-    <brxm-unit-tester.version>0.3.0-SNAPSHOT</brxm-unit-tester.version>
   </properties>
 
   <repositories>
@@ -96,13 +95,6 @@
 
   <dependencyManagement>
     <dependencies>
-
-      <dependency>
-        <groupId>com.bloomreach.ps</groupId>
-        <artifactId>brxm-unit-tester</artifactId>
-        <version>${brxm-unit-tester.version}</version>
-        <scope>test</scope>
-      </dependency>
 
       <dependency>
         <groupId>org.onehippo.cms7</groupId>
@@ -152,12 +144,6 @@
         <version>${freemarker.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
 
       <dependency>
         <groupId>org.easymock</groupId>

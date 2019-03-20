@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+  <Appenders>
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss} %-5p [%C.%M():%L] %m%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <!--Loggers have to be explicitly added here-->
+    <Logger name="com.bloomreach.ps.brut.common.repository.BrxmTestingRepository" level="info"/>
+    <Logger name="com.bloomreach.ps.brut.common.repository.utils.ImporterUtils" level="info"/>
+    <Root level="warn">
+      <AppenderRef ref="console"/>
+    </Root>
+  </Loggers>
+</Configuration>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <!-- Default request context based credentials provider -->
+  <bean id="org.hippoecm.hst.core.request.ContextCredentialsProvider" class="org.hippoecm.hst.site.request.DefaultContextCredentialsProvider">
+    <constructor-arg ref="javax.jcr.Credentials.default" />
+    <constructor-arg ref="javax.jcr.Credentials.preview" />
+    <constructor-arg ref="javax.jcr.Credentials.writable" />
+  </bean>
+
+  <!-- Commons configuration from collab.properties -->
+  <bean id="org.hippoecm.hst.core.internal.HstRequestContextComponent" class="org.hippoecm.hst.site.request.HstRequestContextComponentImpl">
+    <constructor-arg ref="javax.jcr.Repository" />
+    <constructor-arg ref="org.hippoecm.hst.core.request.ContextCredentialsProvider" />
+    <constructor-arg ref="containerConfiguration" />
+
+    <property name="siteMapMatcher" ref="org.hippoecm.hst.core.request.HstSiteMapMatcher" />
+    <property name="urlFactory" ref="org.hippoecm.hst.core.component.HstURLFactory" />
+    <property name="linkCreator" ref="org.hippoecm.hst.core.linking.HstLinkCreator" />
+    <property name="siteMenusManager" ref="org.hippoecm.hst.core.sitemenu.HstSiteMenusManager" />
+    <property name="hstQueryManagerFactory" ref="org.hippoecm.hst.core.search.HstQueryManagerFactory" />
+    <property name="contentBeansTool" ref="org.hippoecm.hst.content.tool.ContentBeansTool" />
+    <property name="cachingObjectConverter" value="${object.converter.caching}" />
+    <property name="componentWindowFilters" ref="org.hippoecm.hst.core.container.HstComponentWindowFilter.list"/>
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.container.HstRequestProcessor" class="org.hippoecm.hst.core.container.HstRequestProcessorImpl">
+    <constructor-arg ref="org.hippoecm.hst.core.container.Pipelines" />
+  </bean>
+
+</beans>
+
