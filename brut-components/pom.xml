@@ -19,7 +19,6 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <hippo.hst.version>5.6.0</hippo.hst.version>
     <hippo.essentials-components.version>4.6.0</hippo.essentials-components.version>
     <jcr.version>2.0</jcr.version>
     <jackson-databind.version>2.8.11.3</jackson-databind.version>
@@ -53,38 +52,50 @@
 
     <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
+      <artifactId>hst-api</artifactId>
+      <version>${hst.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.onehippo.cms7.hst.components</groupId>
+      <artifactId>hst-core</artifactId>
+      <version>${hst.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.onehippo.cms7.hst</groupId>
+      <artifactId>hst-commons</artifactId>
+      <version>${hst.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.onehippo.cms7.hst</groupId>
+      <artifactId>hst-client</artifactId>
+      <version>${hst.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-mock</artifactId>
-      <version>${hippo.hst.version}</version>
+      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-content-beans</artifactId>
-      <version>${hippo.hst.version}</version>
+      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.onehippo.cms7.hst.dependencies</groupId>
-      <artifactId>hst-spring-dependencies</artifactId>
-      <version>${hippo.hst.version}</version>
-      <scope>provided</scope>
-      <type>pom</type>
-    </dependency>
-
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.dependencies</groupId>
-      <artifactId>hst-client-dependencies</artifactId>
-      <version>${hippo.hst.version}</version>
-      <scope>provided</scope>
-      <type>pom</type>
-    </dependency>
-
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.dependencies</groupId>
-      <artifactId>hst-server-dependencies</artifactId>
-      <version>${hippo.hst.version}</version>
-      <scope>provided</scope>
-      <type>pom</type>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

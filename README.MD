@@ -213,7 +213,6 @@ public class JaxrsTest extends AbstractJaxrsTest {
     public void testUserEndpoint() {
         String user = "baris";
         getHstRequest().setRequestURI("/site/api/hello/" + user);
-        getHstRequest().setMethod(HttpMethod.GET);
         String response = invokeFilter();
         Assert.assertEquals("Hello, World! " + user, response);
     }
@@ -221,7 +220,6 @@ public class JaxrsTest extends AbstractJaxrsTest {
     @Test
     public void testNewsEndpoint() throws Exception {
         getHstRequest().setRequestURI("/site/api/news");
-        getHstRequest().setMethod(HttpMethod.GET);
         String response = invokeFilter();
         ListItemPagination<NewsItemRep> pageable = new ObjectMapper().readValue(response, new TypeReference<ListItemPagination<NewsItemRep>>() {
         });
