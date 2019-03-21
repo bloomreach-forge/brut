@@ -9,7 +9,7 @@
     }
   },
   "page":{
-    "id":"r3",
+    "id":"r4",
     "name":"essentialsListComponent",
     "componentClass":"org.onehippo.cms7.essentials.components.EssentialsListComponent",
     "type":"COMPONENT",
@@ -74,7 +74,7 @@
     },
     "_links":{
       "componentRendering":{
-        "href":"/site/resourceapi/essentialsListComponent?_hn:type=component-rendering&_hn:ref=r3"
+        "href":"/site/resourceapi/essentialsListComponent?_hn:type=component-rendering&_hn:ref=r4"
       }
     }
   },

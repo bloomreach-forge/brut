@@ -17,6 +17,9 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
 import com.bloomreach.ps.brut.resources.SkeletonRepository;
@@ -26,6 +29,7 @@ import org.hippoecm.hst.core.parameters.Parameter;
 import org.json.JSONException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.onehippo.cms7.essentials.components.EssentialsListComponent;
@@ -47,6 +51,12 @@ public class EssentialsListComponentPageModelTest extends AbstractPageModelTest 
         super.init();
 
     }
+
+    @BeforeEach
+    public void beforeEach() {
+        setupForNewRequest();
+    }
+
 
     @AfterAll
     public void destroy() {
@@ -81,17 +91,17 @@ public class EssentialsListComponentPageModelTest extends AbstractPageModelTest 
 
     }
 
-//    @Test
-//    void testSingleEssentialsListComponentFail() {
-//        testComponentFail("myhippoproject",
-//                "essentialsListComponent_FAIL",
-//                "/client/packagename/expected/EssentialsListComponentPageModelTest.testSingleSpaComponent_FAIL.json",
-//                EssentialsListComponent.class,
-//                getParamInfo("news", "myhippoproject:newsdocument", 5,
-//                        "hippostdpubwf:publicationDate", "asc", true));
-//
-//
-//    }
+    @Test
+    void testSingleEssentialsListComponentFail() {
+        testComponentFail("myhippoproject",
+                "essentialsListComponent_FAIL",
+                "/client/packagename/expected/EssentialsListComponentPageModelTest.testSingleSpaComponent_FAIL.json",
+                EssentialsListComponent.class,
+                getParamInfo("news", "myhippoproject:newsdocument", 5,
+                        "hippostdpubwf:publicationDate", "asc", true));
+
+
+    }
 
     private EssentialsListComponentInfo getParamInfo(String path, String type, int pageSize, String sortField, String sortOrder, boolean includeSubtypes) {
         EssentialsListComponentInfo paramInfo = mock(EssentialsListComponentInfo.class);

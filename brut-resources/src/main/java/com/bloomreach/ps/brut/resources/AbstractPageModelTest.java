@@ -2,6 +2,7 @@ package com.bloomreach.ps.brut.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -21,8 +22,12 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.hippoecm.hst.configuration.cache.HstNodeLoadingCache;
 import org.hippoecm.hst.configuration.model.HstManager;
 import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.container.HstDelegateeFilterBean;
@@ -52,7 +57,15 @@ public abstract class AbstractPageModelTest {
 
     public void init() {
         setupComponentManager();
+//        setupHstRequest();
+//        setupServletContext();
+//        setupHstResponse();
+    }
+
+    protected void setupForNewRequest() {
         setupHstRequest();
+        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        getHstRequest().setMethod(HttpMethod.GET);
         setupServletContext();
         setupHstResponse();
     }
@@ -97,7 +110,10 @@ public abstract class AbstractPageModelTest {
                 getAnnotatedHstBeansClasses());
         hstRequest.setServletContext(servletContext);
         componentManager.setServletContext(servletContext);
-        ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
+        if (ServletContextRegistry.getContext("/site") == null) {
+            ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
+        }
+//        ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
         HstManagerImpl hstManager = (HstManagerImpl)componentManager.getComponent(HstManager.class);
         hstManager.setServletContext(hstRequest.getServletContext());
     }
@@ -198,7 +214,21 @@ public abstract class AbstractPageModelTest {
 
     protected String getResponseById(final String id) {
         getHstRequest().setRequestURI("/site/resourceapi/" + id);
-        return invokeFilter();
+        return removeRefIdFromJsonString(invokeFilter());
+    }
+
+    public String removeRefIdFromJsonString(String jsonString) {
+        // Handle null input
+        if (jsonString == null) {
+            return null;
+        }
+        // Replace all ref id values with empty strings
+        jsonString = jsonString.replaceAll(
+                "(\\n?\\s*\"id\"\\s?:\\s?\")[^\\n\"]*(\",?\\n?)", "$1$2");
+
+        return jsonString.replaceAll(
+                "(\\n?\\s*ref=)[^\\n\"]*(\",?\\n?)", "$1$2");
+
     }
 
     protected String getExpectedResponse(final String expectedResource) {
@@ -212,18 +242,43 @@ public abstract class AbstractPageModelTest {
         } finally {
             IOUtils.closeQuietly(resourceAsStream);
         }
-        return expected;
+        return removeRefIdFromJsonString(expected);
     }
 
     protected void importComponent(final String hstConfig, final String id, final Class componentClass, final Object paramInfo) {
         try {
             createSitemapItem(hstConfig, id);
             createPageDefinition(hstConfig, id, componentClass, paramInfo);
+            invalidateHstModel();
         } catch (RepositoryException e) {
             LOGGER.error("Repository Exception during import of component " + id);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
         }
 
+
     }
+
+    /**
+     * This method can be called by sub-testclasses after node changes via JCR API. Invalidating the HST model is
+     * necessary only if the hst configuration nodes are updated. In a brXM project normally this is done via JCR level
+     * event handlers but within the test execution context we cannot have asyncrhonous events. We have to explicitly
+     * force the HST to do a node lookup in the repository.
+     *
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
+    public void invalidateHstModel() throws NoSuchFieldException, IllegalAccessException {
+        HstNodeLoadingCache hstNodeLoadingCache = getComponentManager().getComponent(HstNodeLoadingCache.class);
+        Field rootNodeField = hstNodeLoadingCache.getClass().getDeclaredField("rootNode");
+        rootNodeField.setAccessible(true);
+        rootNodeField.set(hstNodeLoadingCache, null);
+        HstManager hstManager = getComponentManager().getComponent(HstManager.class);
+        hstManager.markStale();
+    }
+
 
     protected void createPageDefinition(final String hstConfig, final String id, final Class componentClass, final Object paramInfo) throws RepositoryException {
         Map<String, String> properties = new HashMap<>();
