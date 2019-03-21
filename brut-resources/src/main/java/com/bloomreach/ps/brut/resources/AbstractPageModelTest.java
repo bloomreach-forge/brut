@@ -250,12 +250,8 @@ public abstract class AbstractPageModelTest {
             createSitemapItem(hstConfig, id);
             createPageDefinition(hstConfig, id, componentClass, paramInfo);
             invalidateHstModel();
-        } catch (RepositoryException e) {
-            LOGGER.error("Repository Exception during import of component " + id);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+        } catch (RepositoryException | IllegalAccessException | NoSuchFieldException e) {
+            LOGGER.error("Exception during import of component " + id);
         }
 
 
