@@ -10,6 +10,8 @@
     <Logger name="com.bloomreach.ps.brut.resources.AbstractJaxrsTest" level="all"/>
     <Logger name="com.bloomreach.ps.brut.resources.AbstractPageModelTest" level="all"/>
     <Logger name="org.hippoecm.hst.container.HstDelegateeFilterBean" level="all"/>
+    <!--Suppress MBean registration/unregistration warnings when running multiple tests in the same JVM-->
+    <Logger name="org.hippoecm.repository.jackrabbit.RepositoryImpl" level="error"/>
     <Root level="warn">
       <AppenderRef ref="console"/>
     </Root>
