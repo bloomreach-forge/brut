@@ -57,9 +57,9 @@ public abstract class AbstractPageModelTest {
 
     public void init() {
         setupComponentManager();
-//        setupHstRequest();
-//        setupServletContext();
-//        setupHstResponse();
+        setupHstRequest();
+        setupServletContext();
+        setupHstResponse();
     }
 
     protected void setupForNewRequest() {
