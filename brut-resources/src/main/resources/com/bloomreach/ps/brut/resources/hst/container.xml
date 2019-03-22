@@ -39,21 +39,21 @@
 
   <bean id="org.hippoecm.hst.core.container.HstComponentInvoker"
         class="org.hippoecm.hst.core.container.HstComponentInvokerImpl">
-    <property name="exceptionThrowable" value="${development.mode}" />
-    <property name="errorRenderPath" value="${component.error.page}" />
-    <property name="dispatchUrlPrefix" value="${dispatch.url.prefix}" />
+    <property name="exceptionThrowable" value="${development.mode}"/>
+    <property name="errorRenderPath" value="${component.error.page}"/>
+    <property name="dispatchUrlPrefix" value="${dispatch.url.prefix}"/>
   </bean>
 
   <bean id="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory"
         class="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory">
-    <constructor-arg ref="javax.jcr.Repository" />
-    <constructor-arg ref="javax.jcr.Credentials.default" />
-    <constructor-arg ref="javax.jcr.Credentials.preview" />
+    <constructor-arg ref="javax.jcr.Repository"/>
+    <constructor-arg ref="javax.jcr.Credentials.default"/>
+    <constructor-arg ref="javax.jcr.Credentials.preview"/>
   </bean>
 
   <bean id="org.hippoecm.hst.resourcebundle.ResourceBundleRegistry"
         class="org.hippoecm.hst.resourcebundle.internal.ResourceBundleRegistryImpl">
-    <constructor-arg ref="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory" />
+    <constructor-arg ref="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory"/>
   </bean>
 
   <!-- ESI based asynchronous component window renderer -->
@@ -65,15 +65,15 @@
   </bean>
 
   <bean id="ajaxAsynchronousComponentWindowRenderer" class="org.hippoecm.hst.core.container.AjaxAsynchronousComponentWindowRenderer">
-    <property name="asyncLoadJavaScriptFragmentTemplate" value="${ajax.asynchronous.component.windows.load.js.fragment.template}" />
+    <property name="asyncLoadJavaScriptFragmentTemplate" value="${ajax.asynchronous.component.windows.load.js.fragment.template}"/>
   </bean>
 
   <bean id="asynchronousComponentWindowRendererMap" class="org.springframework.beans.factory.config.MapFactoryBean">
     <property name="sourceMap">
       <map>
-        <entry key="ajax" value-ref="ajaxAsynchronousComponentWindowRenderer" />
-        <entry key="esi" value-ref="esiAsynchronousComponentWindowRenderer" />
-        <entry key="ssi" value-ref="ssiAsynchronousComponentWindowRenderer" />
+        <entry key="ajax" value-ref="ajaxAsynchronousComponentWindowRenderer"/>
+        <entry key="esi" value-ref="esiAsynchronousComponentWindowRenderer"/>
+        <entry key="ssi" value-ref="ssiAsynchronousComponentWindowRenderer"/>
       </map>
     </property>
   </bean>
@@ -97,19 +97,20 @@
   </bean>
 
   <bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="cacheManagerName" value="site_ehCacheManager"/>
+    <!--Set a random value to cacheManagerName to avoid conflicts when running multiple tests in the same JVM-->
+    <property name="cacheManagerName" value="#{T(java.util.UUID).randomUUID().toString()}_ehCacheManager"/>
   </bean>
 
   <bean id="abstractEhCacheBase" abstract="true">
-    <property name="cacheManager" ref="ehCacheManager" />
-    <property name="maxEntriesLocalHeap" value="256" />
-    <property name="maxEntriesLocalDisk" value="0" />
-    <property name="eternal" value="false" />
+    <property name="cacheManager" ref="ehCacheManager"/>
+    <property name="maxEntriesLocalHeap" value="256"/>
+    <property name="maxEntriesLocalDisk" value="0"/>
+    <property name="eternal" value="false"/>
     <!-- time to live in seconds. default 1 day -->
-    <property name="timeToLive" value="86400" />
+    <property name="timeToLive" value="86400"/>
     <!-- time to idle in seconds. default 1 day -->
-    <property name="timeToIdle" value="86400" />
-    <property name="diskExpiryThreadIntervalSeconds" value="120" />
+    <property name="timeToIdle" value="86400"/>
+    <property name="diskExpiryThreadIntervalSeconds" value="120"/>
   </bean>
 
 
@@ -120,16 +121,14 @@
   <bean id="pageCache" class="org.hippoecm.hst.cache.CompositeHstCache">
     <constructor-arg>
       <bean parent="abstractBlockingEhCache">
-        <property name="cacheName" value="hstPageBlockingCache" />
+        <property name="cacheName" value="hstPageBlockingCache"/>
         <property name="maxEntriesLocalHeap" value="${pageCache.maxSize}"/>
-        <property name="timeToLive" value="${pageCache.timeToLiveSeconds}" />
+        <property name="timeToLive" value="${pageCache.timeToLiveSeconds}"/>
       </bean>
     </constructor-arg>
-    <!--<property name="cacheStats" ref="org.hippoecm.hst.cache.jmx.PageCacheStats"/>-->
   </bean>
 
   <!--ADDITIONS END-->
-
 
 
   <bean id="org.hippoecm.hst.core.container.HstComponentRegistry"

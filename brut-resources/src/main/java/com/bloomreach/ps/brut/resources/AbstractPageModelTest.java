@@ -113,8 +113,7 @@ public abstract class AbstractPageModelTest {
         if (ServletContextRegistry.getContext("/site") == null) {
             ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
         }
-//        ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
-        HstManagerImpl hstManager = (HstManagerImpl)componentManager.getComponent(HstManager.class);
+        HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
         hstManager.setServletContext(hstRequest.getServletContext());
     }
 

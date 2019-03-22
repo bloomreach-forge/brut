@@ -166,5 +166,10 @@
   <bean id="org.hippoecm.hst.core.container.PageModelPipeline" class="org.hippoecm.hst.core.container.PageModelPipeline">
     <property name="defaultPageModelApiVersion" value="${default.pagemodelapi.version}"/>
   </bean>
+
+  <!--BRUT specific stuff-->
+  <bean id="cleanupValve" parent="abstractValve" class="com.bloomreach.ps.brut.resources.BrutCleanupValve">
+    <property name="valveName" value="cleanupValve"/>
+  </bean>
 </beans>
 

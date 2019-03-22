@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+import javax.jcr.Session;
 
 import org.hippoecm.hst.configuration.model.HstManager;
 import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.container.HstDelegateeFilterBean;
 import org.hippoecm.hst.container.HstFilter;
+import org.hippoecm.hst.container.RequestContextProvider;
 import org.hippoecm.hst.content.tool.DefaultContentBeansTool;
 import org.hippoecm.hst.mock.core.component.MockHstResponse;
 import org.hippoecm.hst.site.HstServices;
@@ -53,7 +55,6 @@ public abstract class AbstractJaxrsTest {
             LOGGER.info(contentAsString);
             //important! set the filter done attribute to null for subsequent filter invocations
             hstRequest.setAttribute(HST_RESET_FILTER, true);
-
             return contentAsString;
         } catch (Exception e) {
             LOGGER.warn(e.getLocalizedMessage());

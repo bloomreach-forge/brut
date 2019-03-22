@@ -113,13 +113,10 @@
           <property name="initializationValves">
             <list>
               <ref bean="initializationValve" />
-              <!--<ref bean="cmsSecurityValve"/>-->
             </list>
           </property>
           <property name="processingValves">
             <list>
-              <!--<ref bean="securityValve" />-->
-              <!--<ref bean="subjectBasedSessionValve" />-->
               <ref bean="pageInfoRenderingValve" />
               <ref bean="pageCachingValve" />
               <ref bean="jaxrsRestPlainServiceValve" />
@@ -127,8 +124,7 @@
           </property>
           <property name="cleanupValves">
             <list>
-              <!--<ref bean="diagnosticReportingValve" />-->
-              <!--<ref bean="cleanupValve" />-->
+              <ref bean="cleanupValve" />
             </list>
           </property>
         </bean>

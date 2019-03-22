@@ -28,22 +28,6 @@ For headless testing install the brut-resources dependency in the site webapp:
     </dependency>
 ```
 
-* Currently if you have multiple "brut-resources" tests you have to instruct the maven surefire plugin to run each
-test in separate JVM:
-
-```xml
- <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <version>${maven.plugin.surefire.version}</version>
-    <configuration>
-        <!--If you use brut-resources tests then each test should run in separate JVMs!-->
-        <forkCount>1</forkCount>
-        <reuseForks>false</reuseForks>
-    </configuration>
-  </plugin>
-```
-
 ## Contents
 
 ### B.R.U.T Common
