@@ -126,7 +126,6 @@
         <property name="timeToLive" value="${pageCache.timeToLiveSeconds}"/>
       </bean>
     </constructor-arg>
-    <!--<property name="cacheStats" ref="org.hippoecm.hst.cache.jmx.PageCacheStats"/>-->
   </bean>
 
   <!--ADDITIONS END-->

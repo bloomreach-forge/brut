@@ -80,7 +80,9 @@ public abstract class AbstractPageModelTest {
                 getAnnotatedHstBeansClasses());
         hstRequest.setServletContext(servletContext);
         componentManager.setServletContext(servletContext);
-        ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
+        if (ServletContextRegistry.getContext("/site") == null) {
+            ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
+        }
         HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
         hstManager.setServletContext(hstRequest.getServletContext());
     }
