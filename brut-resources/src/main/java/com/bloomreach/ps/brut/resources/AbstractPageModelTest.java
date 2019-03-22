@@ -191,13 +191,10 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
     protected void createSitemapItem(final String hstConfig, final String id) throws RepositoryException {
         Session session = getSession();
         Node sitemap = session.getNode("/hst:hst/hst:configurations/" + hstConfig + "/hst:sitemap");
-        Optional<Node> sitemapItem = Optional.of(!sitemap.hasNode(id) ? sitemap.addNode(id, "hst:sitemapitem") : sitemap.getNode(id));//.orElseThrow(RuntimeException);
-        if (sitemapItem.isPresent()) {
-            Node node = sitemapItem.get();
-            node.setProperty("hst:componentconfigurationid", "hst:pages/" + id);
-            session.save();
-            session.logout();
-        }
+        Node sitemapItem = (!sitemap.hasNode(id) ? sitemap.addNode(id, "hst:sitemapitem") : sitemap.getNode(id));
+        sitemapItem.setProperty("hst:componentconfigurationid", "hst:pages/" + id);
+        session.save();
+        session.logout();
 
     }
 
