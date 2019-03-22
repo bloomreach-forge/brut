@@ -17,17 +17,7 @@
   </description>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <hippo.essentials-components.version>4.6.0</hippo.essentials-components.version>
-    <jcr.version>2.0</jcr.version>
     <jackson-databind.version>2.8.11.3</jackson-databind.version>
-    <hippo-repository-engine.version>5.6.0</hippo-repository-engine.version>
-    <junit.version>4.12</junit.version>
-    <mockito-core.version>2.23.0</mockito-core.version>
-    <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
-    <org.apache.sling.testing.jcr-mock.version>1.3.0</org.apache.sling.testing.jcr-mock.version>
-    <plugin.javadoc.version>2.9.1</plugin.javadoc.version>
   </properties>
 
   <dependencies>
@@ -47,37 +37,31 @@
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
-      <version>${jcr.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-api</artifactId>
-      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst.components</groupId>
       <artifactId>hst-core</artifactId>
-      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-commons</artifactId>
-      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-client</artifactId>
-      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-mock</artifactId>
-      <version>${hst.version}</version>
     </dependency>
 
     <dependency>
@@ -101,13 +85,11 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-repository-engine</artifactId>
-      <!--<version>${hippo-repository-engine.version}</version>-->
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-essentials-components-hst</artifactId>
-      <version>${hippo.essentials-components.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -116,6 +98,7 @@
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -125,7 +108,6 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${mockito-core.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -139,19 +121,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>${basedir}</directory>
-        <targetPath>META-INF</targetPath>
-        <includes>
-          <include>LICENSE</include>
-          <include>NOTICE</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -159,59 +128,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${plugin.javadoc.version}</version>
-            <configuration>
-              <encoding>${project.build.sourceEncoding}</encoding>
-              <skip>false</skip>
-              <aggregate>true</aggregate>
-              <sourcepath>${basedir}/frontend/src/main/java</sourcepath>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <!-- select non-aggregate reports -->
-              <report>report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
-
 
 </project>
