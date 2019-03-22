@@ -16,26 +16,22 @@
     <dependency>
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
-      <!--<version>${jcr.version}</version>-->
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-repository-engine</artifactId>
-      <!--<version>${hippo-repository-engine.version}</version>-->
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <!--<version>${junit-jupiter.version}</version>-->
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <!--<version>${junit-jupiter.version}</version>-->
       <scope>test</scope>
     </dependency>
 
