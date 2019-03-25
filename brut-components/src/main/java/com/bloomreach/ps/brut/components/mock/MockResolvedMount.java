@@ -66,11 +66,6 @@ public class MockResolvedMount implements MutableResolvedMount {
         this.mount = mount;
     }
 
-    @Override
-    public ResolvedVirtualHost getResolvedVirtualHost() {
-        return resolvedVirtualHost;
-    }
-
     public void setResolvedVirtualHost(ResolvedVirtualHost resolvedVirtualHost) {
         this.resolvedVirtualHost = resolvedVirtualHost;
     }

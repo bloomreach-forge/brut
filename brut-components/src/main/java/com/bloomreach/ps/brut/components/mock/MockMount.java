@@ -181,11 +181,6 @@ public class MockMount implements ContextualizableMount {
         this.previewHstSite = previewHstSite;
     }
 
-    @Override
-    public String getPreviewChannelPath() {
-        return previewChannelPath;
-    }
-
     public void setPreviewChannelPath(String previewChannelPath) {
         this.previewChannelPath = previewChannelPath;
     }
@@ -218,11 +213,6 @@ public class MockMount implements ContextualizableMount {
         this.cacheable = cacheable;
     }
 
-    @Override
-    public String getDefaultResourceBundleId() {
-        return defaultResourceBundleId;
-    }
-
     public void setDefaultResourceBundleId(String defaultResourceBundleId) {
         this.defaultResourceBundleId = defaultResourceBundleId;
     }
@@ -236,18 +226,8 @@ public class MockMount implements ContextualizableMount {
         this.defaultResourceBundleIds = defaultResourceBundleIds;
     }
 
-    @Override
-    public String getCmsLocation() {
-        return cmsLocation;
-    }
-
     public void setCmsLocation(String cmsLocation) {
         this.cmsLocation = cmsLocation;
-    }
-
-    @Override
-    public List<String> getCmsLocations() {
-        return cmsLocations;
     }
 
     @Override
@@ -305,11 +285,6 @@ public class MockMount implements ContextualizableMount {
         this.contentPath = contentPath;
     }
 
-    @Override
-    public String getCanonicalContentPath() {
-        return canonicalContentPath;
-    }
-
     public void setCanonicalContentPath(String canonicalContentPath) {
         this.canonicalContentPath = canonicalContentPath;
     }
@@ -349,11 +324,6 @@ public class MockMount implements ContextualizableMount {
         this.portInUrl = portInUrl;
     }
 
-    @Override
-    public boolean isSite() {
-        return site;
-    }
-
     public void setSite(boolean site) {
         this.site = site;
     }
@@ -365,11 +335,6 @@ public class MockMount implements ContextualizableMount {
 
     public void setPort(int port) {
         this.port = port;
-    }
-
-    @Override
-    public String onlyForContextPath() {
-        return onlyForContextPath;
     }
 
     public void setOnlyForContextPath(String onlyForContextPath) {
@@ -562,11 +527,6 @@ public class MockMount implements ContextualizableMount {
 
     public void addParameters(String name, String value) {
         this.parameters.put(name, value);
-    }
-
-    @Override
-    public String getChannelPath() {
-        return channelPath;
     }
 
     public void setChannelPath(String channelPath) {

@@ -19,8 +19,8 @@ import org.hippoecm.hst.core.linking.LocationResolver;
 import org.hippoecm.hst.core.request.HstRequestContext;
 import org.hippoecm.repository.api.HippoNodeType;
 
-import static org.hippoecm.hst.core.linking.DefaultHstLinkCreator.BINARIES_PREFIX;
-import static org.hippoecm.hst.core.linking.DefaultHstLinkCreator.BINARIES_START_PATH;
+import static org.hippoecm.hst.platform.linking.DefaultHstLinkCreator.BINARIES_PREFIX;
+import static org.hippoecm.hst.platform.linking.DefaultHstLinkCreator.BINARIES_START_PATH;
 
 public class MockHstLinkCreator implements HstLinkCreator {
 
@@ -71,6 +71,11 @@ public class MockHstLinkCreator implements HstLinkCreator {
 
     @Override
     public List<HstLink> createAllAvailableCanonicals(Node node, HstRequestContext requestContext, String type, String hostGroupName) {
+        return getMockLinks(node);
+    }
+
+    @Override
+    public List<HstLink> createAllAvailableCanonicals(Node node, Mount mount, String type, String hostGroupName) {
         return getMockLinks(node);
     }
 
@@ -136,6 +141,11 @@ public class MockHstLinkCreator implements HstLinkCreator {
 
     @Override
     public List<HstLink> createAll(Node node, HstRequestContext requestContext, String hostGroupName, String type, boolean crossMount) {
+        return getMockLinks(node);
+    }
+
+    @Override
+    public List<HstLink> createAll(final Node node, final Mount mount, final String hostGroupName, final String type, final boolean crossMount) {
         return getMockLinks(node);
     }
 

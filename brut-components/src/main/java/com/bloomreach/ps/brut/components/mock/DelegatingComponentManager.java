@@ -4,7 +4,6 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
 import org.hippoecm.hst.core.container.ComponentManager;
@@ -36,26 +35,6 @@ public class DelegatingComponentManager implements ComponentManager {
         ComponentManager cm = this.componentManager.get();
         if (cm != null) {
             result = cm.getConfigurationResources();
-        }
-        return result;
-    }
-
-    @Override
-    @Deprecated
-    public void setServletConfig(ServletConfig servletConfig) {
-        ComponentManager cm = this.componentManager.get();
-        if (cm != null) {
-            cm.setServletConfig(servletConfig);
-        }
-    }
-
-    @Override
-    @Deprecated
-    public ServletConfig getServletConfig() {
-        ServletConfig result = null;
-        ComponentManager cm = this.componentManager.get();
-        if (cm != null) {
-            result = cm.getServletConfig();
         }
         return result;
     }
