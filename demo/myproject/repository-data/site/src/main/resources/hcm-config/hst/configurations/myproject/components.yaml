@@ -1,0 +1,4 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/myproject/hst:components:
+      jcr:primaryType: hst:components

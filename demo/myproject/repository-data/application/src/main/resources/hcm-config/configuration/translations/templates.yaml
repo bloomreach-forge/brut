@@ -1,0 +1,25 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:translations/hippo:templates/nl:
+      jcr:primaryType: hipposys:resourcebundle
+      new-resource-bundle: nieuwe resource bundle
+      new-untranslated-folder: nieuwe onvertaalde map
+      new-news-document: nieuw nieuwsbericht
+      new-news-folder: nieuwe nieuwsmap
+    /hippo:configuration/hippo:translations/hippo:templates/de:
+      jcr:primaryType: hipposys:resourcebundle
+      new-resource-bundle: Neues Resource-Bundle
+      new-untranslated-folder: Neuer nicht übersetzter Ordner
+      new-news-document: Neue News
+      new-news-folder: Neuer News-Ordner
+    /hippo:configuration/hippo:translations/hippo:templates/fr:
+      jcr:primaryType: hipposys:resourcebundle
+      new-resource-bundle: nouveau resource bundle
+      new-untranslated-folder: nouveau dossier non traduit
+      new-news-document: nouveau message d'info
+      new-news-folder: nouveau dossier messages d'info
+    /hippo:configuration/hippo:translations/hippo:templates/en:
+      new-resource-bundle: new resource bundle
+      new-untranslated-folder: new untranslated folder
+      new-news-document: new news item
+      new-news-folder: new news item folder
