@@ -13,7 +13,7 @@ import javax.jcr.Value;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.hippoecm.repository.impl.DecoratorFactoryImpl;
+import org.hippoecm.repository.impl.RepositoryDecorator;
 import org.hippoecm.repository.jackrabbit.RepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +31,10 @@ public class BrxmTestingRepository implements Repository, AutoCloseable {
         this.repositoryFolder = Files.createTempDirectory("repository-").toFile();
         RepositoryConfig config = RepositoryConfig.create(configFile, this.repositoryFolder.getAbsolutePath());
         this.originalRepository = new HippoRepository(config);
-        this.repository = new DecoratorFactoryImpl().getRepositoryDecorator(originalRepository);
+        this.repository = RepositoryDecorator.newRepositoryDecorator(originalRepository);
     }
 
-    protected String getRepositoryConfigFileLocation(){
+    protected String getRepositoryConfigFileLocation() {
         return "repository.xml";
     }
 

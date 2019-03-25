@@ -34,7 +34,7 @@ public class ReflectionUtils {
     public static Session unwrapSessionDecorator(Session session) {
         Session result = session;
         if (session != null && "org.hippoecm.repository.impl.SessionDecorator".equals(session.getClass().getName())) {
-            Class<?> clazz = session.getClass().getSuperclass();
+            Class<?> clazz = session.getClass();
             return (Session) getPrivateField(clazz, session, "session");
         }
         return result;
