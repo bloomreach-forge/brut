@@ -147,7 +147,7 @@ public abstract class AbstractResourceTest {
      * @throws NoSuchFieldException
      * @throws IllegalAccessException
      */
-    public void invalidateHstModel() throws NoSuchFieldException, IllegalAccessException {
+    public void invalidateHstModel() {
         unregisterHstModel();
         registerHstModel();
     }
