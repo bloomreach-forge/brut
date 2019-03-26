@@ -1,4 +1,4 @@
-package client.packagename;
+package org.example;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -35,12 +35,12 @@ public class PageModelTest extends AbstractPageModelTest {
 
     @Override
     protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:client/packagename/beans/*.class,";
+        return "classpath*:org/example/beans/*.class,";
     }
 
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
-        return Collections.singletonList("/client/packagename/custom-pagemodel.xml");
+        return Collections.singletonList("/org/example/custom-pagemodel.xml");
     }
 
     @Override
@@ -56,18 +56,6 @@ public class PageModelTest extends AbstractPageModelTest {
     @Test
     @DisplayName("Component rendering url response")
     public void test() throws IOException {
-        getHstRequest().setRequestURI("/site/resourceapi/news");
-        getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
-        String response = invokeFilter();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
-        assertTrue(jsonNode.get("page").size() > 0);
-        assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
-    }
-
-    @Test
-    @DisplayName("Copy of test1")
-    public void test2() throws IOException {
         getHstRequest().setRequestURI("/site/resourceapi/news");
         getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
         String response = invokeFilter();

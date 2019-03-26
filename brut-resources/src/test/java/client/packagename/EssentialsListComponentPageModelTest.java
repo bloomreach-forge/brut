@@ -53,6 +53,11 @@ public class EssentialsListComponentPageModelTest extends AbstractPageModelTest 
         return null;
     }
 
+    @Override
+    protected String contributeHstConfigurationRootPath() {
+        return "/hst:myproject";
+    }
+
     @Test
     void testSingleEssentialsListComponent() {
         testComponent("myproject",
@@ -63,7 +68,6 @@ public class EssentialsListComponentPageModelTest extends AbstractPageModelTest 
                         "hippostdpubwf:publicationDate", "asc", true));
     }
 
-    //TODO determine the why this should fail
     @Test
     void testSingleEssentialsListComponentFail() {
         testComponentFail("myproject",

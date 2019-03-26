@@ -1,4 +1,4 @@
-package client.packagename;
+package org.example;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,8 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import org.junit.jupiter.api.AfterAll;
+import org.example.model.ListItemPagination;
+import org.example.model.NewsItemRep;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,8 +23,6 @@ import com.bloomreach.ps.brut.resources.AbstractJaxrsTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import client.packagename.model.ListItemPagination;
-import client.packagename.model.NewsItemRep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -43,11 +42,6 @@ public class JaxrsTest extends AbstractJaxrsTest {
         setupForNewRequest();
     }
 
-    @AfterAll
-    public void afterAll() {
-        super.destroy();
-    }
-
     private void setupForNewRequest() {
         setupHstRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
@@ -60,12 +54,12 @@ public class JaxrsTest extends AbstractJaxrsTest {
 
     @Override
     protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:client/packagename/model/*.class,";
+        return "classpath*:org/example/model/*.class,";
     }
 
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/client/packagename/custom-jaxrs.xml", "/client/packagename/rest-resources.xml");
+        return Arrays.asList("/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml");
     }
 
     @Override

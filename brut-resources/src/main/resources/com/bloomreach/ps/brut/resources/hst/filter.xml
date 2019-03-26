@@ -13,5 +13,4 @@
     <property name="hstRequestProcessor" ref="org.hippoecm.hst.core.container.HstRequestProcessor" />
   </bean>
 
-
 </beans>

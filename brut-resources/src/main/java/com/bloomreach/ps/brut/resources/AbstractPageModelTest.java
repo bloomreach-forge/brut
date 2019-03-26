@@ -78,7 +78,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
-        containerConfiguration.setProperty("hst.configuration.rootPath", "/hst:myproject"); //TODO get this from client
+        containerConfiguration.setProperty("hst.configuration.rootPath", contributeHstConfigurationRootPath());
     }
 
     private void includeAdditionalAddonModules() {
@@ -148,14 +148,10 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
 
     protected String getExpectedResponse(final String expectedResource) {
         String expected = null;
-        InputStream resourceAsStream = null;
-        try {
-            resourceAsStream = getClass().getResourceAsStream(expectedResource);
+        try (InputStream resourceAsStream = getClass().getResourceAsStream(expectedResource)) {
             expected = IOUtils.toString(resourceAsStream, Charset.defaultCharset());
         } catch (IOException e) {
             LOGGER.error("IO exception retrieving contents of file " + expected);
-        } finally {
-            IOUtils.closeQuietly(resourceAsStream);
         }
         return removeRefIdFromJsonString(expected);
     }
@@ -165,8 +161,8 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
             createSitemapItem(hstConfig, id);
             createPageDefinition(hstConfig, id, componentClass, paramInfo);
             invalidateHstModel();
-        } catch (RepositoryException | IllegalAccessException | NoSuchFieldException e) {
-            LOGGER.error("Exception during import of component " + id);
+        } catch (RepositoryException e) {
+            LOGGER.error("Exception during import of component {}: {}", id, e.getLocalizedMessage());
         }
     }
 
@@ -177,7 +173,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         Set<String> names = properties.keySet();
         Collection<String> values = properties.values();
         Session session = getSession();
-        Node pages = session.getNode("/hst:myproject/hst:configurations/" + hstConfig + "/hst:pages");
+        Node pages = session.getNode(contributeHstConfigurationRootPath() + "/hst:configurations/" + hstConfig + "/hst:pages");
         Node pageDefinitionNode = (!pages.hasNode(id) ? pages.addNode(id, "hst:component") : pages.getNode(id));
         pageDefinitionNode.setProperty("hst:componentclassname", componentClass.getName());
         pageDefinitionNode.setProperty("hst:parameternames", names.toArray(new String[0]));
@@ -188,7 +184,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
 
     protected void createSitemapItem(final String hstConfig, final String id) throws RepositoryException {
         Session session = getSession();
-        Node sitemap = session.getNode("/hst:myproject/hst:configurations/" + hstConfig + "/hst:sitemap");
+        Node sitemap = session.getNode(contributeHstConfigurationRootPath() + "/hst:configurations/" + hstConfig + "/hst:sitemap");
         Node sitemapItem = (!sitemap.hasNode(id) ? sitemap.addNode(id, "hst:sitemapitem") : sitemap.getNode(id));
         sitemapItem.setProperty("hst:componentconfigurationid", "hst:pages/" + id);
         session.save();
@@ -207,7 +203,6 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
     protected void properties(final Map<String, String> properties, Object componentInfo) {
         for (Method method : componentInfo.getClass().getMethods()) {
             if (method.isAnnotationPresent(Parameter.class)) {
-                // new style annotations
                 Parameter propAnnotation = method.getAnnotation(Parameter.class);
                 try {
                     properties.put(propAnnotation.name(), String.valueOf(method.invoke(componentInfo)));

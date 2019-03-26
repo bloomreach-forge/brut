@@ -25,15 +25,6 @@
     </constructor-arg>
   </bean>
 
-  <!--<bean id="containerConfiguration" class="org.springframework.beans.factory.config.PropertyPathFactoryBean">-->
-    <!--<property name="targetObject">-->
-      <!--<bean id="componentManagerFacade" class="org.hippoecm.hst.site.container.ComponentManagerFacade">-->
-        <!--<property name="componentManager" ref="springComponentManager"/>-->
-      <!--</bean>-->
-    <!--</property>-->
-    <!--<property name="propertyPath" value="containerConfiguration"/>-->
-  <!--</bean>-->
-
   <bean id="org.hippoecm.hst.core.sitemenu.HstSiteMenusManager"
         class="org.hippoecm.hst.core.sitemenu.HstSiteMenusManagerImpl">
   </bean>
@@ -42,10 +33,6 @@
         class="org.hippoecm.hst.core.search.HstQueryManagerFactoryImpl">
     <property name="defaultQueryDateRangeResolution" value="${default.query.date.range.resolution}"/>
   </bean>
-
-  <!--<bean id="org.hippoecm.hst.core.internal.MountDecorator"-->
-        <!--class="org.hippoecm.hst.site.request.MountDecoratorImpl">-->
-  <!--</bean>-->
 
   <bean id="org.hippoecm.hst.core.container.HstComponentInvoker"
         class="org.hippoecm.hst.core.container.HstComponentInvokerImpl">
@@ -140,11 +127,6 @@
 
   <!--ADDITIONS END-->
 
-
-  <!--<bean id="org.hippoecm.hst.core.container.HstComponentRegistry"-->
-        <!--class="org.hippoecm.hst.core.container.HstComponentRegistryImpl">-->
-  <!--</bean>-->
-
   <bean id="org.hippoecm.hst.core.container.HstComponentFactory"
         class="org.hippoecm.hst.core.container.HstComponentFactoryImpl">
     <property name="defaultHstComponentClass" value="${default.hst.component.class}" />
@@ -172,15 +154,6 @@
   <!-- The default classpath resource scanner -->
   <bean id="org.hippoecm.hst.util.ClasspathResourceScanner" class="org.hippoecm.hst.site.container.SpringMetadataReaderClasspathResourceScanner">
   </bean>
-
-  <!--<bean id="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerFactory"-->
-        <!--class="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerFactoryImpl">-->
-    <!--<constructor-arg ref="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistry"/>-->
-  <!--</bean>-->
-
-  <!--<bean id="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistry"-->
-        <!--class="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistryImpl"/>-->
-
 
 </beans>
 

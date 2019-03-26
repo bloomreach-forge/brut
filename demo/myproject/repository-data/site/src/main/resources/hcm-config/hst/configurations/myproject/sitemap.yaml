@@ -28,6 +28,3 @@ definitions:
           jcr:primaryType: hst:sitemapitem
           hst:componentconfigurationid: hst:pages/newslist
           hst:relativecontentpath: ${parent}/${1}
-      /essentialsListComponent:
-        jcr:primaryType: hst:sitemapitem
-        hst:componentconfigurationid: hst:pages/essentialsListComponent

@@ -28,7 +28,6 @@ public class BrutCleanupValve extends AbstractBaseOrderableValve {
         } catch (RepositoryException ex) {
             LOGGER.warn("Exception in BrutCleanupValve: {}", ex.getLocalizedMessage());
         }
-        // continue
         context.invokeNext();
     }
 }

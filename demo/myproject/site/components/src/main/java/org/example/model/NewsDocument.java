@@ -1,20 +1,11 @@
-package org.example.beans;
-/*
- * Copyright 2014-2018 Hippo B.V. (http://www.onehippo.com)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package org.example.model;
+
 import java.util.Calendar;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hippoecm.hst.content.beans.Node;
 import org.hippoecm.hst.content.beans.standard.HippoDocument;
@@ -22,8 +13,10 @@ import org.hippoecm.hst.content.beans.standard.HippoGalleryImageSet;
 import org.hippoecm.hst.content.beans.standard.HippoHtml;
 import org.onehippo.cms7.essentials.dashboard.annotations.HippoEssentialsGenerated;
 
+@XmlRootElement(name = "newsdocument")
+@XmlAccessorType(XmlAccessType.NONE)
 @HippoEssentialsGenerated(internalName = "myproject:newsdocument")
-@Node(jcrType="myproject:newsdocument")
+@Node(jcrType = "myproject:newsdocument")
 public class NewsDocument extends HippoDocument {
 
     /**
@@ -45,6 +38,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the title
      */
+    @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:title")
     public String getTitle() {
         return getProperty(TITLE);
@@ -55,6 +49,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the date
      */
+    @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:date")
     public Calendar getDate() {
         return getProperty(DATE);
@@ -105,6 +100,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the author
      */
+    @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:author")
     public String getAuthor() {
         return getProperty(AUTHOR);
@@ -115,6 +111,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the source
      */
+    @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:source")
     public String getSource() {
         return getProperty(SOURCE);

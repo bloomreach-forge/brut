@@ -6,7 +6,6 @@
 
   <bean id="org.hippoecm.hst.core.internal.PreviewDecorator"
         class="org.hippoecm.hst.site.request.PreviewDecoratorImpl">
-
   </bean>
 
 </beans>

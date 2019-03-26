@@ -49,7 +49,7 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
-        containerConfiguration.setProperty("hst.configuration.rootPath", "/hst:myproject");
+        containerConfiguration.setProperty("hst.configuration.rootPath", contributeHstConfigurationRootPath());
     }
 
     private void includeAdditionalAddonModules() {

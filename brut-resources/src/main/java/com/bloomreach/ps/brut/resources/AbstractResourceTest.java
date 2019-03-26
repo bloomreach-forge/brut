@@ -55,6 +55,14 @@ public abstract class AbstractResourceTest {
         this.hstResponse = new MockHstResponse();
     }
 
+    public HstModelRegistryImpl getHstModelRegistry() {
+        return hstModelRegistry;
+    }
+
+    public PlatformServicesImpl getPlatformServices() {
+        return platformServices;
+    }
+
     protected void setupServletContext() {
         servletContext = new MockServletContext();
         servletContext.setContextPath("/site");
@@ -141,11 +149,8 @@ public abstract class AbstractResourceTest {
     /**
      * This method can be called by sub-testclasses after node changes via JCR API. Invalidating the HST model is
      * necessary only if the hst configuration nodes are updated. In a brXM project normally this is done via JCR level
-     * event handlers but within the test execution context we cannot have asyncrhonous events. We have to explicitly
+     * event handlers but within the test execution context we cannot have asynchronous events. We have to explicitly
      * force the HST to do a node lookup in the repository.
-     *
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
      */
     public void invalidateHstModel() {
         unregisterHstModel();
@@ -172,4 +177,12 @@ public abstract class AbstractResourceTest {
      * Perform validation before invoking the HST filter
      */
     protected abstract void performValidation();
+
+    /**
+     * Absolute path of the root hst configuration node. E.g. "/hst:myproject"
+     *
+     * @return
+     */
+
+    protected abstract String contributeHstConfigurationRootPath();
 }
