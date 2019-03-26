@@ -72,6 +72,11 @@
     <!--hst-->
 
     <dependency>
+      <groupId>org.onehippo.cms7.hst.components</groupId>
+      <artifactId>hst-platform</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.onehippo.cms7.hst</groupId>
       <artifactId>hst-mock</artifactId>
     </dependency>

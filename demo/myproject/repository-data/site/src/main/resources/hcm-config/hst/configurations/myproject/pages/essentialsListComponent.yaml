@@ -1,0 +1,9 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/myproject/hst:pages/essentialsListComponent:
+      jcr:primaryType: hst:component
+      hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsListComponent
+      hst:parameternames: [path, documentTypes, pageSize, sortField, sortOrder, includeSubtypes,
+        showPagination]
+      hst:parametervalues: [news, 'myproject:newsdocument', '5', 'hippostdpubwf:publicationDate',
+        asc, 'true', 'true']

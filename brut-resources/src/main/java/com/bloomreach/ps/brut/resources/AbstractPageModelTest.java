@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +23,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.core.parameters.Parameter;
 import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
@@ -43,6 +43,8 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         setupComponentManager();
         setupHstRequest();
         setupServletContext();
+        setupHstPlatform();
+        registerHstModel();
         setupHstResponse();
     }
 
@@ -75,6 +77,8 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         componentManager.setAddonModuleDefinitions(Collections.singletonList(Utils.loadAddonModule(PAGEMODEL_ADDON_PATH)));
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
+        ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
+        containerConfiguration.setProperty("hst.configuration.rootPath", "/hst:myproject"); //TODO get this from client
     }
 
     private void includeAdditionalAddonModules() {
@@ -90,7 +94,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
     }
 
     public void destroy() {
-
+        super.destroy();
     }
 
     protected void testComponent(final String hstConfig, final String id, final String expectedResource, final Class componentClass, final Object paramInfo) {
@@ -164,8 +168,6 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         } catch (RepositoryException | IllegalAccessException | NoSuchFieldException e) {
             LOGGER.error("Exception during import of component " + id);
         }
-
-
     }
 
 
@@ -175,22 +177,18 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         Set<String> names = properties.keySet();
         Collection<String> values = properties.values();
         Session session = getSession();
-        Node pages = session.getNode("/hst:hst/hst:configurations/" + hstConfig + "/hst:pages");
-        Optional<Node> pageDefinition = Optional.of(!pages.hasNode(id) ? pages.addNode(id, "hst:component") : pages.getNode(id));//.orElseThrow(RuntimeException);
-        if (pageDefinition.isPresent()) {
-            Node node = pageDefinition.get();
-            node.setProperty("hst:componentclassname", componentClass.getName());
-            node.setProperty("hst:parameternames", names.toArray(new String[0]));
-            node.setProperty("hst:parametervalues", values.toArray(new String[0]));
-            session.save();
-            session.logout();
-        }
-
+        Node pages = session.getNode("/hst:myproject/hst:configurations/" + hstConfig + "/hst:pages");
+        Node pageDefinitionNode = (!pages.hasNode(id) ? pages.addNode(id, "hst:component") : pages.getNode(id));
+        pageDefinitionNode.setProperty("hst:componentclassname", componentClass.getName());
+        pageDefinitionNode.setProperty("hst:parameternames", names.toArray(new String[0]));
+        pageDefinitionNode.setProperty("hst:parametervalues", values.toArray(new String[0]));
+        session.save();
+        session.logout();
     }
 
     protected void createSitemapItem(final String hstConfig, final String id) throws RepositoryException {
         Session session = getSession();
-        Node sitemap = session.getNode("/hst:hst/hst:configurations/" + hstConfig + "/hst:sitemap");
+        Node sitemap = session.getNode("/hst:myproject/hst:configurations/" + hstConfig + "/hst:sitemap");
         Node sitemapItem = (!sitemap.hasNode(id) ? sitemap.addNode(id, "hst:sitemapitem") : sitemap.getNode(id));
         sitemapItem.setProperty("hst:componentconfigurationid", "hst:pages/" + id);
         session.save();

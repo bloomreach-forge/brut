@@ -8,30 +8,30 @@ import org.hippoecm.hst.content.beans.standard.HippoGalleryImageSet;
 import org.hippoecm.hst.content.beans.standard.HippoHtml;
 import org.onehippo.cms7.essentials.dashboard.annotations.HippoEssentialsGenerated;
 
-@HippoEssentialsGenerated(internalName = "myhippoproject:newsdocument")
-@Node(jcrType = "myhippoproject:newsdocument")
+@HippoEssentialsGenerated(internalName = "myproject:newsdocument")
+@Node(jcrType = "myproject:newsdocument")
 public class NewsDocument extends HippoDocument {
 
     /**
      * The document type of the news document.
      */
-    public static final String DOCUMENT_TYPE = "myhippoproject:newsdocument";
+    public static final String DOCUMENT_TYPE = "myproject:newsdocument";
 
-    private static final String TITLE = "myhippoproject:title";
-    private static final String DATE = "myhippoproject:date";
-    private static final String INTRODUCTION = "myhippoproject:introduction";
-    private static final String IMAGE = "myhippoproject:image";
-    private static final String CONTENT = "myhippoproject:content";
-    private static final String LOCATION = "myhippoproject:location";
-    private static final String AUTHOR = "myhippoproject:author";
-    private static final String SOURCE = "myhippoproject:source";
+    private static final String TITLE = "myproject:title";
+    private static final String DATE = "myproject:date";
+    private static final String INTRODUCTION = "myproject:introduction";
+    private static final String IMAGE = "myproject:image";
+    private static final String CONTENT = "myproject:content";
+    private static final String LOCATION = "myproject:location";
+    private static final String AUTHOR = "myproject:author";
+    private static final String SOURCE = "myproject:source";
 
     /**
      * Get the title of the document.
      *
      * @return the title
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:title")
+    @HippoEssentialsGenerated(internalName = "myproject:title")
     public String getTitle() {
         return getProperty(TITLE);
     }
@@ -41,7 +41,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the date
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:date")
+    @HippoEssentialsGenerated(internalName = "myproject:date")
     public Calendar getDate() {
         return getProperty(DATE);
     }
@@ -51,7 +51,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the introduction
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:introduction")
+    @HippoEssentialsGenerated(internalName = "myproject:introduction")
     public String getIntroduction() {
         return getProperty(INTRODUCTION);
     }
@@ -61,7 +61,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the image
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:image")
+    @HippoEssentialsGenerated(internalName = "myproject:image")
     public HippoGalleryImageSet getImage() {
         return getLinkedBean(IMAGE, HippoGalleryImageSet.class);
     }
@@ -71,7 +71,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the content
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:content")
+    @HippoEssentialsGenerated(internalName = "myproject:content")
     public HippoHtml getContent() {
         return getHippoHtml(CONTENT);
     }
@@ -81,7 +81,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the location
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:location")
+    @HippoEssentialsGenerated(internalName = "myproject:location")
     public String getLocation() {
         return getProperty(LOCATION);
     }
@@ -91,7 +91,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the author
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:author")
+    @HippoEssentialsGenerated(internalName = "myproject:author")
     public String getAuthor() {
         return getProperty(AUTHOR);
     }
@@ -101,7 +101,7 @@ public class NewsDocument extends HippoDocument {
      *
      * @return the source
      */
-    @HippoEssentialsGenerated(internalName = "myhippoproject:source")
+    @HippoEssentialsGenerated(internalName = "myproject:source")
     public String getSource() {
         return getProperty(SOURCE);
     }

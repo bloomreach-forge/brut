@@ -59,4 +59,16 @@ public class PageModelTest extends AbstractPageModelTest {
         assertTrue(jsonNode.get("page").size() > 0);
         assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
     }
+
+    @Test
+    @DisplayName("Copy of test1")
+    public void test2() throws IOException {
+        getHstRequest().setRequestURI("/site/resourceapi/news");
+        getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
+        String response = invokeFilter();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
+        assertTrue(jsonNode.get("page").size() > 0);
+        assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
+    }
 }

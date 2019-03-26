@@ -1,7 +1,6 @@
 package client.packagename;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -12,9 +11,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import org.hippoecm.hst.configuration.cache.HstEvent;
-import org.hippoecm.hst.configuration.cache.HstNodeLoadingCache;
-import org.hippoecm.hst.configuration.model.HstManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +21,6 @@ import org.junit.jupiter.api.TestInstance;
 import com.bloomreach.ps.brut.resources.AbstractJaxrsTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 
 import client.packagename.model.ListItemPagination;
 import client.packagename.model.NewsItemRep;
@@ -47,11 +43,18 @@ public class JaxrsTest extends AbstractJaxrsTest {
         setupForNewRequest();
     }
 
+    @AfterAll
+    public void afterAll() {
+        super.destroy();
+    }
+
     private void setupForNewRequest() {
         setupHstRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
         setupServletContext();
+        unregisterHstModel();
+        registerHstModel();
         setupHstResponse();
     }
 
@@ -90,7 +93,7 @@ public class JaxrsTest extends AbstractJaxrsTest {
         assertEquals("", response,
                 "Expected nothing to change since the HST model was not explicitly reloaded");
 
-        markMountNodeAsStale();
+        invalidateHstModel();
         String response2 = invokeFilter();
         assertEquals(value, response2, "Expected param value to be updated since HST model was loaded");
     }
@@ -108,25 +111,12 @@ public class JaxrsTest extends AbstractJaxrsTest {
     private void setParamsOnMount(String[] paramNames, String[] paramValues) throws Exception {
         Repository repository = getComponentManager().getComponent(Repository.class);
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
-        String rootMountPath = "/hst:hst/hst:hosts/dev-localhost/localhost/hst:root";
+        String rootMountPath = "/hst:myproject/hst:hosts/dev-localhost/localhost/hst:root";
         Node rootMount = session.getNode(rootMountPath);
         rootMount.setProperty("hst:parameternames", paramNames);
         rootMount.setProperty("hst:parametervalues", paramValues);
         session.save();
         session.logout();
-    }
-
-    private void markMountNodeAsStale() {
-        String rootMountPath = "/hst:hst/hst:hosts/dev-localhost/localhost/hst:root";
-        //Changed a node after the hst model is loaded! Have to invalidate the hst model
-        // and force a lookup on the next read of the node
-        HstManager hstManager = getComponentManager().getComponent(HstManager.class);
-        hstManager.markStale();
-        HstNodeLoadingCache hstNodeLoadingCache = getComponentManager().getComponent(HstNodeLoadingCache.class);
-        //updated a property on the node hence boolean is set to true
-        HstEvent propertyEvent = new HstEvent(rootMountPath, true);
-        HashSet<HstEvent> eventSet = Sets.newHashSet(propertyEvent);
-        hstNodeLoadingCache.handleEvents(eventSet);
     }
 
 }

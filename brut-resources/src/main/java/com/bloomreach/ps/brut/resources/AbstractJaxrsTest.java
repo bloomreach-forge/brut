@@ -4,6 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
+import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
 import org.springframework.mock.web.DelegatingServletInputStream;
@@ -14,6 +19,7 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
     public void init() {
         setupComponentManager();
+        setupHstPlatform();
     }
 
     @Override
@@ -42,6 +48,8 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         includeAdditionalAddonModules();
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
+        ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
+        containerConfiguration.setProperty("hst.configuration.rootPath", "/hst:myproject");
     }
 
     private void includeAdditionalAddonModules() {
@@ -55,5 +63,9 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
     protected int getServletInputStreamSize() {
         return DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE;
+    }
+
+    public void destroy() {
+        super.destroy();
     }
 }

@@ -14,6 +14,7 @@ import javax.jcr.nodetype.NodeType;
 
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
+import org.onehippo.repository.RepositoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -25,7 +26,7 @@ import com.bloomreach.ps.brut.common.repository.utils.ImporterUtils;
 
 import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
 
-public class SkeletonRepository extends BrxmTestingRepository {
+public class SkeletonRepository extends BrxmTestingRepository implements RepositoryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SkeletonRepository.class);
 

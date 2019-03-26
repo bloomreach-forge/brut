@@ -55,7 +55,7 @@
       "definitionId":"hst:pages/essentialsListComponent",
       "paramsInfo":{
         "path":"news",
-        "documentTypes":"myhippoproject:newsdocument",
+        "documentTypes":"myproject:newsdocument",
         "includeSubtypes":true,
         "pageSize":5,
         "showPagination":true,
@@ -64,7 +64,7 @@
       },
       "params":{
         "path":"news",
-        "documentTypes":"myhippoproject:newsdocument",
+        "documentTypes":"myproject:newsdocument",
         "sortOrder":"asc",
         "sortField":"hippostdpubwf:publicationDate",
         "pageSize":"5",
@@ -91,8 +91,8 @@
       "displayName":"The gastropoda news",
       "location":"Liverpool",
       "content":{
-        "name":"myhippoproject:content",
-        "displayName":"myhippoproject:content",
+        "name":"myproject:content",
+        "displayName":"myproject:content",
         "value":"\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
       },
       "author":"Alfred Anonymous",
@@ -109,7 +109,7 @@
       "id":"3c740fcf-8ec5-4f00-a713-ff96caa645c8",
       "_links":{
         "site":{
-          "href":"/site/binaries/content/gallery/myhippoproject/samples/snail-193611_640.jpg",
+          "href":"/site/binaries/content/gallery/myproject/samples/snail-193611_640.jpg",
           "type":"resource"
         }
       },
@@ -125,7 +125,7 @@
         "mimeType":"image/jpeg",
         "_links":{
           "site":{
-            "href":"/site/binaries/content/gallery/myhippoproject/samples/snail-193611_640.jpg",
+            "href":"/site/binaries/content/gallery/myproject/samples/snail-193611_640.jpg",
             "type":"resource"
           }
         }
@@ -138,7 +138,7 @@
         "mimeType":"image/jpeg",
         "_links":{
           "site":{
-            "href":"/site/binaries/thumbnail/content/gallery/myhippoproject/samples/snail-193611_640.jpg",
+            "href":"/site/binaries/thumbnail/content/gallery/myproject/samples/snail-193611_640.jpg",
             "type":"resource"
           }
         }
@@ -156,8 +156,8 @@
       "displayName":"The medusa news",
       "location":"Rotterdam",
       "content":{
-        "name":"myhippoproject:content",
-        "displayName":"myhippoproject:content",
+        "name":"myproject:content",
+        "displayName":"myproject:content",
         "value":"\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
       },
       "author":"Alfred Anonymous",
@@ -174,7 +174,7 @@
       "id":"4709f797-61ae-4c36-93d4-63b5d50fc200",
       "_links":{
         "site":{
-          "href":"/site/binaries/content/gallery/myhippoproject/samples/animal-2883_640.jpg",
+          "href":"/site/binaries/content/gallery/myproject/samples/animal-2883_640.jpg",
           "type":"resource"
         }
       },
@@ -190,7 +190,7 @@
         "mimeType":"image/jpeg",
         "_links":{
           "site":{
-            "href":"/site/binaries/content/gallery/myhippoproject/samples/animal-2883_640.jpg",
+            "href":"/site/binaries/content/gallery/myproject/samples/animal-2883_640.jpg",
             "type":"resource"
           }
         }
@@ -203,7 +203,7 @@
         "mimeType":"image/jpeg",
         "_links":{
           "site":{
-            "href":"/site/binaries/thumbnail/content/gallery/myhippoproject/samples/animal-2883_640.jpg",
+            "href":"/site/binaries/thumbnail/content/gallery/myproject/samples/animal-2883_640.jpg",
             "type":"resource"
           }
         }
@@ -221,8 +221,8 @@
       "displayName":"2013 harvest",
       "location":"Rome",
       "content":{
-        "name":"myhippoproject:content",
-        "displayName":"myhippoproject:content",
+        "name":"myproject:content",
+        "displayName":"myproject:content",
         "value":"\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
       },
       "author":"Alfred Anonymous",
@@ -239,7 +239,7 @@
       "id":"beff458e-e07a-4065-8cad-8d96b67d13ec",
       "_links":{
         "site":{
-          "href":"/site/binaries/content/gallery/myhippoproject/samples/viognier-grapes-188185_640.jpg",
+          "href":"/site/binaries/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
           "type":"resource"
         }
       },
@@ -255,7 +255,7 @@
         "mimeType":"image/jpeg",
         "_links":{
           "site":{
-            "href":"/site/binaries/content/gallery/myhippoproject/samples/viognier-grapes-188185_640.jpg",
+            "href":"/site/binaries/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
             "type":"resource"
           }
         }
@@ -268,7 +268,7 @@
         "mimeType":"image/jpeg",
         "_links":{
           "site":{
-            "href":"/site/binaries/thumbnail/content/gallery/myhippoproject/samples/viognier-grapes-188185_640.jpg",
+            "href":"/site/binaries/thumbnail/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
             "type":"resource"
           }
         }

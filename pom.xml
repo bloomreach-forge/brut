@@ -84,6 +84,11 @@
     <dependencies>
       <!--hst-->
       <dependency>
+        <groupId>org.onehippo.cms7.hst.components</groupId>
+        <artifactId>hst-platform</artifactId>
+        <version>${hst.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.onehippo.cms7.hst</groupId>
         <artifactId>hst-api</artifactId>
         <version>${hst.version}</version>

@@ -12,17 +12,27 @@
     <property name="location" value="classpath:/com/bloomreach/ps/brut/resources/hst/container.properties"/>
   </bean>
 
+  <bean id="org.hippoecm.hst.platform.HstModelProvider" class="org.hippoecm.hst.platform.HstModelProvider">
+    <property name="contextPath" value="/site"/>
+  </bean>
+
   <bean id="springComponentManager" class="com.bloomreach.ps.brut.resources.SpringComponentManager">
   </bean>
 
-  <bean id="containerConfiguration" class="org.springframework.beans.factory.config.PropertyPathFactoryBean">
-    <property name="targetObject">
-      <bean id="componentManagerFacade" class="org.hippoecm.hst.site.container.ComponentManagerFacade">
-        <property name="componentManager" ref="springComponentManager"/>
-      </bean>
-    </property>
-    <property name="propertyPath" value="containerConfiguration"/>
+  <bean id="containerConfiguration" class="org.hippoecm.hst.core.container.ContainerConfigurationImpl">
+    <constructor-arg>
+      <bean class="org.apache.commons.configuration.PropertiesConfiguration"/>
+    </constructor-arg>
   </bean>
+
+  <!--<bean id="containerConfiguration" class="org.springframework.beans.factory.config.PropertyPathFactoryBean">-->
+    <!--<property name="targetObject">-->
+      <!--<bean id="componentManagerFacade" class="org.hippoecm.hst.site.container.ComponentManagerFacade">-->
+        <!--<property name="componentManager" ref="springComponentManager"/>-->
+      <!--</bean>-->
+    <!--</property>-->
+    <!--<property name="propertyPath" value="containerConfiguration"/>-->
+  <!--</bean>-->
 
   <bean id="org.hippoecm.hst.core.sitemenu.HstSiteMenusManager"
         class="org.hippoecm.hst.core.sitemenu.HstSiteMenusManagerImpl">
@@ -33,9 +43,9 @@
     <property name="defaultQueryDateRangeResolution" value="${default.query.date.range.resolution}"/>
   </bean>
 
-  <bean id="org.hippoecm.hst.core.internal.MountDecorator"
-        class="org.hippoecm.hst.site.request.MountDecoratorImpl">
-  </bean>
+  <!--<bean id="org.hippoecm.hst.core.internal.MountDecorator"-->
+        <!--class="org.hippoecm.hst.site.request.MountDecoratorImpl">-->
+  <!--</bean>-->
 
   <bean id="org.hippoecm.hst.core.container.HstComponentInvoker"
         class="org.hippoecm.hst.core.container.HstComponentInvokerImpl">
@@ -131,19 +141,18 @@
   <!--ADDITIONS END-->
 
 
-  <bean id="org.hippoecm.hst.core.container.HstComponentRegistry"
-        class="org.hippoecm.hst.core.container.HstComponentRegistryImpl">
-  </bean>
+  <!--<bean id="org.hippoecm.hst.core.container.HstComponentRegistry"-->
+        <!--class="org.hippoecm.hst.core.container.HstComponentRegistryImpl">-->
+  <!--</bean>-->
 
   <bean id="org.hippoecm.hst.core.container.HstComponentFactory"
         class="org.hippoecm.hst.core.container.HstComponentFactoryImpl">
-    <constructor-arg ref="org.hippoecm.hst.core.container.HstComponentRegistry"/>
-    <property name="defaultHstComponentClass" value="${default.hst.component.class}"/>
+    <property name="defaultHstComponentClass" value="${default.hst.component.class}" />
   </bean>
 
   <bean id="org.hippoecm.hst.core.container.HstComponentWindowFactory"
         class="org.hippoecm.hst.core.container.HstComponentWindowFactoryImpl">
-    <property name="referenceNameSeparator" value="_"/>
+    <property name="referenceNameSeparator" value="_" />
   </bean>
 
   <bean id="org.hippoecm.hst.core.container.HstComponentWindowFilter.list" class="org.springframework.beans.factory.config.ListFactoryBean">
@@ -153,28 +162,24 @@
     </property>
   </bean>
 
-  <bean id="org.hippoecm.hst.core.container.HstNavigationalStateCodec"
-        class="org.hippoecm.hst.core.container.HstNavigationalStateCodecImpl"/>
-
   <bean id="org.hippoecm.hst.core.component.HstURLFactory"
         class="org.hippoecm.hst.core.component.HstURLFactoryImpl">
-    <property name="urlNamespacePrefix" value="_hn:"/>
-    <property name="parameterNameComponentSeparator" value=":"/>
-    <property name="navigationalStateCodec" ref="org.hippoecm.hst.core.container.HstNavigationalStateCodec"/>
-    <property name="referenceNamespaceIgnored" value="${parameter.namespace.ignored}"/>
+    <property name="urlNamespacePrefix" value="_hn:" />
+    <property name="parameterNameComponentSeparator" value=":" />
+    <property name="referenceNamespaceIgnored" value="${parameter.namespace.ignored}" />
   </bean>
 
   <!-- The default classpath resource scanner -->
   <bean id="org.hippoecm.hst.util.ClasspathResourceScanner" class="org.hippoecm.hst.site.container.SpringMetadataReaderClasspathResourceScanner">
   </bean>
 
-  <bean id="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerFactory"
-        class="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerFactoryImpl">
-    <constructor-arg ref="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistry"/>
-  </bean>
+  <!--<bean id="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerFactory"-->
+        <!--class="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerFactoryImpl">-->
+    <!--<constructor-arg ref="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistry"/>-->
+  <!--</bean>-->
 
-  <bean id="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistry"
-        class="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistryImpl"/>
+  <!--<bean id="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistry"-->
+        <!--class="org.hippoecm.hst.core.sitemapitemhandler.HstSiteMapItemHandlerRegistryImpl"/>-->
 
 
 </beans>

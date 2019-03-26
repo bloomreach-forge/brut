@@ -1,20 +1,27 @@
 package com.bloomreach.ps.brut.resources;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
+import javax.jcr.Repository;
 
-import org.hippoecm.hst.configuration.cache.HstNodeLoadingCache;
 import org.hippoecm.hst.configuration.model.HstManager;
 import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.container.HstDelegateeFilterBean;
 import org.hippoecm.hst.container.HstFilter;
 import org.hippoecm.hst.content.tool.DefaultContentBeansTool;
+import org.hippoecm.hst.core.internal.PlatformModelAvailableService;
 import org.hippoecm.hst.mock.core.component.MockHstResponse;
-import org.onehippo.cms7.services.ServletContextRegistry;
+import org.hippoecm.hst.platform.container.sitemapitemhandler.HstSiteMapItemHandlerFactories;
+import org.hippoecm.hst.platform.container.sitemapitemhandler.HstSiteMapItemHandlerFactoriesImpl;
+import org.hippoecm.hst.platform.model.HstModelRegistryImpl;
+import org.hippoecm.hst.platform.services.PlatformServicesImpl;
+import org.hippoecm.hst.site.HstServices;
+import org.onehippo.cms7.services.HippoServiceRegistry;
+import org.onehippo.cms7.services.context.HippoWebappContext;
+import org.onehippo.cms7.services.context.HippoWebappContextRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockServletContext;
@@ -28,6 +35,11 @@ public abstract class AbstractResourceTest {
     protected SpringComponentManager componentManager;
     protected MockHstRequest hstRequest;
     protected MockHstResponse hstResponse;
+    protected MockServletContext servletContext;
+
+    protected HstModelRegistryImpl hstModelRegistry;
+    protected PlatformServicesImpl platformServices;
+    protected PlatformModelAvailableService platformModelAvailableService;
 
     public SpringComponentManager getComponentManager() {
         return componentManager;
@@ -44,17 +56,57 @@ public abstract class AbstractResourceTest {
     }
 
     protected void setupServletContext() {
-        MockServletContext servletContext = new MockServletContext();
+        servletContext = new MockServletContext();
         servletContext.setContextPath("/site");
         servletContext.setInitParameter(DefaultContentBeansTool.BEANS_ANNOTATED_CLASSES_CONF_PARAM,
                 getAnnotatedHstBeansClasses());
         hstRequest.setServletContext(servletContext);
+
         componentManager.setServletContext(servletContext);
-        if (ServletContextRegistry.getContext("/site") == null) {
-            ServletContextRegistry.register(servletContext, ServletContextRegistry.WebAppType.HST);
+        if (HippoWebappContextRegistry.get().getContext("/site") == null) {
+            HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
         }
         HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
         hstManager.setServletContext(hstRequest.getServletContext());
+    }
+
+    protected void setupHstPlatform() {
+        hstModelRegistry = new HstModelRegistryImpl();
+        platformServices = new PlatformServicesImpl();
+        platformModelAvailableService = new PlatformModelAvailableService() {
+        };
+
+        platformServices.setHstModelRegistry(hstModelRegistry);
+        platformServices.init();
+        hstModelRegistry.setRepository(getComponentManager().getComponent(Repository.class));
+        hstModelRegistry.init();
+    }
+
+    protected void registerHstModel() {
+        hstModelRegistry.registerHstModel(servletContext, componentManager, true);
+    }
+
+    protected void unregisterHstModel() {
+        hstModelRegistry.unregisterHstModel(servletContext);
+    }
+
+
+    public void destroy() {
+        HippoServiceRegistry.unregister(platformModelAvailableService, PlatformModelAvailableService.class);
+
+        HstServices.setComponentManager(null);
+
+        HstSiteMapItemHandlerFactoriesImpl hstSiteMapItemHandlerFactories = (HstSiteMapItemHandlerFactoriesImpl) getComponentManager().getComponent(HstSiteMapItemHandlerFactories.class);
+        hstSiteMapItemHandlerFactories.destroy();
+        hstSiteMapItemHandlerFactories.unregister(servletContext.getContextPath());
+
+        unregisterHstModel();
+        hstModelRegistry.destroy();
+        hstModelRegistry.setRepository(null);
+
+        platformServices.destroy();
+        platformServices.setPreviewDecorator(null);
+        platformServices.setHstModelRegistry(null);
     }
 
     /**
@@ -96,12 +148,8 @@ public abstract class AbstractResourceTest {
      * @throws IllegalAccessException
      */
     public void invalidateHstModel() throws NoSuchFieldException, IllegalAccessException {
-        HstNodeLoadingCache hstNodeLoadingCache = getComponentManager().getComponent(HstNodeLoadingCache.class);
-        Field rootNodeField = hstNodeLoadingCache.getClass().getDeclaredField("rootNode");
-        rootNodeField.setAccessible(true);
-        rootNodeField.set(hstNodeLoadingCache, null);
-        HstManager hstManager = getComponentManager().getComponent(HstManager.class);
-        hstManager.markStale();
+        unregisterHstModel();
+        registerHstModel();
     }
 
     /**
