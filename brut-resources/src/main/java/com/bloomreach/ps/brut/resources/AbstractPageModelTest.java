@@ -212,6 +212,4 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
             }
         }
     }
-
-
 }

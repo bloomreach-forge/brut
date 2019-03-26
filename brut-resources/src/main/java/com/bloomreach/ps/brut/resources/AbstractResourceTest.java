@@ -131,7 +131,7 @@ public abstract class AbstractResourceTest {
             filter.doFilter(hstRequest, hstResponse, null);
             String contentAsString = hstResponse.getContentAsString();
             LOGGER.info(contentAsString);
-            //important! set the filter done attribute to null for subsequent filter invocations
+            //important! set the filter reset attribute to true for subsequent filter invocations
             hstRequest.setAttribute(HST_RESET_FILTER, true);
             return contentAsString;
         } catch (Exception e) {
