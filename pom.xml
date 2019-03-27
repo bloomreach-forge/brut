@@ -48,11 +48,24 @@
   </properties>
 
   <scm>
-    <connection>scm:git:git@code.onehippo.org:prof-services/brut.git</connection>
-    <developerConnection>scm:git:git@code.onehippo.org:prof-services/brut.git</developerConnection>
-    <url>https://code.onehippo.org/prof-services/brut</url>
+    <connection>scm:git:git@github.com:bloomreach-forge/brut.git</connection>
+    <developerConnection>scm:git:git@github.com:bloomreach-forge/brut.git</developerConnection>
+    <url>https://github.com/bloomreach-forge/brut.git</url>
     <tag>HEAD</tag>
   </scm>
+
+  <distributionManagement>
+    <repository>
+      <name>Hippo Maven 2 Forge Repository</name>
+      <id>hippo-maven2-forge</id>
+      <url>https://maven.onehippo.com/content/repositories/forge-releases/</url>
+      <uniqueVersion>false</uniqueVersion>
+    </repository>
+  </distributionManagement>
+
+  <issueManagement>
+    <url>https://issues.onehippo.com/browse/HIPFORGE</url>
+  </issueManagement>
 
   <organization>
     <name>Bloomreach</name>
@@ -72,7 +85,21 @@
       </releases>
       <layout>default</layout>
     </repository>
+    <repository>
+      <id>hippo-forge</id>
+      <name>Hippo Forge Maven 2 repository.</name>
+      <url>https://maven.onehippo.com/maven2-forge/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <layout>default</layout>
+    </repository>
   </repositories>
+
+
 
   <modules>
     <module>brut-common</module>
@@ -171,55 +198,20 @@
 
   <profiles>
     <profile>
-      <id>release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
+      <!-- For generating/publishing GitHub Site Pages into /docs/ folder on master branch only -->
+      <id>github.pages</id>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${plugin.javadoc.version}</version>
+            <artifactId>maven-site-plugin</artifactId>
             <configuration>
-              <encoding>${project.build.sourceEncoding}</encoding>
-              <skip>false</skip>
-              <aggregate>true</aggregate>
-              <sourcepath>${basedir}/frontend/src/main/java</sourcepath>
+              <outputDirectory>docs</outputDirectory>
             </configuration>
           </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <reportSets>
-          <reportSet>
-            <reports>
-              <!-- select non-aggregate reports -->
-              <report>report</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-    </plugins>
-  </reporting>
 
 </project>
