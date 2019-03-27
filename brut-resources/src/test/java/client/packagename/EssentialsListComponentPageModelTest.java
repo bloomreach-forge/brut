@@ -11,7 +11,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.onehippo.cms7.essentials.components.EssentialsListComponent;
 import org.onehippo.cms7.essentials.components.info.EssentialsListComponentInfo;
 
-import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
+import org.bloomreach.forge.brut.resources.AbstractPageModelTest;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

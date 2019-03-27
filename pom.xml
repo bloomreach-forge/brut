@@ -8,7 +8,7 @@
     <version>30.1.0</version>
   </parent>
 
-  <groupId>com.bloomreach.ps</groupId>
+  <groupId>org.bloomreach.brut</groupId>
   <artifactId>brut</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
