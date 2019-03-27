@@ -1,207 +1,206 @@
-/hst:hst:
+/hst:myproject:
   jcr:primaryType: hst:hst
-  jcr:uuid: 626dd67b-0ff0-476e-804a-a7b69ab46bd1
+  jcr:uuid: 5d80959c-c518-4f0a-9d0b-2bce4b865d39
   /hst:configurations:
     jcr:primaryType: hst:configurations
-    jcr:uuid: 52d4634e-0a06-483c-b7df-060619fb9091
+    jcr:uuid: 97cbf1ff-aaa0-4ae5-a4c5-ec9668759dc5
     /hst:default:
       jcr:primaryType: hst:configuration
-      jcr:uuid: 54381193-d4de-401f-b83a-62393363ac6f
+      jcr:uuid: 1f6d078b-efba-4766-be33-a67115057328
       /hst:pages:
         jcr:primaryType: hst:pages
-        jcr:uuid: 1cc7d4f7-0c44-450f-b17f-b2cb8f9dfc6c
+        jcr:uuid: db7be81a-21fd-49f7-bd86-d856e1cb6668
       /hst:components:
         jcr:primaryType: hst:components
-        jcr:uuid: 4b06c929-07ff-4ad6-b560-d3aca426a13c
+        jcr:uuid: a4448184-bd57-4f03-90d2-a0ccd6230163
       /hst:templates:
         jcr:primaryType: hst:templates
-        jcr:uuid: 9cabaddc-9cf2-4cb6-8f4a-f131069379fe
+        jcr:uuid: ae9ed63c-edbf-4010-bd98-83e2e767ee28
         /newslist-main-newslist:
           jcr:primaryType: hst:template
-          jcr:uuid: 6ccbfda0-b5cc-4d39-a6e3-c8454f2d2036
+          jcr:uuid: 9a6ae916-b8fa-4ec8-b949-28c92ed981c7
           hst:renderpath: webfile:/freemarker/hstdefault/newslist-main-newslist.ftl
       /hst:sitemenus:
         jcr:primaryType: hst:sitemenus
-        jcr:uuid: 3a3c452a-f07a-487f-ba1a-09653f30f5f0
+        jcr:uuid: 7b8fda0d-dc9d-4490-b52c-37d913144703
       /hst:sitemapitemhandlers:
         jcr:primaryType: hst:sitemapitemhandlers
-        jcr:uuid: c52a9035-fabb-437c-aaa7-0d43524cef9e
+        jcr:uuid: 7f9c5a9b-222f-4e68-932c-ad37a5660577
       /hst:catalog:
         jcr:primaryType: hst:catalog
-        jcr:uuid: 7626b9d1-486a-47f0-aa40-6774a7ed2a42
+        jcr:uuid: 82d25091-ed90-4267-b11c-943e86a42ec7
         /essentials-catalog:
           jcr:primaryType: hst:containeritempackage
-          jcr:uuid: 62803c25-1117-4ebd-a26f-fd76f1ae796d
+          jcr:uuid: 895b88ba-9ae9-4afe-9468-8a70568e9a5d
           /newslist:
             jcr:primaryType: hst:containeritemcomponent
-            jcr:uuid: 0bf9156e-534b-4d7a-8b9b-c258abc997bf
+            jcr:uuid: c64d9734-07ca-46e8-b488-e84dbe107f9d
             hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsNewsComponent
             hst:iconpath: images/essentials/catalog-component-icons/news-list.png
             hst:label: News List
             hst:template: newslist-main-newslist
-            hst:xtype: hst.item
       /hst:sitemap:
         jcr:primaryType: hst:sitemap
-        jcr:uuid: 3ed88072-0d38-4610-bb66-8b351fd15937
+        jcr:uuid: e53a2285-333f-4426-8789-67f194aae99b
         /_any_.css:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 2798ab3d-4465-4e29-aa50-a2a14c51928f
+          jcr:uuid: de2405ff-d5a0-4b3c-82ea-4b95e20fbd88
           hst:containerresource: true
         /_any_.CSS:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 0a053acb-72b0-4497-be11-f0948133ecb2
+          jcr:uuid: 6c884688-95d7-4a58-bf44-eaccb4c3e676
           hst:containerresource: true
         /_any_.gif:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: b15505aa-074e-4b05-b8e4-7e428505afb9
+          jcr:uuid: c259c1a5-6c81-404b-b32b-7c76e5b48548
           hst:containerresource: true
         /_any_.GIF:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 177732a6-ef07-4869-a32e-f3535fdd4eee
+          jcr:uuid: 7ded803d-09ef-47e6-84c1-96b94514cfd2
           hst:containerresource: true
         /_any_.ico:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: e8aabdf1-586f-4502-873b-bcc710730596
+          jcr:uuid: eeca4c3e-8a7c-45f1-91ab-fde4d56c3e26
           hst:containerresource: true
         /_any_.ICO:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 4dda580d-92e4-4a8c-9163-ceb43eff632c
+          jcr:uuid: 5b4e9d93-0c5a-4a0f-b8af-ac6284561d91
           hst:containerresource: true
         /_any_.jpeg:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 0af71df8-5358-4abb-aa5c-92a1256f6533
+          jcr:uuid: aba5eefb-db5b-4f5d-a1fa-99fd9ffda362
           hst:containerresource: true
         /_any_.JPEG:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 6503f84f-6bc4-4afc-8701-49c435de70b3
+          jcr:uuid: 88f833e7-41b7-4741-af4f-375729c9117e
           hst:containerresource: true
         /_any_.jpg:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 98c479cd-cacc-4f79-8a75-2688ce8aeb56
+          jcr:uuid: 533773f3-d87e-4c1c-8b4d-8097aa0c2181
           hst:containerresource: true
         /_any_.JPG:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: e27afe25-ec21-4da3-ad4d-570ba725be60
+          jcr:uuid: b4edb03d-beb2-43cf-84f4-2ffd594785f2
           hst:containerresource: true
         /_any_.js:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 6a8ef43b-c249-4aef-ab4d-7d9e816fadb8
+          jcr:uuid: 0afd0b59-8eef-4d49-965f-d641f9c34903
           hst:containerresource: true
         /_any_.JS:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 369c227d-6c29-42f9-a6f2-5cf9d5a591f0
+          jcr:uuid: 367c2d21-02c5-4353-8867-7213e6bc0488
           hst:containerresource: true
         /_any_.pdf:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: fc875431-5eb3-44e9-836c-0e4e74c88bea
+          jcr:uuid: 4a9c1b44-77ed-4b3d-a134-3700547ce098
           hst:containerresource: true
         /_any_.PDF:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: b09bd1f5-151c-497c-acbc-ed2ddbcdd73c
+          jcr:uuid: d2a1af91-fef6-49a5-aec5-4d4aba8890e6
           hst:containerresource: true
         /_any_.png:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: a58cb25b-cfd9-4d0a-806a-e39addb8c3c0
+          jcr:uuid: 9ff62e47-0abf-4b36-be26-ef351531b2eb
           hst:containerresource: true
         /_any_.PNG:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 9aa2d713-a765-4bef-abba-dafe7048743b
+          jcr:uuid: d0700299-cfe5-4b24-91e6-229b8db11025
           hst:containerresource: true
         /_any_.svg:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 23a97654-89a4-45dc-806b-e3ca14d1acd8
+          jcr:uuid: 04391e12-2994-47cd-92c4-c85b7ddf677d
           hst:containerresource: true
         /_any_.SVG:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 8b21ef5a-358a-473d-bdbf-9489e6e716d0
+          jcr:uuid: cf35a4c8-0b39-4b94-9cf6-ce92569bad80
           hst:containerresource: true
         /_any_.jsp:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 8b0b4de3-c702-435c-8df9-c1b6f100dda5
+          jcr:uuid: 8e91baa9-2076-4fff-ade1-a4d0159629f7
           hst:containerresource: true
         /_any_.JSP:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 04a17ca7-eb74-4a48-ae84-3d53a19790b4
+          jcr:uuid: d41f5051-e37d-43c2-9772-4605cfb05bea
           hst:containerresource: true
         /webfiles:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 82817172-a8c9-432a-b529-cd14af332bd3
+          jcr:uuid: 2c09fd98-865b-46e9-a8ee-3b315fc3e706
           hst:containerresource: true
           hst:namedpipeline: WebFilePipeline
           hst:refId: WEB-FILES-ID
           /_default_:
             jcr:primaryType: hst:sitemapitem
-            jcr:uuid: c8976372-4e7e-4e9b-9d85-d5b5987cf8b6
+            jcr:uuid: 071fdf5c-01fc-491d-a2a9-43e8475f7682
             /_any_:
               jcr:primaryType: hst:sitemapitem
-              jcr:uuid: da6fccba-4f2d-46c0-80fa-3d90c34da0b9
+              jcr:uuid: 4968f58e-ecff-4730-ab26-9e7d5b6b3d62
               hst:parameternames: [version]
               hst:parametervalues: ['${1}']
               hst:relativecontentpath: ${2}
         /login:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 9b203046-334a-40ea-932a-604572d31bc9
+          jcr:uuid: 64fdb6e1-aa9e-4712-b355-3a2de873e249
           hst:containerresource: true
           hst:namedpipeline: PlainFilterChainInvokingPipeline
           hst:scheme: https
           hst:schemeagnostic: false
           /_any_:
             jcr:primaryType: hst:sitemapitem
-            jcr:uuid: 206c7d39-d984-463e-9351-5dd3ea7a4b1d
+            jcr:uuid: 96562508-ab86-4387-898e-4389948385be
         /binaries:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: c5c8f752-d814-47eb-89c8-291fce024bad
+          jcr:uuid: 7c2230cf-77fc-4426-a3be-d306c2264c4a
           hst:containerresource: true
           hst:refId: BINARIES-PIPELINE-ID
           /_any_:
             jcr:primaryType: hst:sitemapitem
-            jcr:uuid: 8e5d58ba-93ca-488b-bb58-6ab8da0400da
+            jcr:uuid: 566c94cd-6e93-458b-99ad-85fc24b71238
         /favicon.ico:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 03af5df8-89a5-4776-a493-10f5956cee7b
+          jcr:uuid: 765ad9b0-c824-42ff-9934-0b239da9f28c
           hst:authenticated: false
           hst:containerresource: true
     /common:
       jcr:primaryType: hst:configuration
-      jcr:uuid: a17422a0-9007-4892-b642-b337804a5ef9
+      jcr:uuid: 929d1cf5-add1-43dd-879d-f6cba5a0c46f
       /hst:sitemap:
         jcr:primaryType: hst:sitemap
-        jcr:uuid: 67838027-fbf9-4b1d-abda-646388c7f2d3
+        jcr:uuid: 450c8fca-c20b-48e3-ad62-d368be9241d3
       /hst:abstractpages:
         jcr:primaryType: hst:pages
-        jcr:uuid: 602315b0-03aa-4fc9-b8cc-081d257dd3cf
+        jcr:uuid: a40e2670-019b-45b2-af8c-8274e0060a63
       /hst:pages:
         jcr:primaryType: hst:pages
-        jcr:uuid: 83d70453-40ca-4ff0-8123-ae5205f97cc2
+        jcr:uuid: 69e729b6-5f71-42ae-b2f8-05ed4814f632
       /hst:components:
         jcr:primaryType: hst:components
-        jcr:uuid: d068c518-5b27-49d1-a977-9b62d32b6e08
+        jcr:uuid: 0a13b49e-4329-4beb-9cb7-e376c210b493
       /hst:templates:
         jcr:primaryType: hst:templates
-        jcr:uuid: f592c593-2efd-42c5-9aa1-8c98ec581a87
+        jcr:uuid: e881614f-ce54-44dc-9f20-e144a83cb556
       /hst:sitemenus:
         jcr:primaryType: hst:sitemenus
-        jcr:uuid: ce132297-0542-415f-a447-41c97790cdb4
+        jcr:uuid: c993787e-2874-425c-906c-f95e1d4eaf04
       /hst:sitemapitemhandlers:
         jcr:primaryType: hst:sitemapitemhandlers
-        jcr:uuid: 40b29835-6961-409d-bdbc-b93f78bffc74
+        jcr:uuid: a099c9d8-baf3-41ae-8b41-d3c24ed7ac36
       /hst:catalog:
         jcr:primaryType: hst:catalog
-        jcr:uuid: 2f254464-ec04-412e-8b3a-12a49d314768
-    /myhippoproject:
+        jcr:uuid: 8505827a-b1cf-4632-92b6-a7fed6f5b509
+    /myproject:
       jcr:primaryType: hst:configuration
-      jcr:uuid: 54effdaf-4cea-4943-8441-607ae6746b78
+      jcr:uuid: 36b83712-d253-4aea-85ad-a7b172a8cd48
       hst:inheritsfrom: [../common]
       /hst:abstractpages:
         jcr:primaryType: hst:pages
-        jcr:uuid: 6b01cd9b-6d11-4f6d-9890-da25c7faf267
+        jcr:uuid: 868ea241-0dee-4337-9182-ca25fe6999c2
         /base:
           jcr:primaryType: hst:component
-          jcr:uuid: 7d136087-c868-4ae1-881f-8175244d63bc
+          jcr:uuid: 4c72dc6b-84e8-465b-9e36-7a0fbd4bf629
           hst:template: base-layout
           /menu:
             jcr:primaryType: hst:component
-            jcr:uuid: e5a72440-7936-4dad-ba5e-216f78d52926
+            jcr:uuid: 101d51f5-7c0e-467e-979b-f63daa482753
             hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsMenuComponent
             hst:parameternames: [selectedMenu, level, menu]
             hst:parametervalues: ['on', '1', main]
@@ -211,55 +210,55 @@
             hst:referencecomponent: base/top
           /footer:
             jcr:primaryType: hst:component
-            jcr:uuid: 2ea116ea-f3e2-4666-b224-30970c806a96
+            jcr:uuid: 2e40cd6a-234b-40ea-b9af-9bd22bff194d
             hst:template: base-footer
             /container:
               jcr:primaryType: hst:containercomponentreference
               hst:referencecomponent: base/footer
       /hst:catalog:
         jcr:primaryType: hst:catalog
-        jcr:uuid: 631d4813-8f02-46f3-b2fe-01417db419f9
-        /myhippoproject-catalog:
+        jcr:uuid: 39ed0e31-1413-4114-88d4-b64733639218
+        /myproject-catalog:
           jcr:primaryType: hst:containeritempackage
-          jcr:uuid: 17e46e31-5f09-47f6-baa6-9ca1b31e7cb0
+          jcr:uuid: df7181df-c162-4511-98b5-59c2f44f8410
       /hst:components:
         jcr:primaryType: hst:components
-        jcr:uuid: 8eca38eb-c4d4-4c46-aca8-4065ca5e9047
+        jcr:uuid: f4164989-dfa0-4851-8e30-9fcacbc0abac
       /hst:pages:
         jcr:primaryType: hst:pages
-        jcr:uuid: a3f9704a-23ee-4e55-981b-6b5539843af9
+        jcr:uuid: 10b77d35-8e52-4325-b80f-609f0fe8aa9f
         /homepage:
           jcr:primaryType: hst:component
-          jcr:uuid: 78466f6b-f794-4bce-8087-7b93dcab7c31
+          jcr:uuid: 7eb80de8-f99d-44d7-a78b-8506e243d5ec
           hst:referencecomponent: hst:abstractpages/base
           /main:
             jcr:primaryType: hst:component
-            jcr:uuid: 31ddceea-8ad7-4238-8a24-c4bc3d3f714c
+            jcr:uuid: 41906f9a-7651-4a6a-8559-89844b686567
             hst:template: homepage-main
             /container:
               jcr:primaryType: hst:containercomponentreference
               hst:referencecomponent: homepage/main
         /newslist:
           jcr:primaryType: hst:component
-          jcr:uuid: b4cb28ce-be03-42e2-bcf7-312849269734
+          jcr:uuid: 2df87d9e-04f5-4ef7-89a0-381fd1030b16
           hst:referencecomponent: hst:abstractpages/base
           /main:
             jcr:primaryType: hst:containercomponentreference
             hst:referencecomponent: newslist/main
         /newspage:
           jcr:primaryType: hst:component
-          jcr:uuid: fdd531c5-2f1e-482d-aecd-7dfb494bf030
+          jcr:uuid: e77ec399-e6f5-40cd-8909-887bfd283b33
           hst:referencecomponent: hst:abstractpages/base
           /main:
             jcr:primaryType: hst:containercomponentreference
             hst:referencecomponent: newspage/main
         /pagenotfound:
           jcr:primaryType: hst:component
-          jcr:uuid: fdb46afb-7909-422b-90a2-854f73627a2f
+          jcr:uuid: b7c52733-578c-4f13-ae23-30ad6d0ecad3
           hst:referencecomponent: hst:abstractpages/base
           /main:
             jcr:primaryType: hst:component
-            jcr:uuid: 43f06964-83e4-4dc9-9de0-6c8e9533972f
+            jcr:uuid: b5b3b22c-9d47-4e66-b17d-5b63f9b59d69
             hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsPageNotFoundComponent
             hst:template: pagenotfound-main
             /container:
@@ -267,78 +266,78 @@
               hst:referencecomponent: pagenotfound/main
       /hst:prototypepages:
         jcr:primaryType: hst:pages
-        jcr:uuid: 3ec9609d-c5e9-4614-a4b1-deda382a9c74
+        jcr:uuid: 40840df0-de3f-4890-bcd3-9377f612aa18
       /hst:sitemap:
         jcr:primaryType: hst:sitemap
-        jcr:uuid: 0311e04c-45f8-4a91-9032-344794dbf137
+        jcr:uuid: 0dc94658-19d7-42d5-ad9c-c61a57c3650d
         /root:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 924b1b51-e0bd-4987-bce5-a824f5619838
+          jcr:uuid: 644f89bd-68b5-40a5-9085-1fa812689842
           hst:componentconfigurationid: hst:pages/homepage
           hst:pagetitle: Home Page
           hst:refId: root
         /_any_:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 437f3745-df0c-4664-ad0a-8ce609aa6fd5
+          jcr:uuid: e9654de1-e1d2-46bd-b1d5-7caf9400c407
           hst:componentconfigurationid: hst:pages/pagenotfound
         /pagenotfound:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 8ffcd402-72be-4e80-a1d2-57fbd01a594c
+          jcr:uuid: 3cbf33c3-e36f-4f37-9a7b-cdee34aa59f6
           hst:componentconfigurationid: hst:pages/pagenotfound
           hst:pagetitle: Not Found Page
           hst:refId: pagenotfound
         /news:
           jcr:primaryType: hst:sitemapitem
-          jcr:uuid: 18ff2348-7be2-48b8-a160-875e937ed766
+          jcr:uuid: 3479428d-115e-45a1-8b75-5c6c4332f464
           hst:componentconfigurationid: hst:pages/newslist
           hst:pagetitle: List of News Items
           hst:relativecontentpath: news
           /_any_.html:
             jcr:primaryType: hst:sitemapitem
-            jcr:uuid: 83d01ed7-a8b9-4b80-afc6-b408a312cc09
+            jcr:uuid: 82a89df8-e6a9-46a4-a480-525088b5f39a
             hst:componentconfigurationid: hst:pages/newspage
             hst:relativecontentpath: ${parent}/${1}
           /_any_:
             jcr:primaryType: hst:sitemapitem
-            jcr:uuid: 2e8cb4b2-266f-4d00-aff9-e85134ef1256
+            jcr:uuid: 1b8b4747-c780-446e-8ea7-f35dab9a5aa1
             hst:componentconfigurationid: hst:pages/newslist
             hst:relativecontentpath: ${parent}/${1}
       /hst:sitemenus:
         jcr:primaryType: hst:sitemenus
-        jcr:uuid: a34cb561-98f1-4d2d-ad72-2ce13dbea958
+        jcr:uuid: 8374a077-4b15-4927-8a7b-d817b9a22829
       /hst:templates:
         jcr:primaryType: hst:templates
-        jcr:uuid: a700b535-fe1b-4272-8be7-09fc605ec0ca
+        jcr:uuid: 2fcc52d2-94dc-4f71-9cd2-63fca751c8e8
         /base-layout:
           jcr:primaryType: hst:template
-          jcr:uuid: 820aab60-b34e-43ec-b0a8-d8d61d1d1b2c
-          hst:renderpath: webfile:/freemarker/myhippoproject/base-layout.ftl
+          jcr:uuid: c067024b-92ce-46fd-aed8-73e306347e17
+          hst:renderpath: webfile:/freemarker/myproject/base-layout.ftl
         /base-top-menu:
           jcr:primaryType: hst:template
-          jcr:uuid: e262eab1-86ce-409b-962f-86bf2f9d9f21
-          hst:renderpath: webfile:/freemarker/myhippoproject/base-top-menu.ftl
+          jcr:uuid: 48faed5e-a2b8-460a-9613-442513d50c0d
+          hst:renderpath: webfile:/freemarker/myproject/base-top-menu.ftl
         /base-footer:
           jcr:primaryType: hst:template
-          jcr:uuid: d4f18bc7-437f-4a66-a2b2-a7ea1e3c30a0
-          hst:renderpath: webfile:/freemarker/myhippoproject/base-footer.ftl
+          jcr:uuid: 0b09a6d1-0dfd-4665-aba7-d1cc112d890d
+          hst:renderpath: webfile:/freemarker/myproject/base-footer.ftl
         /homepage-main:
           jcr:primaryType: hst:template
-          jcr:uuid: f438269e-fa4e-41f1-a957-b1ce509b5b47
-          hst:renderpath: webfile:/freemarker/myhippoproject/homepage-main.ftl
+          jcr:uuid: 1069ef15-cf97-41fc-9dd1-d27317b82767
+          hst:renderpath: webfile:/freemarker/myproject/homepage-main.ftl
         /pagenotfound-main:
           jcr:primaryType: hst:template
-          jcr:uuid: 4756ec40-acaf-4666-a6f1-9b08f321a3d8
-          hst:renderpath: webfile:/freemarker/myhippoproject/pagenotfound-main.ftl
+          jcr:uuid: 34c0d533-2f0e-4076-b26e-c3741a4a26ae
+          hst:renderpath: webfile:/freemarker/myproject/pagenotfound-main.ftl
         /newspage-main:
           jcr:primaryType: hst:template
-          jcr:uuid: 5fa05d4e-b9ed-4e55-ada6-5db8306f3ffe
+          jcr:uuid: 6a47218a-4717-4746-b8ac-ddea1b432d7f
           hst:renderpath: webfile:/freemarker/hstdefault/newspage-main.ftl
       /hst:workspace:
         jcr:primaryType: hst:workspace
         /hst:channel:
           jcr:primaryType: hst:channel
-          jcr:uuid: 3c8d1916-b63b-49bd-8ac2-082d7d559993
-          hst:name: My Hippo Project
+          jcr:uuid: fb56f3af-9ea3-4a70-a9c8-b9649892a0a7
+          hst:name: My Project
           hst:type: website
           /hst:channelinfo:
             jcr:primaryType: hst:channelinfo
@@ -348,110 +347,107 @@
             jcr:primaryType: hst:containercomponentfolder
             /top:
               jcr:primaryType: hst:containercomponent
-              jcr:uuid: 54bb7359-1634-4d7f-90c7-03d611d9674e
+              jcr:uuid: e3a12906-7278-48ce-8c7e-74200d6480ac
               hst:label: Top
               hst:xtype: hst.vbox
             /footer:
               jcr:primaryType: hst:containercomponent
-              jcr:uuid: cbef7a4f-8043-40fb-9220-82694b78a55d
+              jcr:uuid: 2d9a7db8-db29-40f1-bb38-fc421e85aedb
               hst:label: Footer
               hst:xtype: hst.vbox
           /homepage:
             jcr:primaryType: hst:containercomponentfolder
             /main:
               jcr:primaryType: hst:containercomponent
-              jcr:uuid: 80aa7296-7950-418d-926d-a606dbc7bf4e
+              jcr:uuid: b8c6b670-edbf-44c8-bf33-78439dc6ddd0
               hst:label: Home Page Main
               hst:xtype: hst.vbox
           /pagenotfound:
             jcr:primaryType: hst:containercomponentfolder
             /main:
               jcr:primaryType: hst:containercomponent
-              jcr:uuid: b16467f0-fa1f-491b-adee-d479e30c90b3
+              jcr:uuid: 089e5535-a359-48da-90b8-36f0b85d23dd
               hst:label: Page-Not-Found Main
               hst:xtype: hst.vbox
           /newslist:
             jcr:primaryType: hst:containercomponentfolder
             /main:
               jcr:primaryType: hst:containercomponent
-              jcr:uuid: f123530a-2f5f-4ed0-8e03-61114bd2be82
+              jcr:uuid: 2c23f5f1-9ebe-4918-a5e7-f26aeef439d4
               hst:label: News List Main
               hst:xtype: hst.vbox
               /newslist:
                 jcr:primaryType: hst:containeritemcomponent
-                jcr:uuid: 4308b47e-31cb-43da-9bce-7ef6b4ab1ec9
+                jcr:uuid: b81e9ceb-c50c-4450-99a6-25369795f095
                 hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsNewsComponent
                 hst:label: News List
                 hst:parameternames: [hidePastEvents, documentTypes, sortField, sortOrder,
                                      includeSubtypes, showPagination, path, pageSize, documentDateField,
                                      hideFutureItems]
-                hst:parametervalues: ['on', 'myhippoproject:newsdocument', '', desc,
-                                      'off', 'on', '', '10', 'myhippoproject:date', 'on']
+                hst:parametervalues: ['on', 'myproject:newsdocument', '', desc, 'off',
+                                      'on', '', '10', 'myproject:date', 'on']
                 hst:template: newslist-main-newslist
-                hst:xtype: hst.item
           /newspage:
             jcr:primaryType: hst:containercomponentfolder
             /main:
               jcr:primaryType: hst:containercomponent
-              jcr:uuid: 3ff24296-2640-4aac-82c0-2b7893330137
+              jcr:uuid: 91abba06-1ca9-488d-a221-fa2e7f4b7a79
               hst:label: News Page Main
               hst:xtype: hst.vbox
               /content:
                 jcr:primaryType: hst:containeritemcomponent
-                jcr:uuid: 3311c478-d59b-4a31-9e78-180be7fbf441
+                jcr:uuid: 49b93c37-3db2-46a2-91cf-005bac339002
                 hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsContentComponent
                 hst:template: newspage-main
-                hst:xtype: hst.item
         /hst:pages:
           jcr:primaryType: hst:pages
-          jcr:uuid: cf1e254c-e4b2-45d5-8f4c-92f03cf5283d
+          jcr:uuid: 70f6ac47-8331-4e0a-8904-556661b019b1
         /hst:sitemap:
           jcr:primaryType: hst:sitemap
-          jcr:uuid: d7247081-c257-48d4-a487-0971dff537c4
+          jcr:uuid: ab7d6f0f-8944-41d6-81ef-31e382db45db
         /hst:sitemenus:
           jcr:primaryType: hst:sitemenus
-          jcr:uuid: d6bda4a5-c8b2-46a1-bb45-d5e3b57f49ae
+          jcr:uuid: 8504794b-e13b-4171-83bb-641caf8958ef
           /main:
             jcr:primaryType: hst:sitemenu
-            jcr:uuid: 733cece2-a4e5-41af-b822-232eaa2bf91f
+            jcr:uuid: 4243980d-51ff-4779-8ba4-a112ef605dfd
             /home:
               jcr:primaryType: hst:sitemenuitem
-              jcr:uuid: d16f0481-1e9e-4d06-89e3-64603aa6f5f6
+              jcr:uuid: 3975b8ed-b3ee-4a15-88c2-b69877a1a410
               hst:referencesitemapitem: root
             /news:
               jcr:primaryType: hst:sitemenuitem
-              jcr:uuid: ff3a7842-8e01-4a0f-af26-7dc13d411987
+              jcr:uuid: e87efbe4-73ca-4344-9c31-6034a85ea746
               hst:referencesitemapitem: news
   /hst:blueprints:
     jcr:primaryType: hst:blueprints
-    jcr:uuid: ffacee3c-e416-4caa-b274-2a4e5365162f
+    jcr:uuid: 11d4c083-9bc5-4bf6-9b59-e434fe878812
   /hst:hosts:
     jcr:primaryType: hst:virtualhosts
-    jcr:uuid: 7d68b7a2-ae9b-412f-b857-2eda8491b453
-    hst:defaultcontextpath: /site
+    jcr:uuid: a36ab908-b6e3-4ac7-ad1c-8a9784ca1937
     /dev-localhost:
       jcr:primaryType: hst:virtualhostgroup
-      jcr:uuid: 296fe941-4973-4ea0-99c4-f3507a213220
-      hst:cmslocation: http://localhost:8080/cms
+      jcr:uuid: 95edb3cd-1437-43ee-aaab-e9b048323a5d
       hst:defaultport: 8080
       /localhost:
         jcr:primaryType: hst:virtualhost
-        jcr:uuid: f9a77e71-c8ad-405f-a6a7-12d3e65ba05c
+        jcr:uuid: ce07634f-a3fb-4715-9d0f-8aed789c0e2d
         /hst:root:
           jcr:primaryType: hst:mount
-          jcr:uuid: fe0923b2-9cbb-4007-9cc2-2636c287ecb0
+          jcr:uuid: 7ed8ff20-9eb9-40d6-b78f-90a041f8a766
           hst:homepage: root
-          hst:mountpoint: /hst:hst/hst:sites/myhippoproject
+          hst:mountpoint: /hst:myproject/hst:sites/myproject
           hst:pagemodelapi: resourceapi
           /api:
             jcr:primaryType: hst:mount
-            jcr:uuid: 94f6a0d8-1f9c-4bd9-aa22-dec49096192e
-            hst:namedpipeline: JaxrsRestPlainPipeline
+            jcr:uuid: 95349fa9-0872-4d9d-a240-a372c2e04d91
             hst:ismapped: false
+            hst:namedpipeline: JaxrsRestPlainPipeline
+            hst:types: [rest]
   /hst:sites:
     jcr:primaryType: hst:sites
-    jcr:uuid: c0635a32-8fc5-4f31-8e77-4556e5a1981e
-    /myhippoproject:
+    jcr:uuid: 7e4648c7-4f38-48b7-bdc5-d9c86be51c1e
+    /myproject:
       jcr:primaryType: hst:site
-      jcr:uuid: 16dd8d65-f40e-48e9-85bf-407dfa82a670
-      hst:content: /content/documents/myhippoproject
+      jcr:uuid: 5e0c92ab-88d0-4fa1-8a65-b9151b3ed747
+      hst:content: /content/documents/myproject

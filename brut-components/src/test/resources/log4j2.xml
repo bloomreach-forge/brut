@@ -7,9 +7,9 @@
   </Appenders>
   <Loggers>
     <!--Loggers have to be explicitly added here-->
-    <Logger name="com.bloomreach.ps.brut.components.HippoRepositrySpecificTests" level="info"/>
-    <Logger name="com.bloomreach.ps.brut.components.BaseComponentTestTest" level="info"/>
-    <Logger name="com.bloomreach.ps.brut.components.demo.EssentialsListComponentTest" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.components.HippoRepositrySpecificTests" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.components.BaseComponentTestTest" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.components.demo.EssentialsListComponentTest" level="info"/>
     <Root level="warn">
       <AppenderRef ref="console"/>
     </Root>

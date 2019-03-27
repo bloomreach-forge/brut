@@ -10,7 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
+import org.bloomreach.forge.brut.resources.AbstractPageModelTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,6 +48,11 @@ public class PageModelTest extends AbstractPageModelTest {
         return null;
     }
 
+    @Override
+    protected String contributeHstConfigurationRootPath() {
+        return "/hst:myproject";
+    }
+
     @Test
     @DisplayName("Component rendering url response")
     public void test() throws IOException {
@@ -59,4 +64,5 @@ public class PageModelTest extends AbstractPageModelTest {
         assertTrue(jsonNode.get("page").size() > 0);
         assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
     }
+
 }

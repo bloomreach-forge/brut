@@ -7,8 +7,8 @@
   </Appenders>
   <Loggers>
     <!--Loggers have to be explicitly added here-->
-    <Logger name="com.bloomreach.ps.brut.common.repository.BrxmTestingRepository" level="info"/>
-    <Logger name="com.bloomreach.ps.brut.common.repository.utils.ImporterUtils" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.common.repository.BrxmTestingRepository" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.common.repository.utils.ImporterUtils" level="info"/>
     <Root level="warn">
       <AppenderRef ref="console"/>
     </Root>

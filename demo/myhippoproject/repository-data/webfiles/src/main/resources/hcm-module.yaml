@@ -1,5 +1,0 @@
-group: 
-  name: myhippoproject
-  after: hippo-cms
-project: myhippoproject
-module: myhippoproject-repository-data-webfiles
