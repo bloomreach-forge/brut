@@ -8,7 +8,7 @@
     <version>29.6</version>
   </parent>
 
-  <groupId>org.bloomreach.forge</groupId>
+  <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
   <version>1.0.0</version>
 

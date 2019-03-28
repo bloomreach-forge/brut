@@ -20,14 +20,14 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.bloomreach.forge</groupId>
+      <groupId>org.bloomreach.forge.brut</groupId>
       <artifactId>brut-components</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.bloomreach.forge</groupId>
+      <groupId>org.bloomreach.forge.brut</groupId>
       <artifactId>brut-resources</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
