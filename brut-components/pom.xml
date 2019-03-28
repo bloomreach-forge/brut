@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>brut-components</artifactId>
