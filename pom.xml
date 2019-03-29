@@ -10,7 +10,7 @@
 
   <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 
   <packaging>pom</packaging>
 
