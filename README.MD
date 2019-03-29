@@ -10,7 +10,7 @@ For component testing install the brut-components dependency in the site webapp:
 
 ```xml
     <dependency>
-      <groupId>com.bloomreach.ps</groupId>
+      <groupId>org.bloomreach.forge.brut</groupId>
       <artifactId>brut-components</artifactId>
       <version>${brut.version}</version>
       <scope>test</scope>
@@ -21,7 +21,7 @@ For headless testing install the brut-resources dependency in the site webapp:
 
 ```xml
     <dependency>
-      <groupId>com.bloomreach.ps</groupId>
+      <groupId>org.bloomreach.forge.brut</groupId>
       <artifactId>brut-resources</artifactId>
       <version>${brut.version}</version>
       <scope>test</scope>
@@ -52,7 +52,7 @@ YamlImporter.importYaml(resource, rootNode, "/content/documents/mychannel", "hip
 
 This module is for testing HST components. This is a fork of the project called "Hippo Unit Tester"[link](https://github.com/openweb-nl/hippo-unit-tester) by OpenWeb.
  
- An [example](https://code.onehippo.org/prof-services/brut/blob/master/demo/myhippoproject/site/src/test/java/org/example/EssentialsListComponentTest.java) of usage of this module
+ An [example](https://github.com/bloomreach-forge/brut/blob/support/1.x/demo/site/src/test/java/org/example/EssentialsListComponentTest.java) of usage of this module
  
 ### B.R.U.T. Resources
 
