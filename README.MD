@@ -54,7 +54,7 @@ YamlImporter.importYaml(resource, rootNode, "/content/documents/mychannel", "hip
 
 This module is for testing HST components. This is a fork of the project called [Hippo Unit Tester](https://github.com/openweb-nl/hippo-unit-tester) by OpenWeb.
  
- An [example](https://code.onehippo.org/prof-services/brut/blob/master/demo/myhippoproject/site/src/test/java/org/example/EssentialsListComponentTest.java) of usage of this module
+ An [example](https://github.com/bloomreach-forge/brut/blob/develop/demo/site/components/src/test/java/org/example/EssentialsListComponentTest.java) of usage of this module
  
 ### B.R.U.T. Resources
 
