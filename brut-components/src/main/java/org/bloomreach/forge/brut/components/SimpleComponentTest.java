@@ -45,7 +45,7 @@ public class SimpleComponentTest {
     protected MockComponentManager componentManager = new MockComponentManager();
     protected MockContainerConfiguration containerConfiguration = componentManager.getContainerConfiguration();
 
-    static {
+    public SimpleComponentTest() {
         HstServices.setComponentManager(delegatingComponentManager);
     }
 
