@@ -124,12 +124,13 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         requestContext.setNonDefaultHstQueryManagers(map);
     }
 
-    private void setObjectConverter() throws Exception {
+    protected void setObjectConverter() throws Exception {
         MetadataReaderClasspathResourceScanner resourceScanner = new MetadataReaderClasspathResourceScanner();
         resourceScanner.setResourceLoader(new PathMatchingResourcePatternResolver());
         ObjectConverterFactoryBean objectConverterFactory = new ObjectConverterFactoryBean();
         objectConverterFactory.setClasspathResourceScanner(resourceScanner);
         objectConverterFactory.setAnnotatedClassesResourcePath(getAnnotatedClassesResourcePath());
+        objectConverterFactory.setGenerateDynamicBean(false); //disable dynamic beans feature
         objectConverterFactory.afterPropertiesSet();
         this.objectConverter = objectConverterFactory.getObject();
 

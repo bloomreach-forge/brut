@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>30.1.0</version>
+    <version>30.4.0</version>
   </parent>
 
   <groupId>org.bloomreach.forge.brut</groupId>
@@ -36,11 +36,10 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <hippo.essentials.version>13.1.0</hippo.essentials.version>
+    <hippo.essentials.version>13.4.0</hippo.essentials.version>
     <jcr.version>2.0</jcr.version>
-    <hst.version>13.1.0</hst.version>
-    <hippo.repository.version>13.1.0</hippo.repository.version>
-    <junit.version>4.12</junit.version>
+    <hst.version>13.4.0</hst.version>
+    <hippo.repository.version>13.4.0</hippo.repository.version>
     <mockito-core.version>2.23.0</mockito-core.version>
     <plugin.javadoc.version>2.9.1</plugin.javadoc.version>
     <maven.plugin.surefire.version>2.22.1</maven.plugin.surefire.version>

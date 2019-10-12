@@ -21,7 +21,7 @@
     <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
     <junit-jupiter.version>5.4.0</junit-jupiter.version>
     <commons-logging.version>1.2</commons-logging.version>
-    <hippo-plugin-gallerypicker.version>4.6.0</hippo-plugin-gallerypicker.version>
+    <hippo-plugin-gallerypicker.version>13.4.0</hippo-plugin-gallerypicker.version>
     <jsonassert.version>1.5.0</jsonassert.version>
   </properties>
 
@@ -30,11 +30,28 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <dynamic.bean.generation>false</dynamic.bean.generation>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.onehippo.cms7</groupId>
+      <artifactId>hippo-services</artifactId>
+      <version>${hippo.repository.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.onehippo.cms7</groupId>
+      <artifactId>hippo-services-contenttype</artifactId>
+      <version>${hippo.repository.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.bloomreach.forge.brut</groupId>

@@ -40,9 +40,9 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
     private static final String PAGEMODEL_ADDON_PATH = "org/bloomreach/forge/brut/resources/hst/pagemodel-addon/module.xml";
 
     public void init() {
-        setupComponentManager();
         setupHstRequest();
         setupServletContext();
+        setupComponentManager();
         setupHstPlatform();
         registerHstModel();
         setupHstResponse();
@@ -75,6 +75,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         includeAdditionalSpringConfigurations();
         includeAdditionalAddonModules();
         componentManager.setAddonModuleDefinitions(Collections.singletonList(Utils.loadAddonModule(PAGEMODEL_ADDON_PATH)));
+        componentManager.setServletContext(servletContext);
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");

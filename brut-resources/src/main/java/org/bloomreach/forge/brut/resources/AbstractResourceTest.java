@@ -32,10 +32,10 @@ public abstract class AbstractResourceTest {
 
     private static final String HST_RESET_FILTER = "org.hippoecm.hst.container.HstFilter.reset";
 
-    protected SpringComponentManager componentManager;
+    protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
     protected MockHstResponse hstResponse;
-    protected MockServletContext servletContext;
+    protected MockServletContext servletContext = new MockServletContext();;
 
     protected HstModelRegistryImpl hstModelRegistry;
     protected PlatformServicesImpl platformServices;
@@ -64,18 +64,15 @@ public abstract class AbstractResourceTest {
     }
 
     protected void setupServletContext() {
-        servletContext = new MockServletContext();
         servletContext.setContextPath("/site");
         servletContext.setInitParameter(DefaultContentBeansTool.BEANS_ANNOTATED_CLASSES_CONF_PARAM,
                 getAnnotatedHstBeansClasses());
         hstRequest.setServletContext(servletContext);
-
+        hstRequest.setServletPath("/");
         componentManager.setServletContext(servletContext);
         if (HippoWebappContextRegistry.get().getContext("/site") == null) {
             HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
         }
-        HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
-        hstManager.setServletContext(hstRequest.getServletContext());
     }
 
     protected void setupHstPlatform() {
