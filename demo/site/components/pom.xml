@@ -19,7 +19,6 @@
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>org.bloomreach.forge.brut</groupId>
       <artifactId>brut-components</artifactId>

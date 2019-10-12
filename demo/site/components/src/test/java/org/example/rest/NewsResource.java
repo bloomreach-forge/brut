@@ -1,12 +1,5 @@
 package org.example.rest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
 import org.example.model.ListItemPagination;
 import org.example.model.NewsDocument;
 import org.example.model.NewsItemRep;
@@ -20,6 +13,13 @@ import org.onehippo.cms7.essentials.components.rest.ctx.DefaultRestContext;
 import org.onehippo.cms7.essentials.components.rest.ctx.RestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
 @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 @Path("/news/")

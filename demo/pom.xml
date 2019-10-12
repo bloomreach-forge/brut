@@ -63,7 +63,7 @@
     <!--***START temporary override of versions*** -->
     <!-- ***END temporary override of versions*** -->
 
-    <essentials.version>13.1.0</essentials.version>
+    <essentials.version>13.4.0</essentials.version>
     <jsp-api.version>2.2</jsp-api.version>
     <taglibs.version>1.2.5</taglibs.version>
 
@@ -300,17 +300,17 @@
                   <properties>
                     <context>/cms</context>
                   </properties>
-                  <location>${project.basedir}/cms/target/cms.war</location>
+                  <location>${project.basedir}/cms/target/cms</location>
                 </deployable>
                 <deployable>
-                  <location>${project.basedir}/site/webapp/target/site.war</location>
+                  <location>${project.basedir}/site/webapp/target/site</location>
                   <type>war</type>
                   <properties>
                     <context>/site</context>
                   </properties>
                 </deployable>
                 <deployable>
-                  <location>${project.basedir}/essentials/target/essentials.war</location>
+                  <location>${project.basedir}/essentials/target/essentials</location>
                   <type>war</type>
                   <properties>
                     <context>/essentials</context>

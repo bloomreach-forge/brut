@@ -30,11 +30,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-            <dynamic.bean.generation>false</dynamic.bean.generation>
-          </systemPropertyVariables>
-        </configuration>
       </plugin>
     </plugins>
   </build>

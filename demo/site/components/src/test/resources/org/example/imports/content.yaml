@@ -11,7 +11,7 @@
     /myproject:
       jcr:primaryType: hippostd:folder
       jcr:mixinTypes: ['hippo:named', 'hippotranslation:translated', 'mix:referenceable']
-      jcr:uuid: 48af4f1f-aab4-4f3b-8aa3-079691e5ac26
+      jcr:uuid: c54add00-0967-4372-83ad-f20b840b7a6e
       hippo:name: My Project
       hippostd:foldertype: [new-translated-folder, new-document]
       hippotranslation:id: 996bcac5-86cf-49b5-a7a3-16a74863e814
@@ -19,23 +19,23 @@
       /news:
         jcr:primaryType: hippostd:folder
         jcr:mixinTypes: ['hippotranslation:translated', 'mix:referenceable']
-        jcr:uuid: b0690600-ec5d-4d49-8378-7128e9104369
+        jcr:uuid: db1358ef-f50f-448b-b5ed-c81bcc9ba611
         hippostd:foldertype: [new-news-document, new-news-folder]
-        hippotranslation:id: f7a76e4a-14c1-43fa-86be-7b591633edb3
+        hippotranslation:id: 156fb1a8-48b3-47ab-a907-81c40d515748
         hippotranslation:locale: en
         /2019:
           jcr:primaryType: hippostd:folder
           jcr:mixinTypes: ['hippotranslation:translated', 'mix:referenceable']
-          jcr:uuid: 189cf09c-544f-4225-8d3d-da44ffb2ff7d
+          jcr:uuid: a7cf20c3-fe7a-4792-b5b2-6ade706da87b
           hippostd:foldertype: [new-news-document, new-news-folder]
-          hippotranslation:id: c801aa57-3645-4ff9-b2e4-2a1671e5cf1f
+          hippotranslation:id: 84af7a38-8506-440b-a3c5-f68aa807db75
           hippotranslation:locale: en
-          /03:
+          /10:
             jcr:primaryType: hippostd:folder
             jcr:mixinTypes: ['hippotranslation:translated', 'mix:referenceable']
-            jcr:uuid: a919e165-ff88-4482-8f21-883a60335260
+            jcr:uuid: 0201fb74-1823-44e7-9d39-265f02f84180
             hippostd:foldertype: [new-news-document, new-news-folder]
-            hippotranslation:id: 95ee6299-a99e-44ff-93f4-9e6b170493bc
+            hippotranslation:id: 747c9b39-2403-4ee5-9024-c27418bd5f65
             hippotranslation:locale: en
             /the-medusa-news:
               jcr:primaryType: hippo:handle
@@ -45,7 +45,7 @@
               /the-medusa-news:
                 jcr:primaryType: myproject:newsdocument
                 jcr:mixinTypes: ['mix:referenceable']
-                jcr:uuid: dd03ea30-3c18-4575-8797-e95ebc51ed9b
+                jcr:uuid: ebe64106-9adc-453a-9766-5a9e451e6b99
                 hippo:availability: [live, preview]
                 hippostd:holder: admin
                 hippostd:state: published
@@ -54,10 +54,10 @@
                 hippostdpubwf:lastModificationDate: 2013-11-12T13:04:00+01:00
                 hippostdpubwf:lastModifiedBy: admin
                 hippostdpubwf:publicationDate: 2013-11-12T13:04:00+01:00
-                hippotranslation:id: 345ca6a1-c2d0-4319-9bd4-1c7c6403fc43
+                hippotranslation:id: 5e56eee8-de19-4ca4-b0ef-325003671333
                 hippotranslation:locale: en
                 myproject:author: Alfred Anonymous
-                myproject:date: 2019-03-25T17:11:00Z
+                myproject:date: 2019-10-12T13:13:00+02:00
                 myproject:documenttype: news
                 myproject:introduction: Lorem ipsum dolor sit amet, consectetur adipisicing
                   elit, sed do eiusmod tempor incididunt ut labore et dolore magna
@@ -112,7 +112,7 @@
               /2013-harvest:
                 jcr:primaryType: myproject:newsdocument
                 jcr:mixinTypes: ['mix:referenceable']
-                jcr:uuid: 270f6a6d-6228-4cb3-8809-31d71471f110
+                jcr:uuid: da118085-065d-404f-b40c-b895292e42d2
                 hippo:availability: [live, preview]
                 hippostd:holder: admin
                 hippostd:state: published
@@ -121,10 +121,10 @@
                 hippostdpubwf:lastModificationDate: 2013-11-12T14:31:00+01:00
                 hippostdpubwf:lastModifiedBy: admin
                 hippostdpubwf:publicationDate: 2013-11-12T14:31:00+01:00
-                hippotranslation:id: 37304c91-6017-438a-a816-334c106c88a9
+                hippotranslation:id: 1e409618-3d0d-49b0-aaa3-39c806938f32
                 hippotranslation:locale: en
                 myproject:author: Alfred Anonymous
-                myproject:date: 2019-03-25T17:11:00Z
+                myproject:date: 2019-10-12T13:13:00+02:00
                 myproject:documenttype: news
                 myproject:introduction: Lorem ipsum dolor sit amet, consectetur adipisicing
                   elit, sed do eiusmod tempor incididunt ut labore et dolore magna
@@ -179,7 +179,7 @@
               /the-gastropoda-news:
                 jcr:primaryType: myproject:newsdocument
                 jcr:mixinTypes: ['mix:referenceable']
-                jcr:uuid: c0913cba-b60d-40f6-8846-49971dc2c3ae
+                jcr:uuid: ac56136a-c10e-4a18-ba30-aa2d834b7c8d
                 hippo:availability: [live, preview]
                 hippostd:holder: admin
                 hippostd:state: published
@@ -188,10 +188,10 @@
                 hippostdpubwf:lastModificationDate: 2013-11-12T12:52:00+01:00
                 hippostdpubwf:lastModifiedBy: admin
                 hippostdpubwf:publicationDate: 2013-11-12T12:52:00+01:00
-                hippotranslation:id: 642d4620-407a-4200-adc0-b2087849aeb2
+                hippotranslation:id: e318047a-a70d-4254-a57f-65089c6b6e40
                 hippotranslation:locale: en
                 myproject:author: Alfred Anonymous
-                myproject:date: 2019-03-25T17:11:00Z
+                myproject:date: 2019-10-12T13:13:00+02:00
                 myproject:documenttype: news
                 myproject:introduction: Lorem ipsum dolor sit amet, consectetur adipisicing
                   elit, sed do eiusmod tempor incididunt ut labore et dolore magna
@@ -241,22 +241,22 @@
     /administration:
       jcr:primaryType: hippostd:folder
       jcr:mixinTypes: ['mix:referenceable']
-      jcr:uuid: 9aba7ad7-ff88-49e2-a659-67654694f0b8
+      jcr:uuid: e1ebb3b7-e896-4be6-9098-7b9eccedc3ff
       hippostd:foldertype: [new-resource-bundle, new-untranslated-folder]
       /labels:
         jcr:primaryType: hippostd:folder
         jcr:mixinTypes: ['mix:referenceable']
-        jcr:uuid: a9465393-030d-4f9e-9f7e-d72b817b17c2
+        jcr:uuid: a7aca2d3-f195-4a1c-a9cb-2d76af2b81e9
         hippostd:foldertype: [new-resource-bundle, new-untranslated-folder]
         /global:
           jcr:primaryType: hippo:handle
           jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-          jcr:uuid: dc07aa0f-fe14-4235-9dc2-82d354f08757
+          jcr:uuid: 1803eb4a-2ae7-4a21-93fc-93bb2eb4f4fc
           hippo:name: Global
           /global:
             jcr:primaryType: resourcebundle:resourcebundle
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: b688a384-250c-481e-a6d9-19b888014741
+            jcr:uuid: b1a22ec8-e176-4001-9355-41fecb4915a0
             hippo:availability: [live, preview]
             hippostd:state: published
             hippostdpubwf:createdBy: admin
@@ -271,12 +271,12 @@
         /homepage:
           jcr:primaryType: hippo:handle
           jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-          jcr:uuid: f86b8390-31a8-44e5-ab79-456e62fc644f
+          jcr:uuid: ace03fd8-8720-4cf7-b1ab-09a12eeb8363
           hippo:name: Homepage
           /homepage:
             jcr:primaryType: resourcebundle:resourcebundle
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: 5b4e063d-6b27-4623-b37d-0c3ec0e5f75c
+            jcr:uuid: 9ff0b1ac-8194-410d-940d-1cd7d0bf2971
             hippo:availability: [live, preview]
             hippostd:state: published
             hippostdpubwf:createdBy: admin
@@ -289,19 +289,19 @@
             resourcebundle:id: essentials.homepage
             resourcebundle:keys: [homepage.title, homepage.text]
             resourcebundle:messages: [Home Page, 'Every website comes with its own
-                styling requirements. The BloomReach setup application can therefore
+                styling requirements. The Bloomreach setup application can therefore
                 not address site styling. Instead, the generated pages use minimal
                 styling to render the content. It is the task of the project developer
                 to adjust the front-end to the site''s needs.']
         /pagenotfound:
           jcr:primaryType: hippo:handle
           jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-          jcr:uuid: 57ab7409-6778-4423-b460-fdfc31808eb3
+          jcr:uuid: 66f06723-be01-4c69-89a1-c111ccd46d73
           hippo:name: Page not found
           /pagenotfound:
             jcr:primaryType: resourcebundle:resourcebundle
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: 6ca385f5-4916-45e6-a5c9-211ddde97fc0
+            jcr:uuid: 4d8f3c35-a972-4878-8b68-962143c93921
             hippo:availability: [live, preview]
             hippostd:state: published
             hippostdpubwf:createdBy: admin
@@ -318,12 +318,12 @@
         /pagination:
           jcr:primaryType: hippo:handle
           jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-          jcr:uuid: cd9a448d-2560-48c5-a378-1d990ad82c5e
+          jcr:uuid: 0e91f3db-9fff-4fba-8d74-98e84afe0776
           hippo:name: Pagination
           /pagination:
             jcr:primaryType: resourcebundle:resourcebundle
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: 28624960-2e86-4095-860b-f3a001d5a2be
+            jcr:uuid: 744e2dc7-d833-4b4d-a780-8d2857558380
             hippo:availability: [live, preview]
             hippostd:state: published
             hippostdpubwf:createdBy: admin
@@ -347,14 +347,14 @@
     /myproject:
       jcr:primaryType: hippogallery:stdImageGallery
       jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-      jcr:uuid: c1557276-048d-4d37-b68f-55f4271dfe6e
+      jcr:uuid: 0bd32514-9c2c-4f46-b03b-6f49c2f86f07
       hippo:name: My Project
       hippostd:foldertype: [new-image-folder]
       hippostd:gallerytype: ['hippogallery:imageset']
       /samples:
         jcr:primaryType: hippogallery:stdImageGallery
         jcr:mixinTypes: ['mix:referenceable']
-        jcr:uuid: ca9144bd-4cad-4d8c-93a3-0e2bb531ad7d
+        jcr:uuid: 91295243-f6c3-4e63-ab39-5884fa86288f
         hippostd:foldertype: [new-image-folder]
         hippostd:gallerytype: ['hippogallery:imageset']
         /viognier-grapes-188185_640.jpg:
@@ -364,7 +364,7 @@
           /viognier-grapes-188185_640.jpg:
             jcr:primaryType: hippogallery:imageset
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: 7744f006-f80e-41ad-bd7c-c1b17d88ac41
+            jcr:uuid: c1996103-8b31-4e8b-a818-ce64de13a56a
             hippo:availability: [live, preview]
             hippogallery:description: Description for viognier-grapes-188185_640.jpg
             hippogallery:filename: viognier-grapes-188185_640.jpg
@@ -393,7 +393,7 @@
           /animal-2883_640.jpg:
             jcr:primaryType: hippogallery:imageset
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: 6d00edc2-460d-4b74-9a65-5ab10b8b24e3
+            jcr:uuid: f5f6bb9d-fda9-4e4e-b96d-19eee985fe66
             hippo:availability: [live, preview]
             hippogallery:description: Description for animal-2883_640.jpg
             hippogallery:filename: animal-2883_640.jpg
@@ -422,7 +422,7 @@
           /snail-193611_640.jpg:
             jcr:primaryType: hippogallery:imageset
             jcr:mixinTypes: ['mix:referenceable']
-            jcr:uuid: 26f9b352-9071-4cbe-abff-e06b33ebf07c
+            jcr:uuid: ee0255e4-e694-46e8-a0c6-935cf17d589c
             hippo:availability: [live, preview]
             hippogallery:description: Description for snail-193611_640.jpg
             hippogallery:filename: snail-193611_640.jpg
