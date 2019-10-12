@@ -18,10 +18,18 @@
 
 | brXM | B.R.U.T |
 | --------------------- |-----------| 
-| 13.x                  | 2.x       |
+| 13.4                  | 2.1.0       |
+| 13.1                  | 2.0.0       |
 | 12.x                  | 1.x       |
 
 ## Release Notes
+
+### 2.1.0
+Compatibility with brXM version 13.4.0
+
+* Fixed breaking changes coming from brXM due to dynamic beans feature. Dynamic beans are not supported in brut.
+* Subclasses of SimpleComponentTest in brut-components can now provide their own SpringComponentManager
+* Fixed a bug in brut-resources where servletContext was null in SpringComponentManager (dynamic beans regression)
 
 ### 2.0.0  
 
