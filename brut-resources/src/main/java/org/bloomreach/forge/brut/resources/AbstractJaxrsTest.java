@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.hippoecm.hst.configuration.model.HstManager;
+import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
@@ -14,6 +16,8 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
     private static final int DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE = 1024;
 
     public void init() {
+        setupHstRequest();
+        setupServletContext();
         setupComponentManager();
         setupHstPlatform();
     }
@@ -39,13 +43,14 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
     }
 
     protected void setupComponentManager() {
-        this.componentManager = new SpringComponentManager();
         includeAdditionalSpringConfigurations();
         includeAdditionalAddonModules();
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
         containerConfiguration.setProperty("hst.configuration.rootPath", contributeHstConfigurationRootPath());
+        HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
+        hstManager.setServletContext(hstRequest.getServletContext());
     }
 
     private void includeAdditionalAddonModules() {

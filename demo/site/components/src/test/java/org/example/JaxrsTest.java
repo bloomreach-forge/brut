@@ -1,7 +1,11 @@
 package org.example;
 
-import java.util.Arrays;
-import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bloomreach.forge.brut.resources.AbstractJaxrsTest;
+import org.example.model.ListItemPagination;
+import org.example.model.NewsItemRep;
+import org.junit.jupiter.api.*;
 
 import javax.jcr.Node;
 import javax.jcr.Repository;
@@ -10,18 +14,8 @@ import javax.jcr.SimpleCredentials;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
-import org.example.model.ListItemPagination;
-import org.example.model.NewsItemRep;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import org.bloomreach.forge.brut.resources.AbstractJaxrsTest;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

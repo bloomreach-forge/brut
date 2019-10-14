@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HippoRepositrySpecificTests extends BaseComponentTest {

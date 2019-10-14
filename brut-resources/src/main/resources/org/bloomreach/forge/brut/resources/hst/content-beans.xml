@@ -6,6 +6,7 @@
 
   <bean id="org.hippoecm.hst.content.beans.manager.ObjectConverter" class="org.hippoecm.hst.site.content.ObjectConverterFactoryBean">
     <property name="classpathResourceScanner" ref="org.hippoecm.hst.util.ClasspathResourceScanner" />
+    <property name="generateDynamicBean" value="false" />
   </bean>
 
   <bean id="org.hippoecm.hst.content.tool.ContentBeansTool" class="org.hippoecm.hst.content.tool.DefaultContentBeansTool">

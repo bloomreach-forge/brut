@@ -32,10 +32,10 @@ public abstract class AbstractResourceTest {
 
     private static final String HST_RESET_FILTER = "org.hippoecm.hst.container.HstFilter.reset";
 
-    protected SpringComponentManager componentManager;
+    protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
     protected MockHstResponse hstResponse;
-    protected MockServletContext servletContext;
+    protected MockServletContext servletContext = new MockServletContext();;
 
     protected HstModelRegistryImpl hstModelRegistry;
     protected PlatformServicesImpl platformServices;
@@ -64,18 +64,15 @@ public abstract class AbstractResourceTest {
     }
 
     protected void setupServletContext() {
-        servletContext = new MockServletContext();
         servletContext.setContextPath("/site");
         servletContext.setInitParameter(DefaultContentBeansTool.BEANS_ANNOTATED_CLASSES_CONF_PARAM,
                 getAnnotatedHstBeansClasses());
         hstRequest.setServletContext(servletContext);
-
+        hstRequest.setServletPath("/");
         componentManager.setServletContext(servletContext);
         if (HippoWebappContextRegistry.get().getContext("/site") == null) {
             HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
         }
-        HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
-        hstManager.setServletContext(hstRequest.getServletContext());
     }
 
     protected void setupHstPlatform() {
@@ -158,18 +155,16 @@ public abstract class AbstractResourceTest {
     }
 
     /**
-     * Return any additional spring xml locations to be included in the spring application context The returned value
+     * @return any additional spring xml locations to be included in the spring application context The returned value
      * should be a pattern
      *
-     * @return
      */
 
     protected abstract List<String> contributeSpringConfigurationLocations();
 
     /**
-     * Return any additional hst addon module location patterns
+     * @return any additional hst addon module location patterns
      *
-     * @return
      */
     protected abstract List<String> contributeAddonModulePaths();
 
@@ -179,9 +174,8 @@ public abstract class AbstractResourceTest {
     protected abstract void performValidation();
 
     /**
-     * Absolute path of the root hst configuration node. E.g. "/hst:myproject"
+     * @return absolute path of the root hst configuration node. E.g. "/hst:myproject"
      *
-     * @return
      */
 
     protected abstract String contributeHstConfigurationRootPath();

@@ -1,17 +1,17 @@
 /content/documents/administration/labels:
   jcr:primaryType: hippostd:folder
   jcr:mixinTypes: ['mix:referenceable']
-  jcr:uuid: a9465393-030d-4f9e-9f7e-d72b817b17c2
+  jcr:uuid: a7aca2d3-f195-4a1c-a9cb-2d76af2b81e9
   hippostd:foldertype: [new-resource-bundle, new-untranslated-folder]
   /global:
     jcr:primaryType: hippo:handle
     jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-    jcr:uuid: dc07aa0f-fe14-4235-9dc2-82d354f08757
+    jcr:uuid: 1803eb4a-2ae7-4a21-93fc-93bb2eb4f4fc
     hippo:name: Global
     /global:
       jcr:primaryType: resourcebundle:resourcebundle
       jcr:mixinTypes: ['mix:referenceable']
-      jcr:uuid: b688a384-250c-481e-a6d9-19b888014741
+      jcr:uuid: b1a22ec8-e176-4001-9355-41fecb4915a0
       hippo:availability: [live, preview]
       hippostd:state: published
       hippostdpubwf:createdBy: admin
@@ -26,12 +26,12 @@
   /homepage:
     jcr:primaryType: hippo:handle
     jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-    jcr:uuid: f86b8390-31a8-44e5-ab79-456e62fc644f
+    jcr:uuid: ace03fd8-8720-4cf7-b1ab-09a12eeb8363
     hippo:name: Homepage
     /homepage:
       jcr:primaryType: resourcebundle:resourcebundle
       jcr:mixinTypes: ['mix:referenceable']
-      jcr:uuid: 5b4e063d-6b27-4623-b37d-0c3ec0e5f75c
+      jcr:uuid: 9ff0b1ac-8194-410d-940d-1cd7d0bf2971
       hippo:availability: [live, preview]
       hippostd:state: published
       hippostdpubwf:createdBy: admin
@@ -44,19 +44,19 @@
       resourcebundle:id: essentials.homepage
       resourcebundle:keys: [homepage.title, homepage.text]
       resourcebundle:messages: [Home Page, 'Every website comes with its own styling
-          requirements. The BloomReach setup application can therefore not address
+          requirements. The Bloomreach setup application can therefore not address
           site styling. Instead, the generated pages use minimal styling to render
           the content. It is the task of the project developer to adjust the front-end
           to the site''s needs.']
   /pagenotfound:
     jcr:primaryType: hippo:handle
     jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-    jcr:uuid: 57ab7409-6778-4423-b460-fdfc31808eb3
+    jcr:uuid: 66f06723-be01-4c69-89a1-c111ccd46d73
     hippo:name: Page not found
     /pagenotfound:
       jcr:primaryType: resourcebundle:resourcebundle
       jcr:mixinTypes: ['mix:referenceable']
-      jcr:uuid: 6ca385f5-4916-45e6-a5c9-211ddde97fc0
+      jcr:uuid: 4d8f3c35-a972-4878-8b68-962143c93921
       hippo:availability: [live, preview]
       hippostd:state: published
       hippostdpubwf:createdBy: admin
@@ -73,12 +73,12 @@
   /pagination:
     jcr:primaryType: hippo:handle
     jcr:mixinTypes: ['hippo:named', 'mix:referenceable']
-    jcr:uuid: cd9a448d-2560-48c5-a378-1d990ad82c5e
+    jcr:uuid: 0e91f3db-9fff-4fba-8d74-98e84afe0776
     hippo:name: Pagination
     /pagination:
       jcr:primaryType: resourcebundle:resourcebundle
       jcr:mixinTypes: ['mix:referenceable']
-      jcr:uuid: 28624960-2e86-4095-860b-f3a001d5a2be
+      jcr:uuid: 744e2dc7-d833-4b4d-a780-8d2857558380
       hippo:availability: [live, preview]
       hippostd:state: published
       hippostdpubwf:createdBy: admin

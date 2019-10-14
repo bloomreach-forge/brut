@@ -1,10 +1,8 @@
 package org.example;
 
-import java.net.URL;
-import java.util.List;
-
-import javax.jcr.RepositoryException;
-
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import org.bloomreach.forge.brut.components.BaseComponentTest;
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 import org.example.domain.AnotherType;
 import org.example.domain.NewsPage;
 import org.junit.jupiter.api.AfterEach;
@@ -16,9 +14,9 @@ import org.onehippo.cms7.essentials.components.EssentialsListComponent;
 import org.onehippo.cms7.essentials.components.info.EssentialsListComponentInfo;
 import org.onehippo.cms7.essentials.components.paging.IterablePagination;
 
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
-import org.bloomreach.forge.brut.components.BaseComponentTest;
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
+import javax.jcr.RepositoryException;
+import java.net.URL;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

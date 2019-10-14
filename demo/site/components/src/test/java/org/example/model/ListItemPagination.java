@@ -1,13 +1,11 @@
 package org.example.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAnyElement;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.onehippo.cms7.essentials.components.paging.Pageable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.xml.bind.annotation.XmlAnyElement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListItemPagination<T> extends Pageable<T> {
 
