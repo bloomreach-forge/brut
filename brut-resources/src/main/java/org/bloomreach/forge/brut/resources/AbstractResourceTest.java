@@ -155,18 +155,16 @@ public abstract class AbstractResourceTest {
     }
 
     /**
-     * Return any additional spring xml locations to be included in the spring application context The returned value
+     * @return any additional spring xml locations to be included in the spring application context The returned value
      * should be a pattern
      *
-     * @return
      */
 
     protected abstract List<String> contributeSpringConfigurationLocations();
 
     /**
-     * Return any additional hst addon module location patterns
+     * @return any additional hst addon module location patterns
      *
-     * @return
      */
     protected abstract List<String> contributeAddonModulePaths();
 
@@ -176,9 +174,8 @@ public abstract class AbstractResourceTest {
     protected abstract void performValidation();
 
     /**
-     * Absolute path of the root hst configuration node. E.g. "/hst:myproject"
+     * @return absolute path of the root hst configuration node. E.g. "/hst:myproject"
      *
-     * @return
      */
 
     protected abstract String contributeHstConfigurationRootPath();
