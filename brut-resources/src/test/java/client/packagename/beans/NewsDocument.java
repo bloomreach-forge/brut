@@ -1,12 +1,12 @@
 package client.packagename.beans;
 
-import java.util.Calendar;
-
 import org.hippoecm.hst.content.beans.Node;
 import org.hippoecm.hst.content.beans.standard.HippoDocument;
 import org.hippoecm.hst.content.beans.standard.HippoGalleryImageSet;
 import org.hippoecm.hst.content.beans.standard.HippoHtml;
 import org.onehippo.cms7.essentials.dashboard.annotations.HippoEssentialsGenerated;
+
+import java.util.Calendar;
 
 @HippoEssentialsGenerated(internalName = "myproject:newsdocument")
 @Node(jcrType = "myproject:newsdocument")
@@ -33,7 +33,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:title")
     public String getTitle() {
-        return getProperty(TITLE);
+        return getSingleProperty(TITLE);
     }
 
     /**
@@ -43,7 +43,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:date")
     public Calendar getDate() {
-        return getProperty(DATE);
+        return getSingleProperty(DATE);
     }
 
     /**
@@ -53,7 +53,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:introduction")
     public String getIntroduction() {
-        return getProperty(INTRODUCTION);
+        return getSingleProperty(INTRODUCTION);
     }
 
     /**
@@ -83,7 +83,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:location")
     public String getLocation() {
-        return getProperty(LOCATION);
+        return getSingleProperty(LOCATION);
     }
 
     /**
@@ -93,7 +93,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:author")
     public String getAuthor() {
-        return getProperty(AUTHOR);
+        return getSingleProperty(AUTHOR);
     }
 
     /**
@@ -103,7 +103,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:source")
     public String getSource() {
-        return getProperty(SOURCE);
+        return getSingleProperty(SOURCE);
     }
 
 }

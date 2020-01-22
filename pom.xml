@@ -10,7 +10,7 @@
 
   <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
-  <version>2.1.3-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -36,15 +36,17 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <hippo.essentials.version>13.4.0</hippo.essentials.version>
+    <hippo.essentials.version>14.0.0</hippo.essentials.version>
     <jcr.version>2.0</jcr.version>
-    <hst.version>13.4.0</hst.version>
-    <hippo.repository.version>13.4.0</hippo.repository.version>
+    <hst.version>14.0.0</hst.version>
+    <hippo.repository.version>14.0.0-2</hippo.repository.version>
+    <hippo-services.version>14.0.0</hippo-services.version>
     <mockito-core.version>2.23.0</mockito-core.version>
     <plugin.javadoc.version>2.9.1</plugin.javadoc.version>
     <maven.plugin.surefire.version>2.22.1</maven.plugin.surefire.version>
     <junit-jupiter.version>5.4.0</junit-jupiter.version>
     <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+<!--    TODO consider upgrading dependencies-->
   </properties>
 
   <scm>

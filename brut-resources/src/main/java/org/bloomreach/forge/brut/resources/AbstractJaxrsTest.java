@@ -1,15 +1,15 @@
 package org.bloomreach.forge.brut.resources;
 
-import java.io.ByteArrayInputStream;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.hippoecm.hst.configuration.model.HstManager;
 import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
 import org.springframework.mock.web.DelegatingServletInputStream;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 

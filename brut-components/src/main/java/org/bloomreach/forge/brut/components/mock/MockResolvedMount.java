@@ -1,13 +1,13 @@
 package org.bloomreach.forge.brut.components.mock;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.hippoecm.hst.configuration.hosting.Mount;
 import org.hippoecm.hst.core.internal.MutableResolvedMount;
 import org.hippoecm.hst.core.request.ResolvedSiteMapItem;
 import org.hippoecm.hst.core.request.ResolvedVirtualHost;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class MockResolvedMount implements MutableResolvedMount {
     private Mount mount;

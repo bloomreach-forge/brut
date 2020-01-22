@@ -1,15 +1,7 @@
 package org.bloomreach.forge.brut.common.repository.utils;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.nodetype.NodeType;
-
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.bloomreach.forge.brut.common.repository.FileResourceInputProvider;
 import org.onehippo.cm.engine.JcrContentProcessor;
 import org.onehippo.cm.model.definition.ActionType;
 import org.onehippo.cm.model.impl.GroupImpl;
@@ -21,7 +13,13 @@ import org.onehippo.cm.model.source.ResourceInputProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.bloomreach.forge.brut.common.repository.FileResourceInputProvider;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class ImporterUtils {
 

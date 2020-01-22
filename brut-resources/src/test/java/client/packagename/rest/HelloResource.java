@@ -1,17 +1,16 @@
 package client.packagename.rest;
 
+import com.google.common.base.Strings;
+import org.hippoecm.hst.configuration.hosting.Mount;
+import org.hippoecm.hst.container.RequestContextProvider;
+import org.onehippo.cms7.essentials.components.rest.BaseRestResource;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.hippoecm.hst.configuration.hosting.Mount;
-import org.hippoecm.hst.container.RequestContextProvider;
-import org.onehippo.cms7.essentials.components.rest.BaseRestResource;
-
-import com.google.common.base.Strings;
 
 
 @Path("/hello/")

@@ -1,12 +1,12 @@
 package org.bloomreach.forge.brut.components;
 
+import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
+
 import javax.jcr.Credentials;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-
-import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 
 public abstract class BaseComponentTest extends AbstractRepoTest {
 

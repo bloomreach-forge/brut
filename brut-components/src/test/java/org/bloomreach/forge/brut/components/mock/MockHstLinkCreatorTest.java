@@ -1,11 +1,8 @@
 package org.bloomreach.forge.brut.components.mock;
 
-import java.net.URL;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import org.bloomreach.forge.brut.components.BaseComponentTest;
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 import org.hippoecm.hst.configuration.sitemap.HstSiteMapItem;
 import org.hippoecm.hst.content.beans.standard.HippoBean;
 import org.hippoecm.hst.core.linking.HstLink;
@@ -14,9 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
-import org.bloomreach.forge.brut.components.BaseComponentTest;
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
+import java.net.URL;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

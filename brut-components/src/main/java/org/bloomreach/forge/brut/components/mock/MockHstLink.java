@@ -1,11 +1,11 @@
 package org.bloomreach.forge.brut.components.mock;
 
-import java.io.UnsupportedEncodingException;
-
 import org.apache.commons.lang.StringUtils;
 import org.hippoecm.hst.core.component.HstComponentException;
 import org.hippoecm.hst.core.request.HstRequestContext;
 import org.hippoecm.hst.core.util.PathEncoder;
+
+import java.io.UnsupportedEncodingException;
 
 import static org.apache.commons.lang.CharEncoding.UTF_8;
 import static org.apache.commons.lang.StringUtils.EMPTY;

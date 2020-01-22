@@ -1,13 +1,12 @@
 package org.bloomreach.forge.brut.components.mock;
 
+import org.hippoecm.hst.core.container.ComponentManager;
+import org.hippoecm.hst.core.container.ContainerConfiguration;
+
+import javax.servlet.ServletContext;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.ServletContext;
-
-import org.hippoecm.hst.core.container.ComponentManager;
-import org.hippoecm.hst.core.container.ContainerConfiguration;
 
 public class DelegatingComponentManager implements ComponentManager {
 

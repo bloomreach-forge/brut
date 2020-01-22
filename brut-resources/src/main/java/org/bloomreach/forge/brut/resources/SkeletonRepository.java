@@ -1,18 +1,8 @@
 package org.bloomreach.forge.brut.resources;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-import javax.jcr.nodetype.NodeType;
-
 import org.apache.jackrabbit.commons.cnd.CndImporter;
+import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +10,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import javax.jcr.*;
+import javax.jcr.nodetype.NodeType;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
 

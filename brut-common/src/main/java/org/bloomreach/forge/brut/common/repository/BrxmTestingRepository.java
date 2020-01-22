@@ -1,22 +1,17 @@
 package org.bloomreach.forge.brut.common.repository;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-
-import javax.jcr.Credentials;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.hippoecm.repository.impl.RepositoryDecorator;
 import org.hippoecm.repository.jackrabbit.RepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 public class BrxmTestingRepository implements Repository, AutoCloseable {
 
