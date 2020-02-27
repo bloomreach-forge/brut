@@ -12,6 +12,12 @@
   <name>My Project Site Components</name>
   <description>My Project Site Components</description>
 
+  <properties>
+    <mockito.version>2.23.0</mockito.version>
+    <junit-jupiter.version>5.4.0</junit-jupiter.version>
+    <maven.plugin.surefire.version>2.22.1</maven.plugin.surefire.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
@@ -42,6 +48,39 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-plugin-selections-hst-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.bloomreach.forge.brut</groupId>
+      <artifactId>brut-components</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.bloomreach.forge.brut</groupId>
+      <artifactId>brut-resources</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+      <version>${junit-jupiter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+      <version>${junit-jupiter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>

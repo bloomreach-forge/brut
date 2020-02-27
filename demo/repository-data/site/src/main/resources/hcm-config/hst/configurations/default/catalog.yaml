@@ -1,0 +1,10 @@
+definitions:
+  config:
+    /hst:hst/hst:configurations/hst:default/hst:catalog/essentials-catalog:
+      jcr:primaryType: hst:containeritempackage
+      /newslist:
+        jcr:primaryType: hst:containeritemcomponent
+        hst:componentclassname: org.onehippo.cms7.essentials.components.EssentialsNewsComponent
+        hst:iconpath: images/essentials/catalog-component-icons/news-list.svg
+        hst:label: News List
+        hst:template: newslist-main-newslist
