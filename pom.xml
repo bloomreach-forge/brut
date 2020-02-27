@@ -41,12 +41,11 @@
     <hst.version>14.0.0</hst.version>
     <hippo.repository.version>14.0.0-2</hippo.repository.version>
     <hippo-services.version>14.0.0</hippo-services.version>
-    <mockito-core.version>2.23.0</mockito-core.version>
+    <mockito-core.version>3.3.0</mockito-core.version>
     <plugin.javadoc.version>2.9.1</plugin.javadoc.version>
-    <maven.plugin.surefire.version>2.22.1</maven.plugin.surefire.version>
-    <junit-jupiter.version>5.4.0</junit-jupiter.version>
+    <maven.plugin.surefire.version>2.22.2</maven.plugin.surefire.version>
+    <junit-jupiter.version>5.6.0</junit-jupiter.version>
     <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-<!--    TODO consider upgrading dependencies-->
   </properties>
 
   <scm>
