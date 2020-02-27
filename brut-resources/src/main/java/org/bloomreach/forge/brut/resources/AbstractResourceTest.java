@@ -1,14 +1,5 @@
 package org.bloomreach.forge.brut.resources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Nullable;
-import javax.jcr.Repository;
-
-import org.hippoecm.hst.configuration.model.HstManager;
-import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.container.HstDelegateeFilterBean;
 import org.hippoecm.hst.container.HstFilter;
 import org.hippoecm.hst.content.tool.DefaultContentBeansTool;
@@ -26,6 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockServletContext;
 
+import javax.annotation.Nullable;
+import javax.jcr.Repository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class AbstractResourceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractResourceTest.class);
@@ -35,7 +32,8 @@ public abstract class AbstractResourceTest {
     protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
     protected MockHstResponse hstResponse;
-    protected MockServletContext servletContext = new MockServletContext();;
+    protected MockServletContext servletContext = new MockServletContext();
+    ;
 
     protected HstModelRegistryImpl hstModelRegistry;
     protected PlatformServicesImpl platformServices;
@@ -157,14 +155,12 @@ public abstract class AbstractResourceTest {
     /**
      * @return any additional spring xml locations to be included in the spring application context The returned value
      * should be a pattern
-     *
      */
 
     protected abstract List<String> contributeSpringConfigurationLocations();
 
     /**
      * @return any additional hst addon module location patterns
-     *
      */
     protected abstract List<String> contributeAddonModulePaths();
 
@@ -175,7 +171,6 @@ public abstract class AbstractResourceTest {
 
     /**
      * @return absolute path of the root hst configuration node. E.g. "/hst:myproject"
-     *
      */
 
     protected abstract String contributeHstConfigurationRootPath();

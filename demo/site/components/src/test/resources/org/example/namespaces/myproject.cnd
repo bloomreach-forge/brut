@@ -5,8 +5,8 @@
 <'hippotranslation'='http://www.onehippo.org/jcr/hippotranslation/nt/1.0'>
 
 [myproject:basedocument] > hippo:document, hippostd:publishableSummary, hippostdpubwf:document
-  orderable
+orderable
 
 [myproject:newsdocument] > hippostd:relaxed, hippotranslation:translated, myproject:basedocument
-  orderable
+orderable
 

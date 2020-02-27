@@ -7,19 +7,19 @@ import org.hippoecm.hst.content.beans.standard.HippoDocument;
 public class NewsPage extends HippoDocument {
 
     public String getTitle() {
-        return getProperty("ns:title");
+        return getSingleProperty("ns:title");
     }
 
     public String getIntroduction() {
-        return getProperty("ns:introduction");
+        return getSingleProperty("ns:introduction");
     }
 
     public String getSubjecttags() {
-        return getProperty("ns:subjecttags");
+        return getSingleProperty("ns:subjecttags");
     }
 
     public String getBrowserTitle() {
-        return getProperty("ns:browserTitle");
+        return getSingleProperty("ns:browserTitle");
     }
 
     public NewsPage getRelatedNews() {

@@ -1,10 +1,7 @@
 package org.bloomreach.forge.brut.components;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
+import org.bloomreach.forge.brut.components.mock.*;
 import org.hippoecm.hst.configuration.channel.ChannelInfo;
 import org.hippoecm.hst.container.RequestContextProvider;
 import org.hippoecm.hst.core.container.ComponentManager;
@@ -18,12 +15,10 @@ import org.hippoecm.hst.mock.core.request.MockHstRequestContext;
 import org.hippoecm.hst.mock.core.request.MockResolvedSiteMapItem;
 import org.hippoecm.hst.site.HstServices;
 
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
-import org.bloomreach.forge.brut.components.mock.DelegatingComponentManager;
-import org.bloomreach.forge.brut.components.mock.MockComponentManager;
-import org.bloomreach.forge.brut.components.mock.MockHstLinkCreator;
-import org.bloomreach.forge.brut.components.mock.MockMount;
-import org.bloomreach.forge.brut.components.mock.MockResolvedMount;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hippoecm.hst.utils.ParameterUtils.PARAMETERS_INFO_ATTRIBUTE;
 

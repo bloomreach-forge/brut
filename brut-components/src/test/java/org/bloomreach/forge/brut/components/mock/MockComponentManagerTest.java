@@ -1,19 +1,15 @@
-
 package org.bloomreach.forge.brut.components.mock;
-
-import java.util.Map;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 
 import org.hippoecm.hst.core.container.ComponentsException;
 import org.hippoecm.hst.mock.core.container.MockContainerConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 

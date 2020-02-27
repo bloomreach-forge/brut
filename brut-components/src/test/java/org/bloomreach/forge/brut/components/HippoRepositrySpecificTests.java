@@ -1,16 +1,14 @@
 package org.bloomreach.forge.brut.components;
 
-import java.net.URL;
-
-import javax.jcr.RepositoryException;
-
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.hippoecm.hst.content.beans.standard.HippoBean;
 import org.hippoecm.hst.content.beans.standard.HippoDocument;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import javax.jcr.RepositoryException;
+import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

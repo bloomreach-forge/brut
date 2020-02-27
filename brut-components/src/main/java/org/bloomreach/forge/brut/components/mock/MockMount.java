@@ -1,13 +1,5 @@
 package org.bloomreach.forge.brut.components.mock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import org.hippoecm.hst.configuration.channel.ChannelInfo;
 import org.hippoecm.hst.configuration.hosting.Mount;
 import org.hippoecm.hst.configuration.hosting.MutableMount;
@@ -16,6 +8,8 @@ import org.hippoecm.hst.configuration.internal.ContextualizableMount;
 import org.hippoecm.hst.configuration.site.HstSite;
 import org.hippoecm.hst.core.request.HstSiteMapMatcher;
 import org.onehippo.cms7.services.hst.Channel;
+
+import java.util.*;
 
 public class MockMount implements ContextualizableMount {
 

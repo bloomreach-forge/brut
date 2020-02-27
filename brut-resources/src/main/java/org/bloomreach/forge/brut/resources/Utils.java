@@ -1,15 +1,14 @@
 package org.bloomreach.forge.brut.resources;
 
-import java.io.IOException;
-import java.net.URL;
+import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
-import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.net.URL;
 
 public class Utils {
 

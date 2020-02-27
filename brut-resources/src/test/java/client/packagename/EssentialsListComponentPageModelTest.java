@@ -1,17 +1,12 @@
 package client.packagename;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.bloomreach.forge.brut.resources.AbstractPageModelTest;
+import org.junit.jupiter.api.*;
 import org.onehippo.cms7.essentials.components.EssentialsListComponent;
 import org.onehippo.cms7.essentials.components.info.EssentialsListComponentInfo;
 
-import org.bloomreach.forge.brut.resources.AbstractPageModelTest;
+import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

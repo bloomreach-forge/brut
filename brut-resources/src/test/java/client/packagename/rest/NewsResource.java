@@ -1,12 +1,8 @@
 package client.packagename.rest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
+import client.packagename.model.ListItemPagination;
+import client.packagename.model.NewsDocument;
+import client.packagename.model.NewsItemRep;
 import org.hippoecm.hst.content.beans.query.HstQuery;
 import org.hippoecm.hst.content.beans.query.HstQueryResult;
 import org.hippoecm.hst.content.beans.query.exceptions.QueryException;
@@ -18,9 +14,12 @@ import org.onehippo.cms7.essentials.components.rest.ctx.RestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import client.packagename.model.ListItemPagination;
-import client.packagename.model.NewsDocument;
-import client.packagename.model.NewsItemRep;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
 
 @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

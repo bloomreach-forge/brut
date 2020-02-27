@@ -1,10 +1,9 @@
 package org.bloomreach.forge.brut.common.repository.utils;
 
+import javax.jcr.Session;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import javax.jcr.Session;
 
 public class ReflectionUtils {
 

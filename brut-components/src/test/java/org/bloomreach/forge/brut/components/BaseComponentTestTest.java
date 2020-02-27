@@ -1,16 +1,9 @@
 package org.bloomreach.forge.brut.components;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.URL;
-
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-
 import org.apache.commons.io.IOUtils;
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import org.bloomreach.forge.brut.components.demo.domain.NewsPage;
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 import org.hippoecm.hst.content.beans.query.HstQuery;
 import org.hippoecm.hst.content.beans.query.builder.HstQueryBuilder;
 import org.hippoecm.hst.content.beans.query.exceptions.QueryException;
@@ -19,18 +12,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
-import org.bloomreach.forge.brut.components.demo.domain.NewsPage;
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URL;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BaseComponentTestTest extends BaseComponentTest {
 

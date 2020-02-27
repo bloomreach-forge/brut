@@ -1,9 +1,5 @@
 package org.bloomreach.forge.brut.resources;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.servlet.http.HttpServletRequest;
-
 import org.hippoecm.hst.core.container.AbstractBaseOrderableValve;
 import org.hippoecm.hst.core.container.ContainerConstants;
 import org.hippoecm.hst.core.container.ContainerException;
@@ -11,6 +7,10 @@ import org.hippoecm.hst.core.container.ValveContext;
 import org.hippoecm.hst.core.request.HstRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.servlet.http.HttpServletRequest;
 
 public class BrutCleanupValve extends AbstractBaseOrderableValve {
 
