@@ -18,11 +18,15 @@
 
 | brXM | B.R.U.T |
 | --------------------- |-----------| 
+| 14.0.0-2              | 3.0.0       |
 | 13.4                  | 2.1.2       |
 | 13.1                  | 2.0.0       |
 | 12.x                  | 1.x       |
 
 ## Release Notes
+
+### 3.0.0
+Compatibility with brXM version 14.0.0-2
 
 ### 2.1.2
 Compatibility with brXM version 13.4.0
