@@ -1,17 +1,16 @@
 package org.bloomreach.forge.brut.components.mock;
 
+import org.hippoecm.hst.core.container.ComponentManager;
+import org.hippoecm.hst.core.container.ComponentsException;
+import org.hippoecm.hst.mock.core.container.MockContainerConfiguration;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-
-import org.hippoecm.hst.core.container.ComponentManager;
-import org.hippoecm.hst.core.container.ComponentsException;
-import org.hippoecm.hst.mock.core.container.MockContainerConfiguration;
 
 public class MockComponentManager implements ComponentManager {
     private Map<String, Object> components = new HashMap<>();

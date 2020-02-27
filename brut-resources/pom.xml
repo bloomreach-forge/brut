@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>2.1.2</version>
+    <version>3.0.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -16,10 +16,9 @@
   <artifactId>brut-resources</artifactId>
 
   <properties>
-    <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-    <junit-jupiter.version>5.4.0</junit-jupiter.version>
+    <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
     <commons-logging.version>1.2</commons-logging.version>
-    <hippo-plugin-gallerypicker.version>13.4.0</hippo-plugin-gallerypicker.version>
+    <hippo-plugin-gallerypicker.version>14.0.0</hippo-plugin-gallerypicker.version>
     <jsonassert.version>1.5.0</jsonassert.version>
   </properties>
 
@@ -37,13 +36,13 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-services</artifactId>
-      <version>${hippo.repository.version}</version>
+      <version>${hippo-services.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-services-contenttype</artifactId>
-      <version>${hippo.repository.version}</version>
+      <version>${hippo-services.version}</version>
     </dependency>
 
     <dependency>

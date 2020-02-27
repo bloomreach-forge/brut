@@ -3,15 +3,15 @@ definitions:
     /hippo:namespaces/myproject/newsdocument:
       jcr:primaryType: hipposysedit:templatetype
       jcr:mixinTypes: ['editor:editable', 'mix:referenceable']
-      jcr:uuid: 6f05d624-fa80-413d-8a20-dfbee82181f5
+      jcr:uuid: eac13d6b-b1a8-4d7b-a727-f911feed28c9
       /hipposysedit:nodetype:
         jcr:primaryType: hippo:handle
         jcr:mixinTypes: ['mix:referenceable']
-        jcr:uuid: c38170b1-16c2-43b3-ab54-def2e3ab42ed
+        jcr:uuid: 0614e312-a8d7-4495-9797-d1783b4a45ff
         /hipposysedit:nodetype:
           jcr:primaryType: hipposysedit:nodetype
           jcr:mixinTypes: ['hipposysedit:remodel', 'mix:referenceable']
-          jcr:uuid: b8844c1b-3b5b-4aae-b6f6-be2a9cd88a58
+          jcr:uuid: 227b36ee-0eac-4206-96ab-dd0e1030d931
           hipposysedit:node: true
           hipposysedit:supertype: ['myproject:basedocument', 'hippostd:relaxed', 'hippotranslation:translated']
           hipposysedit:uri: http://www.myproject.com/myproject/nt/1.0
@@ -85,7 +85,7 @@ definitions:
         /hipposysedit:prototype:
           jcr:primaryType: myproject:newsdocument
           jcr:mixinTypes: ['mix:referenceable']
-          jcr:uuid: 434673e4-055b-4dec-b715-33ad5a11ae94
+          jcr:uuid: cdbdd77d-5fac-4a70-9a59-2dadd49892d9
           hippo:related___pathreference: []
           hippostd:holder: holder
           hippostd:state: draft

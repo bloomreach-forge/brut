@@ -1,17 +1,16 @@
 package client.packagename.model;
 
-import java.util.Calendar;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.hippoecm.hst.content.beans.Node;
 import org.hippoecm.hst.content.beans.standard.HippoDocument;
 import org.hippoecm.hst.content.beans.standard.HippoGalleryImageSet;
 import org.hippoecm.hst.content.beans.standard.HippoHtml;
 import org.onehippo.cms7.essentials.dashboard.annotations.HippoEssentialsGenerated;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Calendar;
 
 @XmlRootElement(name = "newsdocument")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -41,7 +40,7 @@ public class NewsDocument extends HippoDocument {
     @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:title")
     public String getTitle() {
-        return getProperty(TITLE);
+        return getSingleProperty(TITLE);
     }
 
     /**
@@ -52,7 +51,7 @@ public class NewsDocument extends HippoDocument {
     @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:date")
     public Calendar getDate() {
-        return getProperty(DATE);
+        return getSingleProperty(DATE);
     }
 
     /**
@@ -62,7 +61,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:introduction")
     public String getIntroduction() {
-        return getProperty(INTRODUCTION);
+        return getSingleProperty(INTRODUCTION);
     }
 
     /**
@@ -92,7 +91,7 @@ public class NewsDocument extends HippoDocument {
      */
     @HippoEssentialsGenerated(internalName = "myproject:location")
     public String getLocation() {
-        return getProperty(LOCATION);
+        return getSingleProperty(LOCATION);
     }
 
     /**
@@ -103,7 +102,7 @@ public class NewsDocument extends HippoDocument {
     @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:author")
     public String getAuthor() {
-        return getProperty(AUTHOR);
+        return getSingleProperty(AUTHOR);
     }
 
     /**
@@ -114,7 +113,7 @@ public class NewsDocument extends HippoDocument {
     @XmlElement
     @HippoEssentialsGenerated(internalName = "myproject:source")
     public String getSource() {
-        return getProperty(SOURCE);
+        return getSingleProperty(SOURCE);
     }
 
 }

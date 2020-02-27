@@ -1,11 +1,5 @@
 package org.bloomreach.forge.brut.common.repository;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.RepositoryException;
-import javax.jcr.security.AccessControlPolicy;
-import javax.jcr.security.AccessControlPolicyIterator;
-import javax.jcr.security.Privilege;
-
 import org.apache.jackrabbit.core.id.ItemId;
 import org.apache.jackrabbit.core.security.AMContext;
 import org.apache.jackrabbit.core.security.authorization.AccessControlProvider;
@@ -14,8 +8,18 @@ import org.apache.jackrabbit.core.security.simple.SimpleAccessManager;
 import org.apache.jackrabbit.core.state.ItemState;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.AccessDeniedException;
+import javax.jcr.RepositoryException;
+import javax.jcr.security.AccessControlPolicy;
+import javax.jcr.security.AccessControlPolicyIterator;
+import javax.jcr.security.Privilege;
 
 public class CustomAccessManager extends org.hippoecm.repository.security.HippoAccessManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomAccessManager.class);
 
     private SimpleAccessManager delegatee = new SimpleAccessManager();
 
@@ -25,18 +29,22 @@ public class CustomAccessManager extends org.hippoecm.repository.security.HippoA
     }
 
     @Override
+    public boolean isSystemSession() {
+        return true;
+    }
+
+    @Override
     public void init(AMContext context, AccessControlProvider acProvider, WorkspaceAccessManager wspAccessManager) throws AccessDeniedException, Exception {
         delegatee.init(context, acProvider, wspAccessManager);
     }
 
     @Override
-    public void close() throws Exception {
-        delegatee.close();
-    }
-
-    @Override
-    public void checkPermission(ItemId id, int permissions) throws RepositoryException {
-        delegatee.checkPermission(id, permissions);
+    public void close() {
+        try {
+            delegatee.close();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
     }
 
     @Override
@@ -80,8 +88,8 @@ public class CustomAccessManager extends org.hippoecm.repository.security.HippoA
     }
 
     @Override
-    public Privilege[] getPrivileges(String absPath) throws RepositoryException {
-        return delegatee.getPrivileges(absPath);
+    public boolean hasPermission(String path, String actions) throws RepositoryException {
+        return true;
     }
 
     @Override
@@ -95,8 +103,18 @@ public class CustomAccessManager extends org.hippoecm.repository.security.HippoA
     }
 
     @Override
-    public Privilege privilegeFromName(String privilegeName) throws RepositoryException {
-        return delegatee.privilegeFromName(privilegeName);
+    public Privilege privilegeFromName(String privilegeName) {
+        try {
+            return delegatee.privilegeFromName(privilegeName);
+        } catch (RepositoryException e) {
+            LOGGER.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateReferenceFacetRules() {
+        //noop
     }
 
     @Override

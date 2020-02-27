@@ -12,7 +12,7 @@ public class NewsItemRep {
         return this;
     }
 
-    @JsonProperty(value="title")
+    @JsonProperty(value = "title")
     public String getTitle() {
         return title;
     }

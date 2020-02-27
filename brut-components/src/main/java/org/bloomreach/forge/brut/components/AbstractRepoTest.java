@@ -1,19 +1,9 @@
 package org.bloomreach.forge.brut.components;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.lang.StringUtils;
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import org.bloomreach.forge.brut.common.repository.utils.NodeTypeUtils;
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 import org.hippoecm.hst.component.support.spring.util.MetadataReaderClasspathResourceScanner;
 import org.hippoecm.hst.content.beans.ObjectBeanManagerException;
 import org.hippoecm.hst.content.beans.manager.ObjectBeanManager;
@@ -30,9 +20,17 @@ import org.hippoecm.hst.util.PathUtils;
 import org.hippoecm.repository.util.DateTools;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
-import org.bloomreach.forge.brut.common.repository.utils.NodeTypeUtils;
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
 
