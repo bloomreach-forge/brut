@@ -273,13 +273,13 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         registerNodeType("hippo:handle");
         registerNodeType("hippo:initializefolder");
         registerNodeType("hippo:mirror");
-        registerNodeType("hippogallerypicker:imagelink");
+        registerNodeType("hippogallerypicker:imagelink", "hippo:facetselect");
         registerNodeType("hippolog:folder");
         registerNodeType("hipporeport:folder");
-        registerNodeType("hippostd:document");
-        registerNodeType("hippostd:folder");
+        registerNodeType("hippostd:document", "hippo:document");
+        registerNodeType("hippostd:folder", "hippo:document");
         registerNodeType("hippostd:html");
-        registerNodeType("hippostd:directory");
+        registerNodeType("hippostd:directory", "hippo:document");
         registerNodeType("hipposys:configuration");
         registerNodeType("hipposys:applicationfolder");
         registerNodeType("hipposys:modulefolder");
@@ -301,18 +301,18 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         registerNodeType("hipposys:accessmanager");
         registerNodeType("hippostd:templatequery");
         registerNodeType("hippostd:templates");
-        registerNodeType("hippotranslation:id");
         registerNodeType("hippofacnav:facetnavigation");
         registerNodeType("hippotranslation:translations");
         registerNodeType("hipposysedit:namespacefolder");
         registerNodeType("hipposysedit:namespace");
         registerNodeType("hipposysedit:templatetype");
-        registerNodeType("hipposysedit:nodetype");
+        registerNodeType("hipposysedit:nodetype", "hippo:document");
         registerNodeType("hipposysedit:prototypeset");
         registerNodeType("hippostdpubwf:document");
-        registerNodeType("hippogallery:stdAssetGallery");
-        registerNodeType("hippogallery:stdImageGallery");
-        registerNodeType("hippogallery:imageset");
+        registerNodeType("hippostd:gallery", "hippostd:folder");
+        registerNodeType("hippogallery:stdAssetGallery", "hippostd:gallery");
+        registerNodeType("hippogallery:stdImageGallery", "hippostd:gallery");
+        registerNodeType("hippogallery:imageset", "hippo:document");
         registerNodeType("hst:hst");
         registerNodeType("hst:formdatacontainer");
         registerNodeType("hst:configuration");
@@ -323,7 +323,8 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         registerNodeType("hst:sites");
         registerNodeType("hst:virtualhosts");
         registerNodeType("hst:catalog");
-        registerNodeType("hst:component");
+        registerNodeType("hst:abstractcomponent");
+        registerNodeType("hst:component", "hst:abstractcomponent");
         registerNodeType("hst:components");
         registerNodeType("hst:template");
         registerNodeType("hst:templates");
@@ -331,9 +332,9 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         registerNodeType("hst:sitemapitemhandlers");
         registerNodeType("hst:sitemapitem");
         registerNodeType("hst:sitemap");
-        registerNodeType("selection:valuelist");
-        registerNodeType("selection:listitem");
-
+        registerNodeType("selection:basedocument", "hippo:document");
+        registerNodeType("selection:valuelist", "selection:basedocument");
+        registerNodeType("selection:listitem", "hippo:compound");
         registerNodeType("webfiles:webfiles");
 
         registerMixinType("hipposysedit:remodel");
