@@ -10,7 +10,7 @@
 
   <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
 
   <packaging>pom</packaging>
 
@@ -52,7 +52,7 @@
     <connection>scm:git:git@github.com:bloomreach-forge/brut.git</connection>
     <developerConnection>scm:git:git@github.com:bloomreach-forge/brut.git</developerConnection>
     <url>https://github.com/bloomreach-forge/brut.git</url>
-    <tag>3.0.0</tag>
+    <tag>brut-3.0.1</tag>
   </scm>
 
   <distributionManagement>
