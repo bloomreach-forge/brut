@@ -20,28 +20,31 @@
     </property>
   </bean>
 
-  <bean id="pageModelAggregationObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+  <bean id="pageModelAggregationObjectMapper" class="org.hippoecm.hst.pagemodelapi.common.content.beans.PageModelObjectMapperFactory">
   </bean>
 
-  <bean id="org.hippoecm.hst.pagemodelapi.v09.content.rewriter.HtmlContentRewriter"
-        class="org.hippoecm.hst.pagemodelapi.v09.content.rewriter.HtmlContentRewriter">
+  <bean id="org.hippoecm.hst.pagemodelapi.v10.content.rewriter.HtmlContentRewriter"
+        class="org.hippoecm.hst.pagemodelapi.v10.content.rewriter.HtmlContentRewriter">
     <constructor-arg>
       <bean class="org.hippoecm.hst.content.rewriter.HtmlCleanerFactoryBean"/>
     </constructor-arg>
-    <property name="removeAnchorTagOfBrokenLink" value="${pagemodelapi.v09.removeAnchorTagOfBrokenLink}"/>
+    <property name="removeAnchorTagOfBrokenLink" value="${pagemodelapi.v10.removeAnchorTagOfBrokenLink}"/>
   </bean>
 
   <bean id="pageModelAggregationValve" parent="aggregationValve"
-        class="org.hippoecm.hst.pagemodelapi.v09.core.container.PageModelAggregationValve">
+        class="org.hippoecm.hst.pagemodelapi.v10.core.container.PageModelAggregationValve">
     <constructor-arg ref="pageModelAggregationObjectMapper"/>
     <constructor-arg ref="pageModelJacksonObjectMapperExtraMixins"/>
+    <constructor-arg>
+      <bean class="org.hippoecm.hst.pagemodelapi.v10.core.container.JsonPointerFactoryImpl"/>
+    </constructor-arg>
     <property name="valveName" value="pageModelAggregationValve"/>
     <property name="componentWindowResponseAppenders" ref="composerComponentWindowResponseAppenders"/>
-    <property name="defaultMaxContentReferenceLevel" value="${pagemodelapi.v09.defaultMaxContentReferenceLevel}"/>
-    <property name="apiDocPath" value="${pagemodelapi.v09.apiDocPath}" />
+    <property name="defaultMaxContentReferenceLevel" value="${pagemodelapi.v10.defaultMaxContentReferenceLevel}"/>
+    <property name="apiDocPath" value="${pagemodelapi.v10.apiDocPath}" />
   </bean>
 
-  <bean id="pageModelPipeline.v09" class="org.hippoecm.hst.core.container.HstSitePipeline">
+  <bean id="pageModelPipeline.v10" class="org.hippoecm.hst.core.container.HstSitePipeline">
     <property name="initializationValves">
       <list>
         <ref bean="initializationValve"/>
@@ -70,8 +73,8 @@
     <property name="targetMethod" value="addPageModelApiPipelineByVersion"/>
     <property name="arguments">
       <list>
-        <value>0.9</value>
-        <ref bean="pageModelPipeline.v09"/>
+        <value>1.0</value>
+        <ref bean="pageModelPipeline.v10"/>
       </list>
     </property>
   </bean>
