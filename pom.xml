@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>31.0.0</version>
+    <version>15.0.0</version>
   </parent>
 
   <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
-  <version>3.0.2-SNAPSHOT</version>
+  <version>4.0.0</version>
 
   <packaging>pom</packaging>
 

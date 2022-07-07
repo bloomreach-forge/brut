@@ -36,7 +36,7 @@
     <constructor-arg ref="pageModelAggregationObjectMapper"/>
     <constructor-arg ref="pageModelJacksonObjectMapperExtraMixins"/>
     <constructor-arg>
-      <bean class="org.hippoecm.hst.pagemodelapi.v10.core.container.JsonPointerFactoryImpl"/>
+      <bean class="org.bloomreach.forge.brut.resources.DeterministicJsonPointerFactory"/>
     </constructor-arg>
     <property name="valveName" value="pageModelAggregationValve"/>
     <property name="componentWindowResponseAppenders" ref="composerComponentWindowResponseAppenders"/>
