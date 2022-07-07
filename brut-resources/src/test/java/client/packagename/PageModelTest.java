@@ -57,6 +57,7 @@ public class PageModelTest extends AbstractPageModelTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
         assertTrue(jsonNode.get("page").size() > 0);
+        assertEquals(jsonNode.get("page").get("uid0").size(), 8);
     }
 
 }
