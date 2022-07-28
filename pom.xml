@@ -41,11 +41,8 @@
     <hst.version>15.0.0</hst.version>
     <hippo.repository.version>15.0.0</hippo.repository.version>
     <hippo-services.version>15.0.0</hippo-services.version>
-    <mockito-core.version>3.3.0</mockito-core.version>
-    <plugin.javadoc.version>2.9.1</plugin.javadoc.version>
-    <maven.plugin.surefire.version>2.22.2</maven.plugin.surefire.version>
-    <junit-jupiter.version>5.6.0</junit-jupiter.version>
-    <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
+    <mockito-core.version>4.6.1</mockito-core.version>
+    <junit-jupiter.version>5.9.0-RC1</junit-jupiter.version>
   </properties>
 
   <scm>
@@ -186,40 +183,6 @@
         </includes>
       </resource>
     </resources>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven.plugin.surefire.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
-        <configuration>
-          <pushChanges>false</pushChanges>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-        <configuration>
-          <additionalDependencies>
-            <additionalDependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
-                <scope>provided</scope>
-            </additionalDependency>
-          </additionalDependencies>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <profiles>
