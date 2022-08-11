@@ -1,293 +1,324 @@
 {
-  "id": "r3",
-  "_links": {
+  "meta": {
+    "product": "brxm",
+    "version": "1.0",
+    "branch": "master"
+  },
+  "links": {
     "self": {
-      "href": "http://localhost:8080/site/resourceapi/essentialsListComponent"
+      "href": "http://localhost:8080/site/resourceapi/essentialsListComponent",
+      "type": "external"
     },
     "site": {
-      "href": "http://localhost:8080/site/essentialsListComponent"
+      "href": "/essentialsListComponent",
+      "type": "internal"
     }
+  },
+  "channel": {
+    "info": {
+      "props": {}
+    }
+  },
+  "root": {
+    "$ref": "/page/uid0"
   },
   "page": {
-    "id": "r3",
-    "name": "essentialsListComponent",
-    "componentClass": "org.onehippo.cms7.essentials.components.EssentialsListComponent",
-    "type": "COMPONENT",
-    "models": {
-      "pageable": {
-        "pageSize": 5,
-        "visiblePages": 10,
-        "total": 3,
-        "showPagination": true,
-        "items": [
-          {
-            "$ref": "/content/uaeda2bcdb21d4eada2e6c64a2ca051c8"
-          },
-          {
-            "$ref": "/content/uc580ac6438744717a6d9e5ad72080abe"
-          },
-          {
-            "$ref": "/content/u30092f4e2ef74c7286a58ce895908937"
-          }
-        ],
-        "maxSize": 6,
-        "startOffset": 0,
-        "endOffset": 3,
-        "nextPage": null,
-        "currentPage": 1,
-        "next": false,
-        "previousPage": null,
-        "previous": false,
-        "previousBatch": false,
-        "nextBatch": false,
-        "pageNumbersArray": [
-          1
-        ],
-        "endPage": 1,
-        "startPage": 1,
-        "totalPages": 1,
-        "currentRange": [
-          1
-        ]
-      }
-    },
-    "_meta": {
-      "definitionId": "hst:pages/essentialsListComponent",
-      "paramsInfo": {
-        "path": "news",
-        "documentTypes": "myproject:newsdocument",
-        "pageSize": 5,
-        "sortOrder": "asc",
-        "sortField": "hippostdpubwf:publicationDate",
-        "includeSubtypes": true,
-        "showPagination": true
+    "uid0": {
+      "id": "r3",
+      "links": {
+        "self": {
+          "href": "http://localhost:8080/site/resourceapi/essentialsListComponent?_hn:type=component-rendering&_hn:ref=r3",
+          "type": "external"
+        }
       },
-      "params": {
-        "path": "news",
-        "documentTypes": "myproject:newsdocument",
-        "pageSize": "5",
-        "sortField": "hippostdpubwf:publicationDate",
-        "sortOrder": "asc",
-        "includeSubtypes": "true",
-        "showPagination": "true"
+      "meta": {
+        "definitionId": "hst:pages/essentialsListComponent",
+        "paramsInfo": {
+          "documentTypes": "myproject:newsdocument",
+          "includeSubtypes": true,
+          "pageSize": 5,
+          "showPagination": true,
+          "sortField": "hippostdpubwf:publicationDate",
+          "sortOrder": "asc",
+          "path": "news"
+        },
+        "params": {}
+      },
+      "name": "essentialsListComponent",
+      "type": "component",
+      "componentClass": "org.onehippo.cms7.essentials.components.EssentialsListComponent",
+      "models": {
+        "pageable": {
+          "pageSize": 5,
+          "visiblePages": 10,
+          "total": 3,
+          "showPagination": true,
+          "items": [
+            {
+              "$ref": "/page/uaeda2bcdb21d4eada2e6c64a2ca051c8"
+            },
+            {
+              "$ref": "/page/uc580ac6438744717a6d9e5ad72080abe"
+            },
+            {
+              "$ref": "/page/u30092f4e2ef74c7286a58ce895908937"
+            }
+          ],
+          "previous": false,
+          "next": false,
+          "endPage": 1,
+          "currentPage": 1,
+          "previousPage": null,
+          "nextPage": null,
+          "previousBatch": false,
+          "nextBatch": false,
+          "pageNumbersArray": [
+            1
+          ],
+          "startOffset": 0,
+          "endOffset": 3,
+          "startPage": 1,
+          "totalPages": 1,
+          "currentRange": [
+            1
+          ],
+          "maxSize": 6
+        }
       }
     },
-    "_links": {
-      "componentRendering": {
-        "href": "/site/resourceapi/essentialsListComponent?_hn:type=component-rendering&_hn:ref=r3"
-      }
-    }
-  },
-  "content": {
     "uaeda2bcdb21d4eada2e6c64a2ca051c8": {
-      "id": "aeda2bcd-b21d-4ead-a2e6-c64a2ca051c8",
-      "_links": {
+      "type": "document",
+      "links": {
         "site": {
-          "href": "/site/news/2019/03/the-gastropoda-news.html",
+          "href": "/news/2019/03/the-gastropoda-news.html",
           "type": "internal"
         }
       },
-      "name": "the-gastropoda-news",
-      "displayName": "The gastropoda news",
-      "location": "Liverpool",
-      "content": {
-        "name": "myproject:content",
-        "displayName": "myproject:content",
-        "versionedNode": false,
-        "value": "\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
-      },
-      "title": "The gastropoda news",
-      "date": 1553533860000,
-      "source": "",
-      "introduction": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      "author": "Alfred Anonymous",
-      "image": {
-        "$ref": "/content/u3c740fcf8ec54f00a713ff96caa645c8"
-      },
-      "localeString": "en",
-      "versionedNode": false
-    },
-    "u3c740fcf8ec54f00a713ff96caa645c8": {
-      "id": "3c740fcf-8ec5-4f00-a713-ff96caa645c8",
-      "_links": {
-        "site": {
-          "href": "/site/binaries/content/gallery/myproject/samples/snail-193611_640.jpg",
-          "type": "resource"
-        }
-      },
-      "name": "snail-193611_640.jpg",
-      "displayName": "snail-193611_640.jpg",
-      "fileName": "snail-193611_640.jpg",
-      "description": "Description for snail-193611_640.jpg",
-      "thumbnail": {
-        "width": 60,
-        "height": 45,
-        "length": 4849,
-        "mimeType": "image/jpeg",
-        "lastModified": 1384254780000,
-        "versionedNode": false,
-        "_links": {
-          "site": {
-            "href": "/site/binaries/thumbnail/content/gallery/myproject/samples/snail-193611_640.jpg",
-            "type": "resource"
-          }
-        }
-      },
-      "original": {
-        "width": 640,
-        "height": 480,
-        "length": 75187,
-        "mimeType": "image/jpeg",
-        "lastModified": 1384254780000,
-        "versionedNode": false,
-        "_links": {
-          "site": {
-            "href": "/site/binaries/content/gallery/myproject/samples/snail-193611_640.jpg",
-            "type": "resource"
-          }
-        }
-      },
-      "versionedNode": false
+      "meta": {},
+      "data": {
+        "name": "the-gastropoda-news",
+        "displayName": "The gastropoda news",
+        "title": "The gastropoda news",
+        "source": "",
+        "image": {
+          "$ref": "/page/u3c740fcf8ec54f00a713ff96caa645c8"
+        },
+        "author": "Alfred Anonymous",
+        "introduction": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+        "location": "Liverpool",
+        "content": {
+          "contentType": "hippostd:html",
+          "value": "\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
+        },
+        "date": 1553533860000,
+        "localeString": "en",
+        "contentType": "myproject:newsdocument",
+        "id": "aeda2bcd-b21d-4ead-a2e6-c64a2ca051c8"
+      }
     },
     "uc580ac6438744717a6d9e5ad72080abe": {
-      "id": "c580ac64-3874-4717-a6d9-e5ad72080abe",
-      "_links": {
+      "type": "document",
+      "links": {
         "site": {
-          "href": "/site/news/2019/03/the-medusa-news.html",
+          "href": "/news/2019/03/the-medusa-news.html",
           "type": "internal"
         }
       },
-      "name": "the-medusa-news",
-      "displayName": "The medusa news",
-      "location": "Rotterdam",
-      "content": {
-        "name": "myproject:content",
-        "displayName": "myproject:content",
-        "versionedNode": false,
-        "value": "\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
-      },
-      "title": "The medusa news",
-      "date": 1553533860000,
-      "source": "",
-      "introduction": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      "author": "Alfred Anonymous",
-      "image": {
-        "$ref": "/content/u4709f79761ae4c3693d463b5d50fc200"
-      },
-      "localeString": "en",
-      "versionedNode": false
-    },
-    "u4709f79761ae4c3693d463b5d50fc200": {
-      "id": "4709f797-61ae-4c36-93d4-63b5d50fc200",
-      "_links": {
-        "site": {
-          "href": "/site/binaries/content/gallery/myproject/samples/animal-2883_640.jpg",
-          "type": "resource"
-        }
-      },
-      "name": "animal-2883_640.jpg",
-      "displayName": "animal-2883_640.jpg",
-      "fileName": "animal-2883_640.jpg",
-      "description": "Description for animal-2883_640.jpg",
-      "thumbnail": {
-        "width": 60,
-        "height": 39,
-        "length": 2964,
-        "mimeType": "image/jpeg",
-        "lastModified": 1384254900000,
-        "versionedNode": false,
-        "_links": {
-          "site": {
-            "href": "/site/binaries/thumbnail/content/gallery/myproject/samples/animal-2883_640.jpg",
-            "type": "resource"
-          }
-        }
-      },
-      "original": {
-        "width": 640,
-        "height": 426,
-        "length": 24743,
-        "mimeType": "image/jpeg",
-        "lastModified": 1384254900000,
-        "versionedNode": false,
-        "_links": {
-          "site": {
-            "href": "/site/binaries/content/gallery/myproject/samples/animal-2883_640.jpg",
-            "type": "resource"
-          }
-        }
-      },
-      "versionedNode": false
+      "meta": {},
+      "data": {
+        "name": "the-medusa-news",
+        "displayName": "The medusa news",
+        "title": "The medusa news",
+        "source": "",
+        "image": {
+          "$ref": "/page/u4709f79761ae4c3693d463b5d50fc200"
+        },
+        "author": "Alfred Anonymous",
+        "introduction": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+        "location": "Rotterdam",
+        "content": {
+          "contentType": "hippostd:html",
+          "value": "\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
+        },
+        "date": 1553533860000,
+        "localeString": "en",
+        "contentType": "myproject:newsdocument",
+        "id": "c580ac64-3874-4717-a6d9-e5ad72080abe"
+      }
     },
     "u30092f4e2ef74c7286a58ce895908937": {
-      "id": "30092f4e-2ef7-4c72-86a5-8ce895908937",
-      "_links": {
+      "type": "document",
+      "links": {
         "site": {
-          "href": "/site/news/2019/03/2013-harvest.html",
+          "href": "/news/2019/03/2013-harvest.html",
           "type": "internal"
         }
       },
-      "name": "2013-harvest",
-      "displayName": "2013 harvest",
-      "location": "Rome",
-      "content": {
-        "name": "myproject:content",
-        "displayName": "myproject:content",
-        "versionedNode": false,
-        "value": "\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
-      },
-      "title": "2013 harvest",
-      "date": 1553533860000,
-      "source": "",
-      "introduction": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-      "author": "Alfred Anonymous",
-      "image": {
-        "$ref": "/content/ubeff458ee07a40658cad8d96b67d13ec"
-      },
-      "localeString": "en",
-      "versionedNode": false
+      "meta": {},
+      "data": {
+        "name": "2013-harvest",
+        "displayName": "2013 harvest",
+        "title": "2013 harvest",
+        "source": "",
+        "image": {
+          "$ref": "/page/ubeff458ee07a40658cad8d96b67d13ec"
+        },
+        "author": "Alfred Anonymous",
+        "introduction": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+        "location": "Rome",
+        "content": {
+          "contentType": "hippostd:html",
+          "value": "\n          \n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum</p>\n\n          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod\n          tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,\n          quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n          consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum\n          dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,\n          sunt in culpa qui officia deserunt mollit anim id est laborum&#160;</p>\n\n          \n          "
+        },
+        "date": 1553533860000,
+        "localeString": "en",
+        "contentType": "myproject:newsdocument",
+        "id": "30092f4e-2ef7-4c72-86a5-8ce895908937"
+      }
+    },
+    "u3c740fcf8ec54f00a713ff96caa645c8": {
+      "type": "imageset",
+      "links": {},
+      "meta": {},
+      "data": {
+        "name": "snail-193611_640.jpg",
+        "displayName": "snail-193611_640.jpg",
+        "thumbnail": {
+          "name": "hippogallery:thumbnail",
+          "displayName": "hippogallery:thumbnail",
+          "width": 60,
+          "height": 45,
+          "mimeType": "image/jpeg",
+          "filename": null,
+          "lastModified": 1384254780000,
+          "contentType": "hippogallery:image",
+          "size": 4849,
+          "links": {
+            "site": {
+              "href": "http://localhost:8080/site/binaries/thumbnail/content/gallery/myproject/samples/snail-193611_640.jpg",
+              "type": "resource"
+            }
+          }
+        },
+        "original": {
+          "name": "hippogallery:original",
+          "displayName": "hippogallery:original",
+          "width": 640,
+          "height": 480,
+          "mimeType": "image/jpeg",
+          "filename": null,
+          "lastModified": 1384254780000,
+          "contentType": "hippogallery:image",
+          "size": 75187,
+          "links": {
+            "site": {
+              "href": "http://localhost:8080/site/binaries/content/gallery/myproject/samples/snail-193611_640.jpg",
+              "type": "resource"
+            }
+          }
+        },
+        "fileName": "snail-193611_640.jpg",
+        "description": "Description for snail-193611_640.jpg",
+        "contentType": "hippogallery:imageset",
+        "localeString": null,
+        "id": "3c740fcf-8ec5-4f00-a713-ff96caa645c8"
+      }
+    },
+    "u4709f79761ae4c3693d463b5d50fc200": {
+      "type": "imageset",
+      "links": {},
+      "meta": {},
+      "data": {
+        "name": "animal-2883_640.jpg",
+        "displayName": "animal-2883_640.jpg",
+        "thumbnail": {
+          "name": "hippogallery:thumbnail",
+          "displayName": "hippogallery:thumbnail",
+          "width": 60,
+          "height": 39,
+          "mimeType": "image/jpeg",
+          "filename": null,
+          "lastModified": 1384254900000,
+          "contentType": "hippogallery:image",
+          "size": 2964,
+          "links": {
+            "site": {
+              "href": "http://localhost:8080/site/binaries/thumbnail/content/gallery/myproject/samples/animal-2883_640.jpg",
+              "type": "resource"
+            }
+          }
+        },
+        "original": {
+          "name": "hippogallery:original",
+          "displayName": "hippogallery:original",
+          "width": 640,
+          "height": 426,
+          "mimeType": "image/jpeg",
+          "filename": null,
+          "lastModified": 1384254900000,
+          "contentType": "hippogallery:image",
+          "size": 24743,
+          "links": {
+            "site": {
+              "href": "http://localhost:8080/site/binaries/content/gallery/myproject/samples/animal-2883_640.jpg",
+              "type": "resource"
+            }
+          }
+        },
+        "fileName": "animal-2883_640.jpg",
+        "description": "Description for animal-2883_640.jpg",
+        "contentType": "hippogallery:imageset",
+        "localeString": null,
+        "id": "4709f797-61ae-4c36-93d4-63b5d50fc200"
+      }
     },
     "ubeff458ee07a40658cad8d96b67d13ec": {
-      "id": "beff458e-e07a-4065-8cad-8d96b67d13ec",
-      "_links": {
-        "site": {
-          "href": "/site/binaries/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
-          "type": "resource"
-        }
-      },
-      "name": "viognier-grapes-188185_640.jpg",
-      "displayName": "viognier-grapes-188185_640.jpg",
-      "fileName": "viognier-grapes-188185_640.jpg",
-      "description": "Description for viognier-grapes-188185_640.jpg",
-      "thumbnail": {
-        "width": 58,
-        "height": 60,
-        "length": 7001,
-        "mimeType": "image/jpeg",
-        "lastModified": 1384254900000,
-        "versionedNode": false,
-        "_links": {
-          "site": {
-            "href": "/site/binaries/thumbnail/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
-            "type": "resource"
+      "type": "imageset",
+      "links": {},
+      "meta": {},
+      "data": {
+        "name": "viognier-grapes-188185_640.jpg",
+        "displayName": "viognier-grapes-188185_640.jpg",
+        "thumbnail": {
+          "name": "hippogallery:thumbnail",
+          "displayName": "hippogallery:thumbnail",
+          "width": 58,
+          "height": 60,
+          "mimeType": "image/jpeg",
+          "filename": null,
+          "lastModified": 1384254900000,
+          "contentType": "hippogallery:image",
+          "size": 7001,
+          "links": {
+            "site": {
+              "href": "http://localhost:8080/site/binaries/thumbnail/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
+              "type": "resource"
+            }
           }
-        }
-      },
-      "original": {
-        "width": 625,
-        "height": 640,
-        "length": 219962,
-        "mimeType": "image/jpeg",
-        "lastModified": 1384254900000,
-        "versionedNode": false,
-        "_links": {
-          "site": {
-            "href": "/site/binaries/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
-            "type": "resource"
+        },
+        "original": {
+          "name": "hippogallery:original",
+          "displayName": "hippogallery:original",
+          "width": 625,
+          "height": 640,
+          "mimeType": "image/jpeg",
+          "filename": null,
+          "lastModified": 1384254900000,
+          "contentType": "hippogallery:image",
+          "size": 219962,
+          "links": {
+            "site": {
+              "href": "http://localhost:8080/site/binaries/content/gallery/myproject/samples/viognier-grapes-188185_640.jpg",
+              "type": "resource"
+            }
           }
-        }
-      },
-      "versionedNode": false
+        },
+        "fileName": "viognier-grapes-188185_640.jpg",
+        "description": "Description for viognier-grapes-188185_640.jpg",
+        "contentType": "hippogallery:imageset",
+        "localeString": null,
+        "id": "beff458e-e07a-4065-8cad-8d96b67d13ec"
+      }
     }
   }
 }

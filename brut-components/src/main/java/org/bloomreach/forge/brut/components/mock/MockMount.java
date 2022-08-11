@@ -70,6 +70,8 @@ public class MockMount implements ContextualizableMount {
     private boolean finalPipeline;
     private boolean explicit;
     private Map<String, String> responseHeaders = new HashMap<>();
+    private String hstLinkUrlPrefix;
+    private String pageModelApi;
 
     @Override
     public VirtualHost getVirtualHost() {
@@ -234,6 +236,15 @@ public class MockMount implements ContextualizableMount {
         return explicit;
     }
 
+    public void setPageModelApi(String pageModelApi) {
+        this.pageModelApi = pageModelApi;
+    }
+
+    @Override
+    public String getPageModelApi() {
+        return pageModelApi;
+    }
+
     public void setCmsLocations(List<String> cmsLocations) {
         this.cmsLocations = cmsLocations;
     }
@@ -367,6 +378,14 @@ public class MockMount implements ContextualizableMount {
         return scheme;
     }
 
+    public void setHstLinkUrlPrefix(String hstLinkUrlPrefix) {
+        this.hstLinkUrlPrefix = hstLinkUrlPrefix;
+    }
+
+    @Override
+    public String getHstLinkUrlPrefix() {
+        return hstLinkUrlPrefix;
+    }
     public void setScheme(String scheme) {
         this.scheme = scheme;
     }

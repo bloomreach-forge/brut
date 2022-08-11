@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>4.0.0</version>
   </parent>
 
   <artifactId>brut-components</artifactId>
@@ -121,6 +121,19 @@
       <artifactId>mockito-junit-jupiter</artifactId>
       <version>${mockito-core.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.12.10</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.objenesis</groupId>
+      <artifactId>objenesis</artifactId>
+      <version>3.2</version>
+      <scope>runtime</scope>
     </dependency>
 
   </dependencies>

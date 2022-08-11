@@ -1,5 +1,5 @@
 <!--
-  Copyright 2017-2019 BloomReach Inc. (http://www.bloomreach.com)
+  Copyright 2017-2022 BloomReach Inc. (http://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,14 +16,18 @@
 
 ## Version Compatibility
 
-| brXM | B.R.U.T |
-| --------------------- |-----------| 
-| 14.0.0-2              | 3.0.0       |
-| 13.4                  | 2.1.2       |
-| 13.1                  | 2.0.0       |
-| 12.x                  | 1.x       |
+| brXM     | B.R.U.T |
+|----------|---------| 
+| 15.0.0   | 4.0.0   |
+| 14.0.0-2 | 3.0.0   |
+| 13.4     | 2.1.2   |
+| 13.1     | 2.0.0   |
+| 12.x     | 1.x     |
 
 ## Release Notes
+
+### 4.0.0
+Compatibility with brXM version 15.0.0
 
 ### 3.0.0
 Compatibility with brXM version 14.0.0-2
