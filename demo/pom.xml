@@ -12,7 +12,7 @@
   <description>My Project</description>
   <groupId>org.example</groupId>
   <artifactId>myproject</artifactId>
-  <version>3.0.2-SNAPSHOT</version>
+  <version>4.0.0</version>
   <packaging>pom</packaging>
 
   <!-- 
