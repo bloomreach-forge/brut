@@ -5,6 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
 
   <import resource="classpath:/org/hippoecm/hst/site/optional/jaxrs/SpringComponentManager-rest-jackson.xml"/>
+   <import resource="classpath:/org/hippoecm/hst/site/optional/jaxrs/SpringComponentManager-openapi.xml"/>
 
   <bean id="jaxrsRestPlainServiceQueryStringReplacingInterceptor" class="org.hippoecm.hst.jaxrs.cxf.QueryStringReplacingInterceptor">
     <property name="paramNameReplaces">
@@ -47,25 +48,25 @@
         <property name="servletPath" value=""/>
         <property name="jaxrsServerFactoryBean">
           <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean">
-            <property name="address" value="/" />
-            <property name="providers" ref="jaxrsRestAllEntityProviders" />
-            <property name="resourceProviders" ref="jaxrsRestPlainResourceProviders" />
-            <property name="invoker" ref="jaxrsRestPlainServiceInvoker" />
+            <property name="address" value="/"/>
+            <property name="providers" ref="jaxrsRestAllEntityProviders"/>
+            <property name="resourceProviders" ref="jaxrsRestPlainResourceProviders"/>
+            <property name="invoker" ref="jaxrsRestPlainServiceInvoker"/>
           </bean>
         </property>
         <property name="inInterceptors">
           <list>
-            <ref bean="jaxrsRestPlainServiceQueryStringReplacingInterceptor" />
+            <ref bean="jaxrsRestPlainServiceQueryStringReplacingInterceptor"/>
           </list>
         </property>
       </bean>
     </constructor-arg>
-    <property name="valveName" value="jaxrsRestPlainServiceValve" />
+    <property name="valveName" value="jaxrsRestPlainServiceValve"/>
   </bean>
 
   <bean id="jaxrsRestPlainResourceProviders" class="org.hippoecm.hst.site.container.TypeDeterminedMethodInvokingFactoryBean">
     <constructor-arg value="java.util.List" />
-    <property name="targetClass" value="org.apache.commons.collections.ListUtils" />
+    <property name="targetClass" value="org.apache.commons.collections4.ListUtils" />
     <property name="targetMethod" value="union" />
     <property name="arguments">
       <list>
@@ -75,13 +76,17 @@
     </property>
   </bean>
 
-  <bean id="org.hippoecm.hst.jaxrs.swagger.HstApiListingResource" class="org.hippoecm.hst.jaxrs.swagger.HstApiListingResource" />
+  <bean id="org.hippoecm.hst.jaxrs.swagger.HstApiListingResource" class="org.hippoecm.hst.jaxrs.swagger.HstApiListingResource">
+    <constructor-arg ref="hstOpenApiBeanConfig"/>
+  </bean>
 
   <bean id="defaultRestPlainResourceProviders" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
       <list>
         <bean class="org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider">
-          <constructor-arg ref="org.hippoecm.hst.jaxrs.swagger.HstApiListingResource"/>
+          <constructor-arg>
+            <ref bean="org.hippoecm.hst.jaxrs.swagger.HstApiListingResource" />
+          </constructor-arg>
         </bean>
       </list>
     </property>
@@ -133,4 +138,3 @@
   </bean>
 
 </beans>
-

@@ -16,6 +16,9 @@
     <nodetype>hippostd:holder</nodetype>
     <nodetype>hippostdpubwf:createdBy</nodetype>
     <nodetype>hippostdpubwf:lastModifiedBy</nodetype>
+    <nodetype>hipposys:active</nodetype>
+    <nodetype>hipposys:password</nodetype>
+    <nodetype>hipposys:system</nodetype>
   </excludefromnodescope>
 
   <nosingleindexterm>

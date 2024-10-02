@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the  "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS"
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>B.R.U.T. - BloomReach Unit Testing for Delivery Tier</title>
+  </properties>
+  <body>
+
+    <section name="Installation">
+
+      <subsection name="Bloomreach Forge Maven Repository Configuration">
+        <p>
+          Make sure you have the Maven2 Forge repository reference in the root <code>pom.xml</code> of your project.
+        </p>
+        <div class="brush: xml">
+          <source><![CDATA[
+          <repositories>
+
+            <!-- SNIP -->
+
+            <repository>
+              <id>bloomreach-maven2-forge</id>
+              <name>Bloomreach Maven 2 Forge Repository</name>
+              <url>https://maven.bloomreach.com/maven2-forge/</url>
+            </repository>
+
+            <!-- SNIP -->
+
+          </repositories>
+        ]]></source>
+        </div>
+      </subsection>
+
+    </section>
+
+    <section name="Dependency Management">
+      <subsection name="">
+        <p>Make sure the dependencies are installed as <code>test</code> scoped</p>
+      </subsection>
+
+      <subsection name="Component Testing Dependencies">
+        <p>In either <code>site/components/pom.xml</code> in projects created on brXM v13 or later or <code>site/pom.xml</code> in projects created on earlier versions, add the following dependency:</p>
+        <div class="brush: xml">
+          <source><![CDATA[
+            <dependency>
+              <groupId>org.bloomreach.forge.brut</groupId>
+              <artifactId>brut-components</artifactId>
+              <version>${brut.version}</version>
+              <scope>test</scope>
+            </dependency>
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Headless Testing Dependencies">
+        <p>In either <code>site/components/pom.xml</code> in projects created on brXM v13 or later or <code>site/pom.xml</code> in projects created on earlier versions, add the following dependency:</p>
+        <div class="brush: xml">
+          <source><![CDATA[
+            <dependency>
+              <groupId>org.bloomreach.forge.brut</groupId>
+              <artifactId>brut-resources</artifactId>
+              <version>${brut.version}</version>
+              <scope>test</scope>
+            </dependency>
+          ]]></source>
+        </div>
+      </subsection>
+
+    </section>
+
+  </body>
+</document>

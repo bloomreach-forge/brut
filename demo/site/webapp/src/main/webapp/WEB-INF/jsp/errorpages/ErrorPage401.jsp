@@ -59,7 +59,7 @@
       </div>
     </form>
     <div class="hippo-login-panel-copyright">
-      &copy; 1999-2019 BloomReach B.V.
+      &copy; 2024 Bloomreach
     </div>
   </div>
 </div>

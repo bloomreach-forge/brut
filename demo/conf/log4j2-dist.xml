@@ -61,6 +61,9 @@
       <AppenderRef ref="audit"/>
     </Logger>
 
+    <!-- index repair logging -->
+    <Logger name="org.hippoecm.repository.jackrabbit.IndexRepairer" level="info"/>
+
     <!-- Site logging -->
     <Logger name="org.hippoecm.hst" level="warn"/>
 
@@ -75,7 +78,7 @@
 
     <Logger name="freemarker" level="error"/>
     <Logger name="org.apache.cxf" level="error"/>
-    <Logger name="javax.ws.rs.core" level="error"/>
+    <Logger name="jakarta.ws.rs.core" level="error"/>
     <Logger name="org.apache.commons.pool" level="error"/>
     <Logger name="org.apache.commons.beanutils" level="error"/>
 
@@ -93,6 +96,13 @@
     <Logger name="org.apache.jackrabbit.core.query.lucene.MultiIndex" level="info"/>
     <Logger name="org.apache.jackrabbit.core.query.lucene.SearchIndex" level="info"/>
     <Logger name="org.apache.jackrabbit.core.query.lucene.ConsistencyCheck" level="info"/>
+
+    <!-- Dynamic beans logging -->
+    <Logger name="org.hippoecm.hst.content.beans.dynamic" level="info"/>
+    <Logger name="org.hippoecm.hst.content.beans.builder" level="info"/>
+
+    <!-- groovy scripts default log level in production -->
+    <Logger name="org.onehippo.repository.update.UpdaterExecutionReport" level="info"/>
 
     <!-- project logging -->
     <Logger name="org.example" level="info"/>
