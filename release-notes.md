@@ -17,7 +17,8 @@
 ## Version Compatibility
 
 | brXM     | B.R.U.T |
-|----------|---------| 
+|----------|---------|
+| 15.0.1   | 4.1.0   |
 | 15.0.0   | 4.0.0   |
 | 14.0.0-2 | 3.0.0   |
 | 13.4     | 2.1.2   |
@@ -25,6 +26,9 @@
 | 12.x     | 1.x     |
 
 ## Release Notes
+
+### 4.1.0
+Compatibility with brXM version 15.0.1+
 
 ### 4.0.0
 Compatibility with brXM version 15.0.0
@@ -39,13 +43,13 @@ Compatibility with brXM version 13.4.0
 * Subclasses of SimpleComponentTest in brut-components can now provide their own SpringComponentManager
 * Fixed a bug in brut-resources where servletContext was null in SpringComponentManager (dynamic beans regression)
 
-### 2.0.0  
+### 2.0.0
 
 <p class="smallinfo">Release date: 30 March 2019</p>
 
 + Upgrade to brXM 13
 
-### 1.0.1  
+### 1.0.1
 
 <p class="smallinfo">Release date: 30 March 2019</p>
 
