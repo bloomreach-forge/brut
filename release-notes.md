@@ -19,6 +19,7 @@
 | brXM     | B.R.U.T |
 |----------|---------|
 | 16.0.0   | 5.0.0   |
+| 15.0.1   | 4.0.1   |
 | 15.0.0   | 4.0.0   |
 | 14.0.0-2 | 3.0.0   |
 | 13.4     | 2.1.2   |
@@ -29,6 +30,9 @@
 
 ### 5.0.0
 Compatibility with brXM version 16.0.0
+
+### 4.0.1
+Compatibility with brXM version 15.0.1+
 
 ### 4.0.0
 Compatibility with brXM version 15.0.0
