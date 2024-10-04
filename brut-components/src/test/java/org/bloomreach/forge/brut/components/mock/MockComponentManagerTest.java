@@ -5,8 +5,8 @@ import org.hippoecm.hst.mock.core.container.MockContainerConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;

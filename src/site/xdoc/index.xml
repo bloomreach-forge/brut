@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the  "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS"
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>B.R.U.T. - BloomReach Unit Testing for Delivery Tier</title>
+  </properties>
+  <body>
+
+    <section name="Module Overview">
+      <subsection name="BRUT Common (brut-common)">
+        <ul>
+          <li>This module contains the repository that other modules depend on. This module was initially a fork of the project <a href="https://github.com/openweb-nl/in-memory-jcr">InMemoryJcrRepository</a> by OpenWeb.</li>
+          <li>The repository itself can be used standalone. It supports YAML import as main mechanism for bootstrapping content to it.</li>
+          <li>Note that you could also provide your own repository.xml (see com.bloomreach.ps.brut.common.repository.BrxmTestingRepository.getRepositoryConfigFileLocation)</li>
+          <li>If you are importing yaml that references images, make sure you choose the zip export option. Unzip the export in the classpath.</li>
+        </ul>
+      </subsection>
+
+      <subsection name="BRUT Components (brut-components)">
+        <ul>
+          <li>This module is for testing HST components. This is a fork of the project called <a href="https://github.com/openweb-nl/hippo-unit-tester">Hippo Unit Tester</a> by OpenWeb.</li>
+          <li>An <a href="https://github.com/bloomreach-forge/brut/blob/master/demo/site/components/src/test/java/org/example/EssentialsListComponentTest.java">example</a> usage of this module.</li>
+        </ul>
+      </subsection>
+
+      <subsection name="BRUT Resources (brut-resources)">
+        <p>This module itself depends on the repository in the brut-common module. It has abstract test classes that start up an HST Container from scratch to test different HST pipelines.</p>
+      </subsection>
+    </section>
+
+  </body>
+</document>

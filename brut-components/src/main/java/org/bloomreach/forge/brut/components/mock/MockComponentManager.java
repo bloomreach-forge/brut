@@ -4,8 +4,8 @@ import org.hippoecm.hst.core.container.ComponentManager;
 import org.hippoecm.hst.core.container.ComponentsException;
 import org.hippoecm.hst.mock.core.container.MockContainerConfiguration;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;

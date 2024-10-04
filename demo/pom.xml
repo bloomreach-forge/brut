@@ -5,21 +5,21 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-release</artifactId>
-    <version>14.0.0-2</version>
+    <version>16.0.0</version>
   </parent>
 
   <name>My Project</name>
   <description>My Project</description>
   <groupId>org.example</groupId>
   <artifactId>myproject</artifactId>
-  <version>3.0.1</version>
+  <version>5.0.0</version>
   <packaging>pom</packaging>
 
-  <!-- 
+  <!--
     The below project elements are emptied/overridden as otherwise their metadata would be
     inherited or merged from the parent hippo-cms7-release pom (or its hippo-cms7-project pom).
 
-    DO NOT remove these tags but instead fill them in appropriately as needed, 
+    DO NOT remove these tags but instead fill them in appropriately as needed,
     UNLESS the inherited values are valid for your project.
   -->
   <url/>
@@ -63,11 +63,11 @@
     <!--***START temporary override of versions*** -->
     <!-- ***END temporary override of versions*** -->
 
-    <essentials.version>14.0.0</essentials.version>
-    <jsp-api.version>2.2</jsp-api.version>
-    <taglibs.version>1.2.5</taglibs.version>
+    <essentials.version>${hippo.release.version}</essentials.version>
 
     <development-module-deploy-dir>shared/lib</development-module-deploy-dir>
+
+    <docker.postgres.bind.1>${project.basedir}/target/postgres-data:/var/lib/postgresql/data</docker.postgres.bind.1>
 
     <hippo.cms.locales>nl,de,fr,es,zh</hippo.cms.locales>
     <buildNumber>${maven.build.timestamp}</buildNumber>
@@ -75,32 +75,37 @@
 
   <repositories>
     <repository>
-      <id>hippo</id>
-      <name>Hippo maven 2 repository.</name>
-      <url>https://maven.onehippo.com/maven2/</url>
+      <id>bloomreach-maven2</id>
+      <name>Bloomreach Maven 2</name>
+      <url>https://maven.bloomreach.com/maven2/</url>
+    </repository>
+    <repository>
+      <id>bloomreach-maven2-forge</id>
+      <name>Bloomreach Maven 2 Forge Repository</name>
+      <url>https://maven.bloomreach.com/maven2-forge/</url>
     </repository>
   </repositories>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
+        <groupId>jakarta.servlet.jsp</groupId>
+        <artifactId>jakarta.servlet.jsp-api</artifactId>
         <version>${jsp-api.version}</version>
         <scope>provided</scope>
       </dependency>
 
       <!-- other predefined runtime scope versioned dependencies -->
       <dependency>
-        <groupId>org.apache.taglibs</groupId>
-        <artifactId>taglibs-standard-spec</artifactId>
+        <groupId>com.bloomreach.xm</groupId>
+        <artifactId>taglibs-standard-spec-jakarta</artifactId>
         <version>${taglibs.version}</version>
         <scope>runtime</scope>
       </dependency>
 
       <dependency>
-        <groupId>org.apache.taglibs</groupId>
-        <artifactId>taglibs-standard-impl</artifactId>
+        <groupId>com.bloomreach.xm</groupId>
+        <artifactId>taglibs-standard-impl-jakarta</artifactId>
         <version>${taglibs.version}</version>
         <scope>runtime</scope>
       </dependency>
@@ -259,16 +264,50 @@
     </profile>
 
     <profile>
+      <id>docker.windows</id>
+      <properties>
+        <docker.postgres.bind.1>${project.artifactId}-postgres-data:/var/lib/postgresql/data</docker.postgres.bind.1>
+      </properties>
+    </profile>
+
+    <profile>
       <id>cargo.run</id>
       <properties>
         <!-- Already defined in the cms project POM. Override here for your project, if necessary -->
         <!-- <repo.bootstrap>true</repo.bootstrap> -->
       </properties>
+      <dependencies>
+        <dependency>
+          <groupId>jakarta.xml.bind</groupId>
+          <artifactId>jakarta.xml.bind-api</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>jakarta.xml.ws</groupId>
+          <artifactId>jakarta.xml.ws-api</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>jakarta.annotation</groupId>
+          <artifactId>jakarta.annotation-api</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>jakarta.activation</groupId>
+          <artifactId>jakarta.activation-api</artifactId>
+          <scope>runtime</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.glassfish.jaxb</groupId>
+          <artifactId>jaxb-runtime</artifactId>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <configuration>
               <configuration>
                 <configfiles>
