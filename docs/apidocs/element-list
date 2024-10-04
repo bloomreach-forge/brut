@@ -1,0 +1,6 @@
+org.bloomreach.forge.brut.common.repository
+org.bloomreach.forge.brut.common.repository.utils
+org.bloomreach.forge.brut.components
+org.bloomreach.forge.brut.components.exception
+org.bloomreach.forge.brut.components.mock
+org.bloomreach.forge.brut.resources

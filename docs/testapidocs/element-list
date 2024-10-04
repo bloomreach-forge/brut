@@ -1,0 +1,10 @@
+client.packagename
+client.packagename.beans
+client.packagename.model
+client.packagename.rest
+org.bloomreach.forge.brut.common.repository
+org.bloomreach.forge.brut.common.repository.utils
+org.bloomreach.forge.brut.components
+org.bloomreach.forge.brut.components.demo
+org.bloomreach.forge.brut.components.demo.domain
+org.bloomreach.forge.brut.components.mock
