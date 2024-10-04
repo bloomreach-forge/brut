@@ -75,9 +75,14 @@
 
   <repositories>
     <repository>
-      <id>hippo</id>
-      <name>Hippo maven 2 repository.</name>
-      <url>https://maven.onehippo.com/maven2/</url>
+      <id>bloomreach-maven2</id>
+      <name>Bloomreach Maven 2</name>
+      <url>https://maven.bloomreach.com/maven2/</url>
+    </repository>
+    <repository>
+      <id>bloomreach-maven2-forge</id>
+      <name>Bloomreach Maven 2 Forge Repository</name>
+      <url>https://maven.bloomreach.com/maven2-forge/</url>
     </repository>
   </repositories>
 

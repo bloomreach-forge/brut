@@ -50,9 +50,9 @@
 
   <distributionManagement>
     <repository>
-      <name>Hippo Maven 2 Forge Repository</name>
-      <id>hippo-maven2-forge</id>
-      <url>https://maven.onehippo.com/content/repositories/forge-releases/</url>
+      <name>Bloomreach Maven 2 Forge Repository</name>
+      <id>bloomreach-maven2-forge</id>
+      <url>https://maven.bloomreach.com/content/repositories/forge-releases</url>
       <uniqueVersion>false</uniqueVersion>
     </repository>
   </distributionManagement>
@@ -68,28 +68,14 @@
 
   <repositories>
     <repository>
-      <id>hippo</id>
-      <name>Hippo Maven 2</name>
-      <url>https://maven.onehippo.com/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <layout>default</layout>
+      <id>bloomreach-maven2</id>
+      <name>Bloomreach Maven 2 Repository</name>
+      <url>https://maven.bloomreach.com/maven2/</url>
     </repository>
     <repository>
-      <id>hippo-forge</id>
-      <name>Hippo Forge Maven 2 repository.</name>
-      <url>https://maven.onehippo.com/maven2-forge/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <layout>default</layout>
+      <id>bloomreach-maven2-forge</id>
+      <name>Bloomreach Maven 2 Forge Repository</name>
+      <url>https://maven.bloomreach.com/maven2-forge/</url>
     </repository>
   </repositories>
 
