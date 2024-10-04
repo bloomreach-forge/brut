@@ -36,13 +36,13 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-services</artifactId>
-      <version>${hippo-services.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-services-contenttype</artifactId>
-      <version>${hippo-services.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-repository-workflow</artifactId>
-      <version>${hippo.repository.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <!--hst-->
@@ -99,19 +99,19 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-cms-types</artifactId>
-      <version>${hst.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst.toolkit-resources.addon.toolkit-cnd</groupId>
       <artifactId>hst-addon-cnd</artifactId>
-      <version>${hst.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst.components</groupId>
       <artifactId>hst-resourcebundle-cnd</artifactId>
-      <version>${hst.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
@@ -127,19 +127,19 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-essentials-plugin-sdk-api</artifactId>
-      <version>${hippo.essentials.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst.client-modules</groupId>
       <artifactId>hst-page-composer</artifactId>
-      <version>${hst.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.onehippo.cms7.hst.pagemodelapi</groupId>
       <artifactId>hst-pagemodelapi-v10</artifactId>
-      <version>${hst.version}</version>
+      <version>${hippo.release.version}</version>
     </dependency>
 
     <dependency>
