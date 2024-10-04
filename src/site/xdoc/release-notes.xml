@@ -65,6 +65,11 @@
       </subsection>
 
       <subsection name="Release Notes of 4.x">
+        <h4>4.0.1</h4>
+        <ul>
+          <li><a href="https://issues.onehippo.com/browse/FORGE-557">FORGE-557</a> Upgrade for v15.0.1+ compatibility</li>
+        </ul>
+
         <h4>4.0.0</h4>
         <ul>
           <li><a href="https://issues.onehippo.com/browse/FORGE-427">FORGE-427</a> Upgrade for v15 compatibility</li>
