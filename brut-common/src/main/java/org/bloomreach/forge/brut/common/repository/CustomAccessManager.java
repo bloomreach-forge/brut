@@ -8,6 +8,7 @@ import org.apache.jackrabbit.core.security.simple.SimpleAccessManager;
 import org.apache.jackrabbit.core.state.ItemState;
 import org.apache.jackrabbit.spi.Name;
 import org.apache.jackrabbit.spi.Path;
+import org.hippoecm.repository.security.HippoAccessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import javax.jcr.security.AccessControlPolicy;
 import javax.jcr.security.AccessControlPolicyIterator;
 import javax.jcr.security.Privilege;
 
-public class CustomAccessManager extends org.hippoecm.repository.security.HippoAccessManager {
+public class CustomAccessManager extends HippoAccessManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomAccessManager.class);
 

@@ -12,5 +12,4 @@ definitions:
           jcr:primaryType: hst:mount
           hst:homepage: root
           hst:mountpoint: /hst:myproject/hst:sites/myproject
-          hst:namedpipeline: SpaSitePipeline
           hst:pagemodelapi: resourceapi

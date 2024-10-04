@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import org.bloomreach.forge.brut.common.repository.utils.NodeTypeUtils;
 
-import static javax.jcr.query.Query.XPATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BrxmTestingRepositoryTest {
@@ -43,7 +42,7 @@ public class BrxmTestingRepositoryTest {
             addSampleNode(session);
 
             QueryManager queryManager = session.getWorkspace().getQueryManager();
-            Query query = queryManager.createQuery("//element(*,ns:MyNodeType)", XPATH);
+            Query query = queryManager.createQuery("SELECT * FROM [ns:MyNodeType]", Query.JCR_SQL2);
             QueryResult execute = query.execute();
             NodeIterator nodes = execute.getNodes();
 

@@ -93,34 +93,21 @@
     </property>
   </bean>
 
-  <bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <!--Set a random value to cacheManagerName to avoid conflicts when running multiple tests in the same JVM-->
-    <property name="cacheManagerName" value="#{T(java.util.UUID).randomUUID().toString()}_ehCacheManager"/>
+  <bean id="caffeineCacheManager" class="org.springframework.cache.caffeine.CaffeineCacheManager"/>
+
+  <bean class="org.hippoecm.hst.cache.caffeine.CacheManagerShuttingDownListener" init-method="init" destroy-method="destroy">
+    <property name="cacheManager" ref="caffeineCacheManager" />
   </bean>
 
-  <bean id="abstractEhCacheBase" abstract="true">
-    <property name="cacheManager" ref="ehCacheManager"/>
-    <property name="maxEntriesLocalHeap" value="256"/>
-    <property name="maxEntriesLocalDisk" value="0"/>
-    <property name="eternal" value="false"/>
-    <!-- time to live in seconds. default 1 day -->
-    <property name="timeToLive" value="86400"/>
-    <!-- time to idle in seconds. default 1 day -->
-    <property name="timeToIdle" value="86400"/>
-    <property name="diskExpiryThreadIntervalSeconds" value="120"/>
-  </bean>
-
-
-  <bean id="abstractBlockingEhCache" abstract="true" parent="abstractEhCacheBase" class="org.hippoecm.hst.site.container.BlockingEhCacheFactoryBean">
-    <property name="timeoutMillis" value="${default.blocking.cache.timeout}"/>
+  <bean id="caffeineCacheInstanceFactory" class="org.hippoecm.hst.cache.caffeine.CaffeineCacheInstanceFactory">
+    <constructor-arg ref="caffeineCacheManager" />
   </bean>
 
   <bean id="pageCache" class="org.hippoecm.hst.cache.CompositeHstCache">
     <constructor-arg>
-      <bean parent="abstractBlockingEhCache">
-        <property name="cacheName" value="hstPageBlockingCache"/>
-        <property name="maxEntriesLocalHeap" value="${pageCache.maxSize}"/>
-        <property name="timeToLive" value="${pageCache.timeToLiveSeconds}"/>
+      <bean class="com.github.benmanes.caffeine.cache.Cache" factory-bean="caffeineCacheInstanceFactory" factory-method="createInstance">
+        <constructor-arg value="hstPageCache" />
+        <constructor-arg value="initialCapacity=10,maximumSize=${pageCache.maxSize},expireAfterWrite=${pageCache.timeToLiveSeconds},expireAfterAccess=24h" />
       </bean>
     </constructor-arg>
   </bean>
@@ -156,4 +143,3 @@
   </bean>
 
 </beans>
-

@@ -3,7 +3,7 @@ package org.example.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.onehippo.cms7.essentials.components.paging.Pageable;
 
-import javax.xml.bind.annotation.XmlAnyElement;
+import jakarta.xml.bind.annotation.XmlAnyElement;
 import java.util.ArrayList;
 import java.util.List;
 

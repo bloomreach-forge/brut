@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>4.0.1</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>brut-components</artifactId>
@@ -16,12 +16,7 @@
     This module was a fork of the hippo-unit-tester plugin by Ebrahim Aharpour
   </description>
 
-  <properties>
-    <jackson-databind.version>2.9.9.3</jackson-databind.version>
-  </properties>
-
   <dependencies>
-
     <dependency>
       <groupId>org.bloomreach.forge.brut</groupId>
       <artifactId>brut-common</artifactId>
@@ -31,7 +26,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson2-databind.version}</version>
+      <version>${jackson2.version}</version>
     </dependency>
 
     <dependency>
@@ -126,13 +121,13 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.12.10</version>
+      <version>${bytebuddy.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.objenesis</groupId>
       <artifactId>objenesis</artifactId>
-      <version>3.2</version>
+      <version>${objensis.version}</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -142,7 +137,10 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
+        <artifactId>maven-site-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>

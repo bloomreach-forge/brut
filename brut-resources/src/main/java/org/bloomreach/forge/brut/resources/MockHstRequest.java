@@ -1,7 +1,7 @@
 package org.bloomreach.forge.brut.resources;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletInputStream;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletInputStream;
 
 public class MockHstRequest extends org.hippoecm.hst.mock.core.component.MockHstRequest {
 

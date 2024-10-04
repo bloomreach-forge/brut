@@ -1,5 +1,5 @@
 <!--
-  Copyright 2017-2022 BloomReach Inc. (http://www.bloomreach.com)
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
+| 16.0.0   | 5.0.0   |
 | 15.0.1   | 4.0.1   |
 | 15.0.0   | 4.0.0   |
 | 14.0.0-2 | 3.0.0   |
@@ -26,6 +27,9 @@
 | 12.x     | 1.x     |
 
 ## Release Notes
+
+### 5.0.0
+Compatibility with brXM version 16.0.0
 
 ### 4.0.1
 Compatibility with brXM version 15.0.1+
@@ -53,7 +57,7 @@ Compatibility with brXM version 13.4.0
 
 <p class="smallinfo">Release date: 30 March 2019</p>
 
-+ Apply BloomReach Forge best practices and publish it on the Forge, under different Maven coordinates of the artifacts.
++ Apply Bloomreach Forge best practices and publish it on the Forge, under different Maven coordinates of the artifacts.
 + Available for brXM 12.x (developed and tested on 12.6.0)
 
 ### 1.0.0

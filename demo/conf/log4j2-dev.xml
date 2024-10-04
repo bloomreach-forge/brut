@@ -103,7 +103,7 @@
     </Logger>
 
     <Logger name="org.apache.cxf" level="warn"/>
-    <Logger name="javax.ws.rs.core" level="warn"/>
+    <Logger name="jakarta.ws.rs.core" level="warn"/>
     <Logger name="org.apache.commons.pool" level="warn"/>
     <Logger name="org.apache.commons.beanutils" level="warn"/>
 
@@ -119,6 +119,10 @@
     <Logger name="org.apache.jackrabbit.core.persistence.bundle" level="warn"/>
     <Logger name="org.hippoecm.repository.jackrabbit.persistence" level="info"/>
     <Logger name="org.hippoecm.repository.updater" additivity="false" level="info">
+      <AppenderRef ref="messages"/>
+    </Logger>
+
+    <Logger name="org.hippoecm.repository.jackrabbit.IndexRepairer"  additivity="false" level="info">
       <AppenderRef ref="messages"/>
     </Logger>
 

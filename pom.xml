@@ -5,23 +5,21 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>15.7.0</version>
+    <version>16.0.0</version>
   </parent>
 
+  <name>Bloomreach Unit Testing Library</name>
+  <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
   <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
-  <version>4.0.1</version>
-
+  <version>5.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
-  <name>BloomReach Unit Testing Library</name>
-  <description>BloomReach Unit Testing Library for BrXM Delivery Tier</description>
   <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
   <contributors>
     <contributor>
       <name>Baris Can Vural</name>
-      <organization>BloomReach</organization>
+      <organization>Bloomreach</organization>
     </contributor>
   </contributors>
 
@@ -34,18 +32,15 @@
   </licenses>
 
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <objensis.version>3.4</objensis.version>
 
-    <junit-jupiter.version>5.7.2</junit-jupiter.version>
-    <mockito.version>4.11.0</mockito.version>
+    <project.build.javaVersion>17</project.build.javaVersion>
   </properties>
 
   <scm>
     <connection>scm:git:git@github.com:bloomreach-forge/brut.git</connection>
     <developerConnection>scm:git:git@github.com:bloomreach-forge/brut.git</developerConnection>
     <url>https://github.com/bloomreach-forge/brut.git</url>
-    <tag>brut-2.1.0</tag>
   </scm>
 
   <distributionManagement>
@@ -58,7 +53,7 @@
   </distributionManagement>
 
   <issueManagement>
-    <url>https://issues.onehippo.com/browse/HIPFORGE</url>
+    <url>https://issues.onehippo.com/browse/FORGE</url>
   </issueManagement>
 
   <organization>
@@ -78,14 +73,6 @@
       <url>https://maven.bloomreach.com/maven2-forge/</url>
     </repository>
   </repositories>
-
-
-
-  <modules>
-    <module>brut-common</module>
-    <module>brut-components</module>
-    <module>brut-resources</module>
-  </modules>
 
   <dependencyManagement>
     <dependencies>
@@ -131,6 +118,11 @@
         <version>${hippo.release.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.skyscreamer</groupId>
+        <artifactId>jsonassert</artifactId>
+        <version>${skyscreamer.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
         <version>${junit-jupiter.version}</version>
@@ -151,7 +143,91 @@
     </dependencies>
   </dependencyManagement>
 
+  <modules>
+    <module>brut-common</module>
+    <module>brut-components</module>
+    <module>brut-resources</module>
+  </modules>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <skip>false</skip>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <build>
+    <defaultGoal>package</defaultGoal>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.plugin.compiler.version}</version>
+        <configuration>
+          <source>${project.build.javaVersion}</source>
+          <target>${project.build.javaVersion}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>${maven.plugin.clean.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>${maven.plugin.install.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven.plugin.deploy.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.plugin.jar.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.plugin.surefire.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven.plugin.resources.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>${maven.plugin.site.version}</version>
+      </plugin>
+    </plugins>
+
     <resources>
       <resource>
         <directory>src/main/resources</directory>
