@@ -5,11 +5,7 @@
   <parent>
     <groupId>org.example</groupId>
     <artifactId>myproject-repository-data</artifactId>
-<<<<<<< HEAD
-    <version>3.0.1</version>
-=======
     <version>5.0.0</version>
->>>>>>> develop
   </parent>
 
   <name>My Project Repository Data For Site</name>
