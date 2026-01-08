@@ -2,8 +2,11 @@ package org.bloomreach.forge.brut.resources;
 
 import org.hippoecm.hst.container.HstDelegateeFilterBean;
 import org.hippoecm.hst.container.HstFilter;
+import org.hippoecm.hst.container.RequestContextProvider;
 import org.hippoecm.hst.content.tool.DefaultContentBeansTool;
+import org.hippoecm.hst.core.container.ContainerConstants;
 import org.hippoecm.hst.core.internal.PlatformModelAvailableService;
+import org.hippoecm.hst.core.request.HstRequestContext;
 import org.hippoecm.hst.mock.core.component.MockHstResponse;
 import org.hippoecm.hst.platform.container.sitemapitemhandler.HstSiteMapItemHandlerFactories;
 import org.hippoecm.hst.platform.container.sitemapitemhandler.HstSiteMapItemHandlerFactoriesImpl;
@@ -17,8 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockServletContext;
 
-import javax.annotation.Nullable;
 import javax.jcr.Repository;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,8 +119,6 @@ public abstract class AbstractResourceTest {
     /**
      * @return Result json as string
      */
-
-    @Nullable
     protected String invokeFilter() {
 
         performValidation();
@@ -124,15 +126,60 @@ public abstract class AbstractResourceTest {
         HstDelegateeFilterBean filter = componentManager.getComponent(HstFilter.class.getName());
         try {
             filter.doFilter(hstRequest, hstResponse, null);
+
+            HstRequestContext requestContext = (HstRequestContext) hstRequest.getAttribute(
+                ContainerConstants.HST_REQUEST_CONTEXT
+            );
+
+            // Ensure ThreadLocal is set for any post-filter processing
+            if (requestContext != null) {
+                setRequestContextProvider(requestContext);
+            }
+
             String contentAsString = hstResponse.getContentAsString();
             LOGGER.info(contentAsString);
             //important! set the filter reset attribute to true for subsequent filter invocations
             hstRequest.setAttribute(HST_RESET_FILTER, true);
+
+            // Clean up ThreadLocal
+            clearRequestContextProvider();
+
             return contentAsString;
         } catch (Exception e) {
-            LOGGER.warn(e.getLocalizedMessage());
+            LOGGER.error("Exception during filter invocation", e);
+            clearRequestContextProvider();
+            throw new RuntimeException("Filter invocation failed", e);
         }
-        return null;
+    }
+
+    /**
+     * Sets the HstRequestContext in the RequestContextProvider's ThreadLocal using reflection.
+     * This is necessary because RequestContextProvider.set() is a private method.
+     */
+    private void setRequestContextProvider(HstRequestContext requestContext) {
+        try {
+            Method set = RequestContextProvider.class.getDeclaredMethod("set", HstRequestContext.class);
+            set.setAccessible(true);
+            set.invoke(null, requestContext);
+            set.setAccessible(false);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            LOGGER.warn("Failed to set RequestContextProvider", e);
+        }
+    }
+
+    /**
+     * Clears the HstRequestContext from the RequestContextProvider's ThreadLocal using reflection.
+     * This is necessary because RequestContextProvider.clear() is a private method.
+     */
+    private void clearRequestContextProvider() {
+        try {
+            Method clear = RequestContextProvider.class.getDeclaredMethod("clear");
+            clear.setAccessible(true);
+            clear.invoke(null);
+            clear.setAccessible(false);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            LOGGER.warn("Failed to clear RequestContextProvider", e);
+        }
     }
 
     protected void includeAdditionalSpringConfigurations() {

@@ -5,6 +5,7 @@ import client.packagename.model.NewsItemRep;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bloomreach.forge.brut.resources.AbstractJaxrsTest;
+import org.bloomreach.forge.brut.resources.AbstractResourceTest;
 import org.junit.jupiter.api.*;
 
 import javax.jcr.Node;
@@ -17,7 +18,12 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * A user (client) of the testing library providing his/her own config/content
@@ -26,18 +32,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JaxrsTest extends AbstractJaxrsTest {
 
+    private ListAppender<ILoggingEvent> logAppender;
+    private Logger abstractResourceTestLogger;
+    private Logger cxfLogger;
+
     @BeforeAll
     public void init() {
         super.init();
+
+        logAppender = new ListAppender<>();
+        logAppender.start();
+
+        abstractResourceTestLogger = (Logger) LoggerFactory.getLogger(AbstractResourceTest.class);
+        abstractResourceTestLogger.addAppender(logAppender);
+
+        cxfLogger = (Logger) LoggerFactory.getLogger("org.apache.cxf");
+        cxfLogger.addAppender(logAppender);
     }
 
     @BeforeEach
     public void beforeEach() {
         setupForNewRequest();
+        logAppender.list.clear();
     }
 
     @AfterAll
     public void afterAll() {
+        abstractResourceTestLogger.detachAppender(logAppender);
+        cxfLogger.detachAppender(logAppender);
         super.destroy();
     }
 
@@ -115,6 +137,42 @@ public class JaxrsTest extends AbstractJaxrsTest {
         rootMount.setProperty("hst:parametervalues", paramValues);
         session.save();
         session.logout();
+    }
+
+    @Test
+    @DisplayName("Verify RequestContextProvider is available in JAX-RS resources")
+    public void testRequestContextProviderAvailable() {
+        getHstRequest().setRequestURI("/site/api/hello/request-context-available");
+        String response = invokeFilter();
+        assertEquals("PASS", response,
+                "RequestContextProvider.get() should return non-null HstRequestContext in JAX-RS resource");
+    }
+
+    @Test
+    @DisplayName("Verify exceptions are logged with full stack trace")
+    public void testExceptionLoggingWithFullStackTrace() {
+        getHstRequest().setRequestURI("/site/api/hello/exception-with-stack-trace");
+        invokeFilter();
+
+        List<ILoggingEvent> logEvents = logAppender.list;
+        List<ILoggingEvent> logsWithException = logEvents.stream()
+                .filter(event -> event.getThrowableProxy() != null)
+                .filter(event -> event.getThrowableProxy().getMessage() != null)
+                .filter(event -> event.getThrowableProxy().getMessage().contains("Test exception"))
+                .toList();
+
+        assertFalse(logsWithException.isEmpty(),
+                "Exception should be logged with full details, not swallowed");
+        ILoggingEvent exceptionLog = logsWithException.get(0);
+
+        assertNotNull(exceptionLog.getThrowableProxy(),
+                "Exception log must include full throwable/stack trace, not just message string");
+        assertTrue(exceptionLog.getThrowableProxy().getStackTraceElementProxyArray().length > 0,
+                "Stack trace must contain actual stack frames, not be empty");
+
+        String firstStackFrame = exceptionLog.getThrowableProxy().getStackTraceElementProxyArray()[0].toString();
+        assertNotNull(firstStackFrame,
+                "Stack frames should be available for debugging");
     }
 
 }
