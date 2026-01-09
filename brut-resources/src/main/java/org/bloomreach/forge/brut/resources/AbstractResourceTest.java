@@ -32,6 +32,7 @@ public abstract class AbstractResourceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractResourceTest.class);
 
     private static final String HST_RESET_FILTER = "org.hippoecm.hst.container.HstFilter.reset";
+    private static final Object WEBAPP_CONTEXT_LOCK = new Object();
 
     protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
@@ -72,8 +73,10 @@ public abstract class AbstractResourceTest {
         hstRequest.setServletContext(servletContext);
         hstRequest.setServletPath("/");
         componentManager.setServletContext(servletContext);
-        if (HippoWebappContextRegistry.get().getContext("/site") == null) {
-            HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
+        synchronized (WEBAPP_CONTEXT_LOCK) {
+            if (HippoWebappContextRegistry.get().getContext("/site") == null) {
+                HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
+            }
         }
     }
 
@@ -89,8 +92,25 @@ public abstract class AbstractResourceTest {
         hstModelRegistry.init();
     }
 
+    /**
+     * Registers the HST model with the model registry.
+     * <p>
+     * This method gracefully handles the case where a model is already registered for the servlet context path,
+     * which can occur when running multiple test methods in the same test class. The IllegalStateException
+     * is caught and logged at debug level rather than failing the test.
+     * </p>
+     *
+     * @since 5.0.1 - Added exception handling for already-registered models
+     */
     protected void registerHstModel() {
-        hstModelRegistry.registerHstModel(servletContext, componentManager, true);
+        try {
+            hstModelRegistry.registerHstModel(servletContext, componentManager, true);
+        } catch (IllegalStateException e) {
+            // Model already registered for this context path - this is expected when running
+            // multiple test methods in the same test class. Log and continue.
+            LOGGER.debug("HstModel already registered for contextPath '{}': {}",
+                servletContext.getContextPath(), e.getMessage());
+        }
     }
 
     protected void unregisterHstModel() {
@@ -117,7 +137,20 @@ public abstract class AbstractResourceTest {
     }
 
     /**
-     * @return Result json as string
+     * Invokes the HST filter to process the current request and returns the response content.
+     * <p>
+     * This method properly manages the {@code RequestContextProvider} ThreadLocal, making it available
+     * to JAX-RS resources during request processing. The ThreadLocal is guaranteed to be cleaned up
+     * via a finally block to prevent memory leaks.
+     * </p>
+     * <p>
+     * Exceptions during filter invocation are logged with full stack traces and re-thrown wrapped
+     * in a {@code RuntimeException} for easier debugging.
+     * </p>
+     *
+     * @return The response content as a string
+     * @throws RuntimeException if filter invocation fails
+     * @since 5.0.1 - Added RequestContextProvider ThreadLocal management and improved exception handling
      */
     protected String invokeFilter() {
 
@@ -141,14 +174,13 @@ public abstract class AbstractResourceTest {
             //important! set the filter reset attribute to true for subsequent filter invocations
             hstRequest.setAttribute(HST_RESET_FILTER, true);
 
-            // Clean up ThreadLocal
-            clearRequestContextProvider();
-
             return contentAsString;
         } catch (Exception e) {
             LOGGER.error("Exception during filter invocation", e);
-            clearRequestContextProvider();
             throw new RuntimeException("Filter invocation failed", e);
+        } finally {
+            // Always clean up ThreadLocal to prevent memory leaks
+            clearRequestContextProvider();
         }
     }
 

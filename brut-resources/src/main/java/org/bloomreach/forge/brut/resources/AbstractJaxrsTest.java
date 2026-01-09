@@ -11,15 +11,67 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract base class for testing JAX-RS resources with the HST container.
+ * <p>
+ * This class provides thread-safe initialization of the HST platform and component manager.
+ * For tests with multiple test methods using {@code @TestInstance(TestInstance.Lifecycle.PER_CLASS)},
+ * call {@link #setupForNewRequest()} in a {@code @BeforeEach} method to reset state between tests.
+ * </p>
+ * <p>
+ * <b>Thread Safety:</b> This class uses synchronized blocks to prevent race conditions during
+ * component manager initialization, making it safe for parallel test execution.
+ * </p>
+ *
+ * @see AbstractResourceTest
+ * @since 5.0.1
+ */
 public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
     private static final int DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE = 1024;
+    private static final Object INITIALIZATION_LOCK = new Object();
+    private static boolean componentManagerInitialized = false;
 
+    /**
+     * Initializes the HST platform and component manager. Call this in a {@code @BeforeAll} method.
+     * <p>
+     * This method performs one-time initialization of the Spring component manager and HST platform
+     * in a thread-safe manner. Subsequent calls will skip initialization if already done.
+     * </p>
+     */
     public void init() {
         setupHstRequest();
         setupServletContext();
-        setupComponentManager();
-        setupHstPlatform();
+
+        synchronized (INITIALIZATION_LOCK) {
+            if (!componentManagerInitialized) {
+                setupComponentManager();
+                setupHstPlatform();
+                componentManagerInitialized = true;
+            }
+        }
+
+        setupForNewRequest();
+    }
+
+    /**
+     * Resets per-request state: HST model registration and response object.
+     * <p>
+     * Call this in a {@code @BeforeEach} method when running multiple test methods in the same test class
+     * with {@code @TestInstance(TestInstance.Lifecycle.PER_CLASS)}. This ensures each test starts with
+     * clean HST model and response state while avoiding expensive component manager re-initialization.
+     * </p>
+     * <p>
+     * Subclasses can override this method to add additional per-request setup (e.g., setting request headers),
+     * but must call {@code super.setupForNewRequest()} to ensure proper state reset.
+     * </p>
+     *
+     * @since 5.0.1
+     */
+    protected void setupForNewRequest() {
+        unregisterHstModel();
+        registerHstModel();
+        setupHstResponse();
     }
 
     @Override
@@ -66,7 +118,11 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         return DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE;
     }
 
+    @Override
     public void destroy() {
         super.destroy();
+        synchronized (INITIALIZATION_LOCK) {
+            componentManagerInitialized = false;
+        }
     }
 }

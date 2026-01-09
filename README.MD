@@ -61,6 +61,18 @@ This module is for testing HST components. This is a fork of the project called 
 This module itself depends on the repository in the common module. It has abstract test classes that start up
 an HST Container from scratch to test different HST pipelines.
 
+**Key Features (v5.0.1+):**
+* Thread-safe initialization for parallel test execution
+* Proper `RequestContextProvider` ThreadLocal management for JAX-RS resources
+* Automatic handling of HST model registration conflicts
+* Full exception stack traces for easier debugging
+* Memory leak prevention with guaranteed ThreadLocal cleanup
+
+**Best Practices:**
+* Use `@TestInstance(TestInstance.Lifecycle.PER_CLASS)` for better performance
+* Call `setupForNewRequest()` in `@BeforeEach` when testing multiple methods
+* The `RequestContextProvider.get()` now works correctly in JAX-RS resources
+
 ### Example with pagemodel api (under test directory):
 
 ```java
@@ -176,18 +188,10 @@ public class JaxrsTest extends AbstractJaxrsTest {
     }
 
     @BeforeEach
-    public void beforeEach() {
-        setupForNewRequest();
-    }
-
-    private void setupForNewRequest() {
-        setupHstRequest();
+    public void setupForNewRequest() {
+        super.setupForNewRequest();  // Resets HST model and response
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
-        setupServletContext();
-        unregisterHstModel();
-        registerHstModel();
-        setupHstResponse();
     }
 
     @Override

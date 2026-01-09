@@ -63,14 +63,13 @@ public class JaxrsTest extends AbstractJaxrsTest {
         super.destroy();
     }
 
-    private void setupForNewRequest() {
+    @Override
+    protected void setupForNewRequest() {
         setupHstRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
         setupServletContext();
-        unregisterHstModel();
-        registerHstModel();
-        setupHstResponse();
+        super.setupForNewRequest();
     }
 
     @Override

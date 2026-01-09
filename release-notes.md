@@ -28,6 +28,50 @@
 
 ## Release Notes
 
+### 5.0.1
+
+**Critical Bug Fixes for JAX-RS Testing:**
+
+* **Fixed:** Exception stack traces were being swallowed in `AbstractResourceTest.invokeFilter()`. Now logs full exception details and properly propagates errors for better debugging.
+* **Fixed:** `RequestContextProvider.get()` returned null in JAX-RS resources, causing NPE. ThreadLocal is now properly set and cleaned up using reflection to access private methods.
+* **Fixed:** `IllegalStateException: There is already an HstModel registered` when running multiple test methods in the same test class. Now gracefully handles already-registered models.
+
+**Thread Safety Improvements:**
+
+* **Fixed:** Race condition in component manager initialization that could cause `BeanCreationException: A service of type HstSiteMapItemHandlerFactories is already registered`. Added synchronized blocks with proper locking mechanism.
+* **Fixed:** Race condition in `HippoWebappContextRegistry` registration. Check-then-register operation is now atomic.
+* **Fixed:** ThreadLocal memory leak risk. `RequestContextProvider` cleanup now guaranteed via finally block.
+
+**API Changes:**
+
+* Added `AbstractJaxrsTest.setupForNewRequest()` method - subclasses should call this in `@BeforeEach` when using `PER_CLASS` lifecycle to properly reset state between test methods.
+
+**Migration Notes:**
+
+For tests extending `AbstractJaxrsTest` with multiple test methods:
+
+```java
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class MyJaxrsTest extends AbstractJaxrsTest {
+
+    @BeforeAll
+    public void init() {
+        super.init();
+    }
+
+    @BeforeEach  // Add this if you have multiple test methods
+    public void beforeEach() {
+        setupForNewRequest();  // Ensures clean state per test
+    }
+
+    @Test
+    public void testOne() { /* ... */ }
+
+    @Test
+    public void testTwo() { /* ... */ }
+}
+```
+
 ### 5.0.0
 Compatibility with brXM version 16.0.0
 
