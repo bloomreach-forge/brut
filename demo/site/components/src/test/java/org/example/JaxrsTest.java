@@ -34,16 +34,8 @@ public class JaxrsTest extends AbstractJaxrsTest {
     @BeforeEach
     public void beforeEach() {
         setupForNewRequest();
-    }
-
-    private void setupForNewRequest() {
-        setupHstRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
-        setupServletContext();
-        unregisterHstModel();
-        registerHstModel();
-        setupHstResponse();
     }
 
     @Override

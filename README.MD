@@ -58,46 +58,17 @@ This module is for testing HST components. This is a fork of the project called 
 
 ### B.R.U.T. Resources
 
-This module itself depends on the repository in the common module. It has abstract test classes that start up
-an HST Container from scratch to test different HST pipelines.
+This module provides abstract test classes for testing HST pipelines (JAX-RS REST, Page Model API).
 
-**Key Features (v5.0.1+):**
-* Thread-safe initialization for parallel test execution
-* Proper `RequestContextProvider` ThreadLocal management for JAX-RS resources
-* Automatic handling of HST model registration conflicts
-* Full exception stack traces for easier debugging
-* Memory leak prevention with guaranteed ThreadLocal cleanup
+**Features:**
+* Supports both JUnit 4 `@Before` and JUnit 5 `@BeforeAll` patterns
+* Thread-safe for parallel test execution
+* `RequestContextProvider.get()` works in JAX-RS resources
+* Full exception stack traces for debugging
 
-**Best Practices:**
-* Use `@TestInstance(TestInstance.Lifecycle.PER_CLASS)` for better performance
-* Call `setupForNewRequest()` in `@BeforeEach` when testing multiple methods
-* The `RequestContextProvider.get()` now works correctly in JAX-RS resources
-
-### Example with pagemodel api (under test directory):
+### Example with Page Model API
 
 ```java
-package org.example;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * A user (client) of the testing library providing his/her own config/content
- */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PageModelTest extends AbstractPageModelTest {
 
@@ -118,12 +89,7 @@ public class PageModelTest extends AbstractPageModelTest {
 
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
-        return Collections.singletonList("/org/example/custom-pagemodel.xml");
-    }
-
-    @Override
-    protected List<String> contributeAddonModulePaths() {
-        return null;
+        return Collections.singletonList("/custom-pagemodel.xml");
     }
 
     @Override
@@ -132,53 +98,21 @@ public class PageModelTest extends AbstractPageModelTest {
     }
 
     @Test
-    @DisplayName("Component rendering url response")
-    public void test() throws IOException {
+    public void testComponentRendering() throws IOException {
         getHstRequest().setRequestURI("/site/resourceapi/news");
         getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
         String response = invokeFilter();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
-        assertTrue(jsonNode.get("page").size() > 0);
-        assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
+
+        JsonNode json = new ObjectMapper().readTree(response);
+        assertTrue(json.get("page").size() > 0);
     }
 }
 ```
 
-### Example with Jaxrsrestplainpipeline (under test directory):
+### Example with JAX-RS REST Pipeline
 
+**JUnit 5 (Recommended):**
 ```java
-package org.example;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.Repository;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-
-import org.example.model.ListItemPagination;
-import org.example.model.NewsItemRep;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import com.bloomreach.ps.brut.resources.AbstractJaxrsTest;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-/**
- * A user (client) of the testing library providing his/her own config/content
- */
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JaxrsTest extends AbstractJaxrsTest {
 
@@ -188,8 +122,8 @@ public class JaxrsTest extends AbstractJaxrsTest {
     }
 
     @BeforeEach
-    public void setupForNewRequest() {
-        super.setupForNewRequest();  // Resets HST model and response
+    public void beforeEach() {
+        setupForNewRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
     }
@@ -201,12 +135,7 @@ public class JaxrsTest extends AbstractJaxrsTest {
 
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml");
-    }
-
-    @Override
-    protected List<String> contributeAddonModulePaths() {
-        return null;
+        return Arrays.asList("/custom-jaxrs.xml", "/rest-resources.xml");
     }
 
     @Override
@@ -215,69 +144,44 @@ public class JaxrsTest extends AbstractJaxrsTest {
     }
 
     @Test
-    @DisplayName("Test invoking the user endpoint")
-    public void testUserEndpoint() {
-        String user = "baris";
-        getHstRequest().setRequestURI("/site/api/hello/" + user);
+    public void testEndpoint() {
+        getHstRequest().setRequestURI("/site/api/hello/user");
         String response = invokeFilter();
-        assertEquals("Hello, World! " + user, response);
+        assertEquals("Hello, World! user", response);
     }
-
-    @Test
-    @DisplayName("Test HST config changes are not visible if HST model is not reloaded after a node update via JCR API")
-    public void testMountParamsUpdated() throws Exception {
-        String key = "paramName";
-        String value = "paramValue";
-        getHstRequest().setRequestURI("/site/api/hello/mount/" + key);
-        String response = invokeFilter();
-        setParamsOnMount(new String[]{key}, new String[]{value});
-        assertEquals("", response,
-                "Expected nothing to change since the HST model was not explicitly reloaded");
-
-        invalidateHstModel();
-        String response2 = invokeFilter();
-        assertEquals(value, response2, "Expected param value to be updated since HST model was loaded");
-    }
-
-    @Test
-    @DisplayName("Test running HST query in news endpoint")
-    public void testNewsEndpoint() throws Exception {
-        getHstRequest().setRequestURI("/site/api/news");
-        String response = invokeFilter();
-        ListItemPagination<NewsItemRep> pageable = new ObjectMapper().readValue(response, new TypeReference<ListItemPagination<NewsItemRep>>() {
-        });
-        assertEquals(3, pageable.getItems().size(), "Pageable didn't have enough results");
-    }
-
-    private void setParamsOnMount(String[] paramNames, String[] paramValues) throws Exception {
-        Repository repository = getComponentManager().getComponent(Repository.class);
-        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
-        String rootMountPath = "/hst:myproject/hst:hosts/dev-localhost/localhost/hst:root";
-        Node rootMount = session.getNode(rootMountPath);
-        rootMount.setProperty("hst:parameternames", paramNames);
-        rootMount.setProperty("hst:parametervalues", paramValues);
-        session.save();
-        session.logout();
-    }
-
 }
 ```
 
-### Example spring config
+**JUnit 4 (Fully Supported):**
+```java
+public class JaxrsTest extends AbstractJaxrsTest {
 
-Note that as the user of this library you provide the cnd and yaml files to be imported in the repository.
+    @Before
+    public void setUp() {
+        super.init();
+        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        getHstRequest().setMethod(HttpMethod.GET);
+    }
+
+    // Same @Override methods and @Test as above
+}
+```
+
+### Spring Configuration
+
+Provide CND files and YAML content imports via Spring config:
 
 ```xml
-
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
 
   <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
     <constructor-arg>
       <list>
-        <value>classpath*:client/packagename/namespaces/**/*.cnd</value>
+        <value>classpath*:org/example/namespaces/**/*.cnd</value>
       </list>
     </constructor-arg>
   </bean>
@@ -285,11 +189,9 @@ Note that as the user of this library you provide the cnd and yaml files to be i
   <bean id="contributedYamlResourcesPatterns" class="java.util.ArrayList">
     <constructor-arg>
       <list>
-        <value>classpath*:client/packagename/imports/**/*.yaml</value>
+        <value>classpath*:org/example/imports/**/*.yaml</value>
       </list>
     </constructor-arg>
   </bean>
-
 </beans>
-
 ```

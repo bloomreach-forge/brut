@@ -26,13 +26,21 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractResourceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractResourceTest.class);
 
     private static final String HST_RESET_FILTER = "org.hippoecm.hst.container.HstFilter.reset";
-    private static final Object WEBAPP_CONTEXT_LOCK = new Object();
+
+    private static final ReentrantLock webappContextLock = new ReentrantLock();
+
+    // Shared across test instances to support JUnit 4 @Before pattern
+    protected static SpringComponentManager sharedComponentManager;
+    protected static HstModelRegistryImpl sharedHstModelRegistry;
+    protected static PlatformServicesImpl sharedPlatformServices;
+    protected static PlatformModelAvailableService sharedPlatformModelAvailableService;
 
     protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
@@ -73,10 +81,13 @@ public abstract class AbstractResourceTest {
         hstRequest.setServletContext(servletContext);
         hstRequest.setServletPath("/");
         componentManager.setServletContext(servletContext);
-        synchronized (WEBAPP_CONTEXT_LOCK) {
+        webappContextLock.lock();
+        try {
             if (HippoWebappContextRegistry.get().getContext("/site") == null) {
                 HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
             }
+        } finally {
+            webappContextLock.unlock();
         }
     }
 
@@ -92,29 +103,24 @@ public abstract class AbstractResourceTest {
         hstModelRegistry.init();
     }
 
-    /**
-     * Registers the HST model with the model registry.
-     * <p>
-     * This method gracefully handles the case where a model is already registered for the servlet context path,
-     * which can occur when running multiple test methods in the same test class. The IllegalStateException
-     * is caught and logged at debug level rather than failing the test.
-     * </p>
-     *
-     * @since 5.0.1 - Added exception handling for already-registered models
-     */
     protected void registerHstModel() {
+        if (hstModelRegistry == null) {
+            LOGGER.warn("Cannot register HST model: hstModelRegistry is null. Ensure setupHstPlatform() has been called.");
+            return;
+        }
         try {
             hstModelRegistry.registerHstModel(servletContext, componentManager, true);
         } catch (IllegalStateException e) {
-            // Model already registered for this context path - this is expected when running
-            // multiple test methods in the same test class. Log and continue.
+            // Expected when running multiple test methods in same class
             LOGGER.debug("HstModel already registered for contextPath '{}': {}",
                 servletContext.getContextPath(), e.getMessage());
         }
     }
 
     protected void unregisterHstModel() {
-        hstModelRegistry.unregisterHstModel(servletContext);
+        if (hstModelRegistry != null) {
+            hstModelRegistry.unregisterHstModel(servletContext);
+        }
     }
 
 
@@ -128,35 +134,33 @@ public abstract class AbstractResourceTest {
         hstSiteMapItemHandlerFactories.unregister(servletContext.getContextPath());
 
         unregisterHstModel();
-        hstModelRegistry.destroy();
-        hstModelRegistry.setRepository(null);
+        if (hstModelRegistry != null) {
+            hstModelRegistry.destroy();
+            hstModelRegistry.setRepository(null);
+        }
 
-        platformServices.destroy();
-        platformServices.setPreviewDecorator(null);
-        platformServices.setHstModelRegistry(null);
+        if (platformServices != null) {
+            platformServices.destroy();
+            platformServices.setPreviewDecorator(null);
+            platformServices.setHstModelRegistry(null);
+        }
     }
 
     /**
-     * Invokes the HST filter to process the current request and returns the response content.
-     * <p>
-     * This method properly manages the {@code RequestContextProvider} ThreadLocal, making it available
-     * to JAX-RS resources during request processing. The ThreadLocal is guaranteed to be cleaned up
-     * via a finally block to prevent memory leaks.
-     * </p>
-     * <p>
-     * Exceptions during filter invocation are logged with full stack traces and re-thrown wrapped
-     * in a {@code RuntimeException} for easier debugging.
-     * </p>
-     *
-     * @return The response content as a string
-     * @throws RuntimeException if filter invocation fails
-     * @since 5.0.1 - Added RequestContextProvider ThreadLocal management and improved exception handling
+     * Invokes the HST filter and returns response content.
+     * Sets RequestContextProvider ThreadLocal for JAX-RS resources to access.
      */
     protected String invokeFilter() {
-
         performValidation();
-        //Invoke
+
         HstDelegateeFilterBean filter = componentManager.getComponent(HstFilter.class.getName());
+        if (filter == null) {
+            throw new IllegalStateException(
+                "HstDelegateeFilterBean is null. Ensure init() was called and setupComponentManager() completed successfully. " +
+                "Component manager present: " + (componentManager != null)
+            );
+        }
+
         try {
             filter.doFilter(hstRequest, hstResponse, null);
 
@@ -164,14 +168,12 @@ public abstract class AbstractResourceTest {
                 ContainerConstants.HST_REQUEST_CONTEXT
             );
 
-            // Ensure ThreadLocal is set for any post-filter processing
             if (requestContext != null) {
                 setRequestContextProvider(requestContext);
             }
 
             String contentAsString = hstResponse.getContentAsString();
             LOGGER.info(contentAsString);
-            //important! set the filter reset attribute to true for subsequent filter invocations
             hstRequest.setAttribute(HST_RESET_FILTER, true);
 
             return contentAsString;
@@ -179,7 +181,6 @@ public abstract class AbstractResourceTest {
             LOGGER.error("Exception during filter invocation", e);
             throw new RuntimeException("Filter invocation failed", e);
         } finally {
-            // Always clean up ThreadLocal to prevent memory leaks
             clearRequestContextProvider();
         }
     }

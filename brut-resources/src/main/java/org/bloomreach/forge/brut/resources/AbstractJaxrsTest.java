@@ -5,22 +5,21 @@ import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.DelegatingServletInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
  * Abstract base class for testing JAX-RS resources with the HST container.
  * <p>
- * This class provides thread-safe initialization of the HST platform and component manager.
- * For tests with multiple test methods using {@code @TestInstance(TestInstance.Lifecycle.PER_CLASS)},
- * call {@link #setupForNewRequest()} in a {@code @BeforeEach} method to reset state between tests.
- * </p>
- * <p>
- * <b>Thread Safety:</b> This class uses synchronized blocks to prevent race conditions during
- * component manager initialization, making it safe for parallel test execution.
+ * Supports both JUnit 4 {@code @Before} and JUnit 5 {@code @BeforeAll} patterns.
+ * Component manager is shared across test instances for performance while maintaining test isolation.
  * </p>
  *
  * @see AbstractResourceTest
@@ -28,45 +27,66 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJaxrsTest.class);
     private static final int DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE = 1024;
-    private static final Object INITIALIZATION_LOCK = new Object();
-    private static boolean componentManagerInitialized = false;
+    private static final ReentrantLock initializationLock = new ReentrantLock();
+    private static final AtomicBoolean componentManagerInitialized = new AtomicBoolean(false);
 
-    /**
-     * Initializes the HST platform and component manager. Call this in a {@code @BeforeAll} method.
-     * <p>
-     * This method performs one-time initialization of the Spring component manager and HST platform
-     * in a thread-safe manner. Subsequent calls will skip initialization if already done.
-     * </p>
-     */
     public void init() {
         setupHstRequest();
         setupServletContext();
 
-        synchronized (INITIALIZATION_LOCK) {
-            if (!componentManagerInitialized) {
-                setupComponentManager();
-                setupHstPlatform();
-                componentManagerInitialized = true;
-            }
+        if (isFirstInitialization()) {
+            performFirstTimeInitialization();
+        } else {
+            reuseSharedInstances();
         }
 
         setupForNewRequest();
     }
 
+    private boolean isFirstInitialization() {
+        return !componentManagerInitialized.get();
+    }
+
+    private void performFirstTimeInitialization() {
+        initializationLock.lock();
+        try {
+            if (isFirstInitialization()) {
+                setupComponentManager();
+                setupHstPlatform();
+                storeSharedReferences();
+                componentManagerInitialized.set(true);
+            }
+        } finally {
+            initializationLock.unlock();
+        }
+    }
+
+    private void storeSharedReferences() {
+        sharedComponentManager = componentManager;
+        sharedHstModelRegistry = hstModelRegistry;
+        sharedPlatformServices = platformServices;
+        sharedPlatformModelAvailableService = platformModelAvailableService;
+    }
+
+    private void reuseSharedInstances() {
+        componentManager = sharedComponentManager;
+        hstModelRegistry = sharedHstModelRegistry;
+        platformServices = sharedPlatformServices;
+        platformModelAvailableService = sharedPlatformModelAvailableService;
+        restoreRepositoryReference();
+    }
+
+    private void restoreRepositoryReference() {
+        if (hstModelRegistry != null && componentManager != null) {
+            hstModelRegistry.setRepository(componentManager.getComponent(javax.jcr.Repository.class));
+        }
+    }
+
     /**
-     * Resets per-request state: HST model registration and response object.
-     * <p>
-     * Call this in a {@code @BeforeEach} method when running multiple test methods in the same test class
-     * with {@code @TestInstance(TestInstance.Lifecycle.PER_CLASS)}. This ensures each test starts with
-     * clean HST model and response state while avoiding expensive component manager re-initialization.
-     * </p>
-     * <p>
-     * Subclasses can override this method to add additional per-request setup (e.g., setting request headers),
-     * but must call {@code super.setupForNewRequest()} to ensure proper state reset.
-     * </p>
-     *
-     * @since 5.0.1
+     * Resets per-request state. Call from {@code @BeforeEach} for JUnit 5 tests with multiple methods.
+     * Subclasses can override to add custom setup but must call {@code super.setupForNewRequest()}.
      */
     protected void setupForNewRequest() {
         unregisterHstModel();
@@ -121,8 +141,11 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
     @Override
     public void destroy() {
         super.destroy();
-        synchronized (INITIALIZATION_LOCK) {
-            componentManagerInitialized = false;
+        initializationLock.lock();
+        try {
+            componentManagerInitialized.set(false);
+        } finally {
+            initializationLock.unlock();
         }
     }
 }

@@ -18,6 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
+| 16.6.5   | 5.0.1   |
 | 16.0.0   | 5.0.0   |
 | 15.0.1   | 4.0.1   |
 | 15.0.0   | 4.0.0   |
@@ -30,45 +31,33 @@
 
 ### 5.0.1
 
-**Critical Bug Fixes for JAX-RS Testing:**
+**Multi-Test Support and Stability Improvements**
 
-* **Fixed:** Exception stack traces were being swallowed in `AbstractResourceTest.invokeFilter()`. Now logs full exception details and properly propagates errors for better debugging.
-* **Fixed:** `RequestContextProvider.get()` returned null in JAX-RS resources, causing NPE. ThreadLocal is now properly set and cleaned up using reflection to access private methods.
-* **Fixed:** `IllegalStateException: There is already an HstModel registered` when running multiple test methods in the same test class. Now gracefully handles already-registered models.
+This release focuses on enabling reliable testing with multiple test methods and improving overall framework stability.
 
-**Thread Safety Improvements:**
+**Key Improvements:**
 
-* **Fixed:** Race condition in component manager initialization that could cause `BeanCreationException: A service of type HstSiteMapItemHandlerFactories is already registered`. Added synchronized blocks with proper locking mechanism.
-* **Fixed:** Race condition in `HippoWebappContextRegistry` registration. Check-then-register operation is now atomic.
-* **Fixed:** ThreadLocal memory leak risk. `RequestContextProvider` cleanup now guaranteed via finally block.
+* **JUnit 4 `@Before` pattern support** - Component manager now properly shared across test instances while maintaining per-test isolation
+* **Thread-safe initialization** - ReentrantLock-based synchronization prevents race conditions in parallel test execution
+* **RequestContextProvider support** - JAX-RS resources can now access `RequestContextProvider.get()` with proper ThreadLocal management
+* **Null-safety and error handling** - Defensive checks throughout with clear error messages for initialization issues
+* **Exception visibility** - Full stack traces logged and propagated for easier debugging
 
-**API Changes:**
+**Usage:**
 
-* Added `AbstractJaxrsTest.setupForNewRequest()` method - subclasses should call this in `@BeforeEach` when using `PER_CLASS` lifecycle to properly reset state between test methods.
-
-**Migration Notes:**
-
-For tests extending `AbstractJaxrsTest` with multiple test methods:
+Both JUnit 4 and JUnit 5 patterns are supported:
 
 ```java
+// JUnit 5 (Recommended)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MyJaxrsTest extends AbstractJaxrsTest {
+public class MyTest extends AbstractJaxrsTest {
+    @BeforeAll public void init() { super.init(); }
+    @BeforeEach public void beforeEach() { setupForNewRequest(); }
+}
 
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @BeforeEach  // Add this if you have multiple test methods
-    public void beforeEach() {
-        setupForNewRequest();  // Ensures clean state per test
-    }
-
-    @Test
-    public void testOne() { /* ... */ }
-
-    @Test
-    public void testTwo() { /* ... */ }
+// JUnit 4 (Fully supported)
+public class MyTest extends AbstractJaxrsTest {
+    @Before public void setUp() { super.init(); /* custom setup */ }
 }
 ```
 
