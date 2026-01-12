@@ -48,6 +48,11 @@ public class JaxrsTest extends AbstractJaxrsTest {
         return Arrays.asList("/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml");
     }
 
+    @AfterAll
+    public void destroy() {
+        super.destroy();
+    }
+
     @Override
     protected List<String> contributeAddonModulePaths() {
         return null;
