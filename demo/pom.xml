@@ -5,14 +5,14 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-release</artifactId>
-    <version>16.0.0</version>
+    <version>16.6.5</version>
   </parent>
 
   <name>My Project</name>
   <description>My Project</description>
   <groupId>org.example</groupId>
   <artifactId>myproject</artifactId>
-  <version>5.0.0</version>
+  <version>5.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <!--

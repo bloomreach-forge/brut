@@ -5,21 +5,93 @@ import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.DelegatingServletInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract base class for testing JAX-RS resources with the HST container.
+ * <p>
+ * Supports both JUnit 4 {@code @Before} and JUnit 5 {@code @BeforeAll} patterns.
+ * Component manager is shared across test instances for performance while maintaining test isolation.
+ * </p>
+ *
+ * @see AbstractResourceTest
+ * @since 5.0.1
+ */
 public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJaxrsTest.class);
     private static final int DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE = 1024;
+    private static final ReentrantLock initializationLock = new ReentrantLock();
+    private static final AtomicBoolean componentManagerInitialized = new AtomicBoolean(false);
 
     public void init() {
         setupHstRequest();
         setupServletContext();
-        setupComponentManager();
-        setupHstPlatform();
+
+        if (isFirstInitialization()) {
+            performFirstTimeInitialization();
+        } else {
+            reuseSharedInstances();
+        }
+
+        setupForNewRequest();
+    }
+
+    private boolean isFirstInitialization() {
+        return !componentManagerInitialized.get();
+    }
+
+    private void performFirstTimeInitialization() {
+        initializationLock.lock();
+        try {
+            if (isFirstInitialization()) {
+                setupComponentManager();
+                setupHstPlatform();
+                storeSharedReferences();
+                componentManagerInitialized.set(true);
+            }
+        } finally {
+            initializationLock.unlock();
+        }
+    }
+
+    private void storeSharedReferences() {
+        sharedComponentManager = componentManager;
+        sharedHstModelRegistry = hstModelRegistry;
+        sharedPlatformServices = platformServices;
+        sharedPlatformModelAvailableService = platformModelAvailableService;
+    }
+
+    private void reuseSharedInstances() {
+        componentManager = sharedComponentManager;
+        hstModelRegistry = sharedHstModelRegistry;
+        platformServices = sharedPlatformServices;
+        platformModelAvailableService = sharedPlatformModelAvailableService;
+        restoreRepositoryReference();
+    }
+
+    private void restoreRepositoryReference() {
+        if (hstModelRegistry != null && componentManager != null) {
+            hstModelRegistry.setRepository(componentManager.getComponent(javax.jcr.Repository.class));
+        }
+    }
+
+    /**
+     * Resets per-request state. Call from {@code @BeforeEach} for JUnit 5 tests with multiple methods.
+     * Subclasses can override to add custom setup but must call {@code super.setupForNewRequest()}.
+     */
+    protected void setupForNewRequest() {
+        unregisterHstModel();
+        registerHstModel();
+        setupHstResponse();
     }
 
     @Override
@@ -66,7 +138,14 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         return DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE;
     }
 
+    @Override
     public void destroy() {
         super.destroy();
+        initializationLock.lock();
+        try {
+            componentManagerInitialized.set(false);
+        } finally {
+            initializationLock.unlock();
+        }
     }
 }

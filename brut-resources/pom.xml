@@ -1,285 +1,293 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>org.bloomreach.forge.brut</groupId>
-    <artifactId>brut</artifactId>
-    <version>5.0.0</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.bloomreach.forge.brut</groupId>
+        <artifactId>brut</artifactId>
+        <version>5.0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-  <name>BRUT Rest Resources Tester</name>
-  <description>
-    Module for testing HST components (headless)
-    Contains tests for starting up an HST container from scratch to test different HST pipelines
-  </description>
+    <name>BRUT Rest Resources Tester</name>
+    <description>
+        Module for testing HST components (headless)
+        Contains tests for starting up an HST container from scratch to test different HST pipelines
+    </description>
 
-  <artifactId>brut-resources</artifactId>
+    <artifactId>brut-resources</artifactId>
 
-  <dependencies>
+    <dependencies>
 
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-services</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-services</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-services-contenttype</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-services-contenttype</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.bloomreach.forge.brut</groupId>
-      <artifactId>brut-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.bloomreach.forge.brut</groupId>
+            <artifactId>brut-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.skyscreamer</groupId>
-      <artifactId>jsonassert</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>${servlet-api.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${servlet-api.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>jakarta.xml.ws</groupId>
-      <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>${jakarta.xml.ws-api.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>${jakarta.xml.ws-api.version}</version>
+        </dependency>
 
-    <!--jcr-->
-    <dependency>
-      <groupId>javax.jcr</groupId>
-      <artifactId>jcr</artifactId>
-    </dependency>
+        <!--jcr-->
+        <dependency>
+            <groupId>javax.jcr</groupId>
+            <artifactId>jcr</artifactId>
+        </dependency>
 
-    <!--repository-->
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-repository-workflow</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <!--repository-->
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-repository-workflow</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <!--hst-->
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.components</groupId>
-      <artifactId>hst-platform</artifactId>
-    </dependency>
+        <!--hst-->
+        <dependency>
+            <groupId>org.onehippo.cms7.hst.components</groupId>
+            <artifactId>hst-platform</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst</groupId>
-      <artifactId>hst-mock</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst</groupId>
+            <artifactId>hst-mock</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-plugin-gallerypicker</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-plugin-gallerypicker</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-cms-types</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-cms-types</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.toolkit-resources.addon.toolkit-cnd</groupId>
-      <artifactId>hst-addon-cnd</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst.toolkit-resources.addon.toolkit-cnd</groupId>
+            <artifactId>hst-addon-cnd</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.components</groupId>
-      <artifactId>hst-resourcebundle-cnd</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst.components</groupId>
+            <artifactId>hst-resourcebundle-cnd</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst</groupId>
-      <artifactId>hst-client</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst</groupId>
+            <artifactId>hst-client</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-essentials-components-hst</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-essentials-components-hst</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7</groupId>
-      <artifactId>hippo-essentials-plugin-sdk-api</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-essentials-plugin-sdk-api</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.client-modules</groupId>
-      <artifactId>hst-page-composer</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst.client-modules</groupId>
+            <artifactId>hst-page-composer</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.pagemodelapi</groupId>
-      <artifactId>hst-pagemodelapi-v10</artifactId>
-      <version>${hippo.release.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst.pagemodelapi</groupId>
+            <artifactId>hst-pagemodelapi-v10</artifactId>
+            <version>${hippo.release.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst</groupId>
-      <artifactId>hst-commons</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst</groupId>
+            <artifactId>hst-commons</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst</groupId>
-      <artifactId>hst-api</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst</groupId>
+            <artifactId>hst-api</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.onehippo.cms7.hst.components</groupId>
-      <artifactId>hst-core</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.onehippo.cms7.hst.components</groupId>
+            <artifactId>hst-core</artifactId>
+        </dependency>
 
-    <!--spring-->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <!--spring-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-      <version>${spring.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>${spring.version}</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-    <!--spring end-->
+        <!--spring end-->
 
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${commons-logging.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
+        </dependency>
 
-    <!--Junit 5 because it's 2019-->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <!--Junit 5 because it's 2019-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-  </dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

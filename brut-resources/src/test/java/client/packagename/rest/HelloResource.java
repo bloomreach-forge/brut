@@ -31,4 +31,19 @@ public class HelloResource extends BaseRestResource {
         String paramValue = mount.getParameter(mountParamName);
         return !Strings.isNullOrEmpty(paramValue) ? paramValue : "";
     }
+
+    @GET
+    @Path("/request-context-available")
+    public String testRequestContextAvailable() {
+        if (RequestContextProvider.get() == null) {
+            return "FAIL";
+        }
+        return "PASS";
+    }
+
+    @GET
+    @Path("/exception-with-stack-trace")
+    public String throwsExceptionWithStackTrace() {
+        throw new RuntimeException("Test exception - should be logged with full stack trace and propagated to test");
+    }
 }

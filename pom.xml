@@ -5,14 +5,14 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>16.0.0</version>
+    <version>16.6.5</version>
   </parent>
 
   <name>Bloomreach Unit Testing Library</name>
   <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
   <groupId>org.bloomreach.forge.brut</groupId>
   <artifactId>brut</artifactId>
-  <version>5.0.0</version>
+  <version>5.0.1</version>
   <packaging>pom</packaging>
   <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
@@ -33,6 +33,7 @@
 
   <properties>
     <objensis.version>3.4</objensis.version>
+    <logback.version>1.5.13</logback.version>
 
     <project.build.javaVersion>17</project.build.javaVersion>
   </properties>
