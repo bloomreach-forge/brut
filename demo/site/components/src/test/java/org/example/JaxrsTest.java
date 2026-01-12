@@ -34,16 +34,8 @@ public class JaxrsTest extends AbstractJaxrsTest {
     @BeforeEach
     public void beforeEach() {
         setupForNewRequest();
-    }
-
-    private void setupForNewRequest() {
-        setupHstRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
-        setupServletContext();
-        unregisterHstModel();
-        registerHstModel();
-        setupHstResponse();
     }
 
     @Override
@@ -54,6 +46,11 @@ public class JaxrsTest extends AbstractJaxrsTest {
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
         return Arrays.asList("/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml");
+    }
+
+    @AfterAll
+    public void destroy() {
+        super.destroy();
     }
 
     @Override

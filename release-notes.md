@@ -18,6 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
+| 16.6.5   | 5.0.1   |
 | 16.0.0   | 5.0.0   |
 | 15.0.1   | 4.0.1   |
 | 15.0.0   | 4.0.0   |
@@ -27,6 +28,38 @@
 | 12.x     | 1.x     |
 
 ## Release Notes
+
+### 5.0.1
+
+**Multi-Test Support and Stability Improvements**
+
+This release focuses on enabling reliable testing with multiple test methods and improving overall framework stability.
+
+**Key Improvements:**
+
+* **JUnit 4 `@Before` pattern support** - Component manager now properly shared across test instances while maintaining per-test isolation
+* **Thread-safe initialization** - ReentrantLock-based synchronization prevents race conditions in parallel test execution
+* **RequestContextProvider support** - JAX-RS resources can now access `RequestContextProvider.get()` with proper ThreadLocal management
+* **Null-safety and error handling** - Defensive checks throughout with clear error messages for initialization issues
+* **Exception visibility** - Full stack traces logged and propagated for easier debugging
+
+**Usage:**
+
+Both JUnit 4 and JUnit 5 patterns are supported:
+
+```java
+// JUnit 5 (Recommended)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class MyTest extends AbstractJaxrsTest {
+    @BeforeAll public void init() { super.init(); }
+    @BeforeEach public void beforeEach() { setupForNewRequest(); }
+}
+
+// JUnit 4 (Fully supported)
+public class MyTest extends AbstractJaxrsTest {
+    @Before public void setUp() { super.init(); /* custom setup */ }
+}
+```
 
 ### 5.0.0
 Compatibility with brXM version 16.0.0

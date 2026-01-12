@@ -6,7 +6,6 @@ import java.net.URL;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nullable;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -78,7 +77,6 @@ public class ImporterUtilsTest {
         return StreamSupport.stream(iterable.spliterator(), false);
     }
 
-    @Nullable
     private InputStream getResourceAsStream(String classpathLocation) {
         return getClass().getClassLoader().getResourceAsStream(classpathLocation);
     }
