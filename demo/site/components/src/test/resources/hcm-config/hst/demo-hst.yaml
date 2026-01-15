@@ -1,0 +1,34 @@
+definitions:
+  config:
+    /hst:myproject:
+      jcr:primaryType: hst:hst
+    /hst:myproject/hst:sites:
+      jcr:primaryType: hst:sites
+    /hst:myproject/hst:sites/myproject:
+      jcr:primaryType: hst:site
+      hst:content: /content/documents/myproject
+    /hst:myproject/hst:configurations:
+      jcr:primaryType: hst:configurations
+    /hst:myproject/hst:configurations/myproject:
+      jcr:primaryType: hst:configuration
+    /hst:myproject/hst:configurations/myproject/hst:sitemap:
+      jcr:primaryType: hst:sitemap
+    /hst:myproject/hst:configurations/myproject/hst:sitemap/root:
+      jcr:primaryType: hst:sitemapitem
+      hst:componentconfigurationid: hst:pages/homepage
+    /hst:myproject/hst:configurations/myproject/hst:pages:
+      jcr:primaryType: hst:pages
+    /hst:myproject/hst:configurations/myproject/hst:pages/homepage:
+      jcr:primaryType: hst:component
+      hst:componentclassname: org.hippoecm.hst.core.component.GenericHstComponent
+    /hst:myproject/hst:hosts:
+      jcr:primaryType: hst:virtualhosts
+    /hst:myproject/hst:hosts/dev-localhost:
+      jcr:primaryType: hst:virtualhostgroup
+      hst:defaultport: 8080
+    /hst:myproject/hst:hosts/dev-localhost/localhost:
+      jcr:primaryType: hst:virtualhost
+    /hst:myproject/hst:hosts/dev-localhost/localhost/hst:root:
+      jcr:primaryType: hst:mount
+      hst:homepage: root
+      hst:mountpoint: /hst:myproject/hst:sites/myproject

@@ -29,6 +29,69 @@
 
 ## Release Notes
 
+### 5.1.0 (In Development)
+
+**Production Parity Testing with ConfigServiceRepository**
+
+This release introduces production-parity HST configuration in tests by leveraging brXM's `ConfigurationConfigService`.
+
+**Key Features:**
+
+* **ConfigServiceRepository** - New repository implementation using brXM's production ConfigService for HST bootstrap
+* **Production-Identical Structure** - HST configuration created using the exact same code path as production brXM
+* **Zero Maintenance** - Changes in brXM's HST structure propagate automatically (no manual updates needed)
+* **Explicit Module Loading** - Uses ModuleReader to load only test HCM modules (avoids framework dependency conflicts)
+* **Works with Both Test Types** - Compatible with AbstractJaxrsTest and AbstractPageModelTest
+* **Strategy Pattern** - Pluggable bootstrap strategies (ConfigService or manual fallback)
+
+**Usage:**
+
+Requires HCM module descriptor and configuration files:
+
+```java
+// 1. Create HCM module descriptor: src/test/resources/META-INF/hcm-module.yaml
+group:
+  name: myproject-test
+project: myproject-test
+module:
+  name: test-config
+
+// 2. Create HCM config: src/test/resources/hcm-config/hst/demo-hst.yaml
+definitions:
+  config:
+    /hst:myproject:
+      jcr:primaryType: hst:hst
+    /hst:myproject/hst:configurations:
+      jcr:primaryType: hst:configurations
+    # ... your HST structure
+
+// 3. Override repository in Spring XML
+<bean id="javax.jcr.Repository"
+      class="org.bloomreach.forge.brut.resources.ConfigServiceRepository"
+      init-method="init" destroy-method="close">
+    <constructor-arg ref="cndResourcesPatterns"/>
+    <constructor-arg ref="contributedCndResourcesPatterns"/>
+    <constructor-arg ref="yamlResourcesPatterns"/>
+    <constructor-arg ref="contributedYamlResourcesPatterns"/>
+    <constructor-arg value="myproject"/>
+</bean>
+
+// 4. Use in tests
+@Override
+protected List<String> contributeSpringConfigurationLocations() {
+    return Arrays.asList("/org/example/config-service-jcr.xml");
+}
+```
+
+**Documentation:**
+- See `docs/config-service-repository.md` for detailed usage guide
+- Example integration tests in `demo/site/components/src/test/java/org/example/`
+
+**Architecture:**
+- Uses `ModuleReader` for explicit module loading (no classpath scanning)
+- Reflection-based access to package-private ConfigService methods
+- Bootstrap strategy pattern for flexible initialization
+
 ### 5.0.1
 
 **Multi-Test Support and Stability Improvements**

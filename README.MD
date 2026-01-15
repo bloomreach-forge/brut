@@ -65,6 +65,30 @@ This module provides abstract test classes for testing HST pipelines (JAX-RS RES
 * Thread-safe for parallel test execution
 * `RequestContextProvider.get()` works in JAX-RS resources
 * Full exception stack traces for debugging
+* **ConfigServiceRepository** - Production-parity HST configuration using brXM's ConfigService (since 5.1.0)
+
+#### Production Parity Testing
+
+For integration tests requiring production-identical HST structure, use `ConfigServiceRepository`:
+
+```java
+// Uses brXM's ConfigService to create HST nodes
+@Override
+protected List<String> contributeSpringConfigurationLocations() {
+    return Arrays.asList("/org/example/config-service-jcr.xml");
+}
+```
+
+**Benefits:**
+* Zero maintenance - brXM changes propagate automatically
+* Production-identical JCR structure
+* Works with both JAX-RS and PageModel tests
+
+**Requirements:**
+* HCM module descriptor: `src/test/resources/META-INF/hcm-module.yaml`
+* HCM configuration: `src/test/resources/hcm-config/hst/*.yaml`
+
+See `docs/config-service-repository.md` for detailed setup guide.
 
 ### Example with Page Model API
 

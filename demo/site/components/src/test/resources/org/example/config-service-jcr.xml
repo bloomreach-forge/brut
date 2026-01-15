@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <!-- Override the repository bean to use ConfigServiceRepository instead of SkeletonRepository -->
+  <bean id="javax.jcr.Repository"
+        class="org.bloomreach.forge.brut.resources.ConfigServiceRepository"
+        init-method="init"
+        destroy-method="close">
+    <constructor-arg ref="cndResourcesPatterns"/>
+    <constructor-arg ref="contributedCndResourcesPatterns"/>
+    <constructor-arg ref="yamlResourcesPatterns"/>
+    <constructor-arg ref="contributedYamlResourcesPatterns"/>
+    <constructor-arg value="myproject"/>  <!-- project namespace -->
+  </bean>
+
+</beans>
