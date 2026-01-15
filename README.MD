@@ -28,6 +28,150 @@ For headless testing install the brut-resources dependency in the site webapp:
     </dependency>
 ```
 
+## Quick Start
+
+### Annotation-Based Testing (Recommended)
+
+BRUT 5.1.0+ provides zero-config annotation-based testing with automatic setup and teardown:
+
+#### Page Model API Test
+```java
+@BrxmPageModelTest(
+    beanPackages = {"org.example.beans"}
+)
+public class MyPageModelTest {
+    private DynamicPageModelTest brxm;
+
+    @Test
+    void testComponentRendering() throws IOException {
+        brxm.getHstRequest().setRequestURI("/site/resourceapi/news");
+        brxm.getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
+        String response = brxm.invokeFilter();
+
+        JsonNode json = new ObjectMapper().readTree(response);
+        assertTrue(json.get("page").size() > 0);
+    }
+}
+```
+
+#### JAX-RS REST API Test
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"}
+)
+public class MyJaxrsTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testEndpoint() {
+        brxm.getHstRequest().setRequestURI("/site/api/hello/user");
+        String response = brxm.invokeFilter();
+        assertEquals("Hello, World! user", response);
+    }
+}
+```
+
+### Key Features
+
+| Feature | Annotation-Based | Legacy (Abstract Classes) |
+|---------|------------------|---------------------------|
+| **Lines of Code** | ~16 lines per test | ~47 lines per test |
+| **Boilerplate Reduction** | **66-74%** | - |
+| **Auto-Detection** | ✅ HST root, bean paths | ❌ Manual configuration |
+| **Field Injection** | ✅ No inheritance | ❌ Must extend base class |
+| **JUnit 5 Native** | ✅ Extension-based | ⚠️ Requires @TestInstance |
+| **Production Config** | ✅ ConfigServiceRepository | ⚠️ Manual setup |
+| **Thread-Safe** | ✅ Yes | ✅ Yes |
+
+### Before/After Comparison
+
+**Before (Legacy Abstract Class):**
+```java
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class JaxrsTest extends AbstractJaxrsTest {
+    @BeforeAll
+    public void init() { super.init(); }
+
+    @BeforeEach
+    public void beforeEach() {
+        setupForNewRequest();
+        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        getHstRequest().setMethod(HttpMethod.GET);
+    }
+
+    @Override
+    protected String getAnnotatedHstBeansClasses() {
+        return "classpath*:org/example/model/*.class,";
+    }
+
+    @Override
+    protected List<String> contributeSpringConfigurationLocations() {
+        return Arrays.asList("/custom-jaxrs.xml", "/rest-resources.xml");
+    }
+
+    @Override
+    protected String contributeHstConfigurationRootPath() {
+        return "/hst:myproject";
+    }
+
+    @Test
+    public void testEndpoint() {
+        getHstRequest().setRequestURI("/site/api/hello/user");
+        String response = invokeFilter();
+        assertEquals("Hello, World! user", response);
+    }
+}
+```
+
+**After (Annotation-Based):**
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    springConfigs = {"/custom-jaxrs.xml", "/rest-resources.xml"}
+)
+public class JaxrsTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testEndpoint() {
+        brxm.getHstRequest().setRequestURI("/site/api/hello/user");
+        String response = brxm.invokeFilter();
+        assertEquals("Hello, World! user", response);
+    }
+}
+```
+
+**Result:** 47 lines → 16 lines (66% reduction)
+
+### Production-Parity Configuration
+
+BRUT 5.1.0+ includes `ConfigServiceRepository` for loading real brXM configuration in tests:
+
+```java
+// Uses brXM's ConfigService to load HCM modules (YAML + CND)
+@BrxmPageModelTest(
+    beanPackages = {"org.example.beans"}
+)
+public class MyTest {
+    private DynamicPageModelTest brxm;
+
+    @Test
+    void testWithProductionConfig() {
+        // Repository bootstrapped with production HCM config
+        // No manual YAML imports needed!
+    }
+}
+```
+
+**Benefits:**
+- ✅ Same config format as production (HCM modules)
+- ✅ No duplicate YAML files for tests
+- ✅ Explicit module loading (no classpath pollution)
+- ✅ Works with both PageModel and JAX-RS tests
+
+See [ConfigServiceRepository Documentation](docs/config-service-repository.md) for details.
+
 ## Contents
 
 ### B.R.U.T Common
@@ -58,39 +202,25 @@ This module is for testing HST components. This is a fork of the project called 
 
 ### B.R.U.T. Resources
 
-This module provides abstract test classes for testing HST pipelines (JAX-RS REST, Page Model API).
+This module provides testing infrastructure for HST pipelines (JAX-RS REST, Page Model API).
+
+**Recommended Approach:** Use annotation-based testing (see Quick Start above)
 
 **Features:**
-* Supports both JUnit 4 `@Before` and JUnit 5 `@BeforeAll` patterns
-* Thread-safe for parallel test execution
-* `RequestContextProvider.get()` works in JAX-RS resources
-* Full exception stack traces for debugging
-* **ConfigServiceRepository** - Production-parity HST configuration using brXM's ConfigService (since 5.1.0)
+* ✅ **Annotation-based API** - Zero-config with `@BrxmPageModelTest` and `@BrxmJaxrsTest`
+* ✅ **Production-parity config** - ConfigServiceRepository loads real HCM modules
+* ✅ **Convention over configuration** - Auto-detects bean paths, HST root
+* ✅ **Field injection** - No inheritance required
+* ✅ **Thread-safe** for parallel test execution
+* ✅ **RequestContextProvider.get()** works in JAX-RS resources
+* ✅ Full exception stack traces for debugging
+* ⚠️ Legacy abstract classes still supported (see below)
 
-#### Production Parity Testing
+### Legacy Approach: Abstract Classes
 
-For integration tests requiring production-identical HST structure, use `ConfigServiceRepository`:
+For existing tests or special cases, the abstract class approach is still fully supported:
 
-```java
-// Uses brXM's ConfigService to create HST nodes
-@Override
-protected List<String> contributeSpringConfigurationLocations() {
-    return Arrays.asList("/org/example/config-service-jcr.xml");
-}
-```
-
-**Benefits:**
-* Zero maintenance - brXM changes propagate automatically
-* Production-identical JCR structure
-* Works with both JAX-RS and PageModel tests
-
-**Requirements:**
-* HCM module descriptor: `src/test/resources/META-INF/hcm-module.yaml`
-* HCM configuration: `src/test/resources/hcm-config/hst/*.yaml`
-
-See `docs/config-service-repository.md` for detailed setup guide.
-
-### Example with Page Model API
+#### Example with Page Model API
 
 ```java
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -133,9 +263,9 @@ public class PageModelTest extends AbstractPageModelTest {
 }
 ```
 
-### Example with JAX-RS REST Pipeline
+#### Example with JAX-RS REST Pipeline
 
-**JUnit 5 (Recommended):**
+**JUnit 5:**
 ```java
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JaxrsTest extends AbstractJaxrsTest {
