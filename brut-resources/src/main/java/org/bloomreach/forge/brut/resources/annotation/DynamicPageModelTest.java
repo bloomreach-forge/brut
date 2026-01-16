@@ -81,4 +81,28 @@ public class DynamicPageModelTest extends AbstractPageModelTest {
     public void setupForNewRequest() {
         super.setupForNewRequest();
     }
+
+    // Convenience methods for fluent test utilities
+
+    /**
+     * Creates a fluent request builder for setting up and executing requests.
+     *
+     * @return RequestBuilder for fluent request configuration
+     */
+    public org.bloomreach.forge.brut.resources.util.RequestBuilder request() {
+        return new org.bloomreach.forge.brut.resources.util.RequestBuilder(
+                getHstRequest(),
+                this::invokeFilter
+        );
+    }
+
+    /**
+     * Creates an auto-managed repository session for fluent repository operations.
+     *
+     * @return RepositorySession with automatic cleanup
+     */
+    public org.bloomreach.forge.brut.resources.util.RepositorySession repository() {
+        javax.jcr.Repository repo = getComponentManager().getComponent(javax.jcr.Repository.class);
+        return org.bloomreach.forge.brut.resources.util.RepositorySession.forRepository(repo);
+    }
 }

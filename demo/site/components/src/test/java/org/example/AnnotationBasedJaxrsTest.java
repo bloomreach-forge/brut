@@ -25,12 +25,11 @@ public class AnnotationBasedJaxrsTest {
     @Test
     @DisplayName("JAX-RS endpoint with minimal configuration")
     void testJaxrsEndpoint() {
+        // Using fluent RequestBuilder (reduces 4 lines to 1 fluent chain)
         String user = "test-user";
-        brxm.getHstRequest().setRequestURI("/site/api/hello/" + user);
-
-        String response = brxm.invokeFilter();
-
-        assertEquals("Hello, World! " + user, response);
+        brxm.request()
+                .get("/site/api/hello/" + user)
+                .assertBody("Hello, World! " + user);
     }
 
     @Test
@@ -52,22 +51,11 @@ public class AnnotationBasedJaxrsTest {
         // Verify component manager is available
         assertNotNull(brxm.getComponentManager());
 
-        // Verify repository structure is loaded
-        javax.jcr.Repository repository = brxm.getComponentManager().getComponent(javax.jcr.Repository.class);
-        assertNotNull(repository);
-
-        javax.jcr.Session session = null;
-        try {
-            session = repository.login(new javax.jcr.SimpleCredentials("admin", "admin".toCharArray()));
-
-            // Verify HST configuration is loaded
-            assertTrue(session.nodeExists("/hst:myproject"), "HST root should exist");
-            assertTrue(session.nodeExists("/hst:myproject/hst:configurations"), "HST configurations should exist");
-            assertTrue(session.nodeExists("/hippo:configuration"), "Hippo configuration should exist");
-        } finally {
-            if (session != null) {
-                session.logout();
-            }
+        // Using fluent RepositorySession (auto-cleanup with try-with-resources)
+        try (var repo = brxm.repository()) {
+            repo.assertNodeExists("/hst:myproject")
+                .assertNodeExists("/hst:myproject/hst:configurations")
+                .assertNodeExists("/hippo:configuration");
         }
     }
 }

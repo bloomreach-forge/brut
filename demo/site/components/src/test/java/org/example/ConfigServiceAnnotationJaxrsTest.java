@@ -6,15 +6,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.jcr.Repository;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Annotation-based JAX-RS test using ConfigServiceRepository.
+ * Demonstrates fluent repository utilities for HST structure verification.
  */
 @BrxmJaxrsTest(
         beanPackages = {"org.example.model"},
@@ -27,42 +25,33 @@ public class ConfigServiceAnnotationJaxrsTest {
 
     @Test
     @DisplayName("ConfigServiceRepository is active")
-    void testConfigServiceRepositoryActive() throws Exception {
+    void testConfigServiceRepositoryActive() {
         Repository repository = brxm.getComponentManager().getComponent(Repository.class);
         assertNotNull(repository);
         assertTrue(repository.getClass().getName().contains("ConfigServiceRepository"));
 
-        Session session = null;
-        try {
-            session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
-
+        // Using fluent RepositorySession (reduces 18 lines to 1 fluent chain)
+        try (var repo = brxm.repository()) {
             // Verify HST configuration structure
-            assertTrue(session.nodeExists("/hst:myproject"), "HST root should exist");
-            assertTrue(session.nodeExists("/hst:myproject/hst:configurations"), "HST configurations should exist");
-            assertTrue(session.nodeExists("/hst:myproject/hst:hosts"), "HST hosts should exist");
-            assertTrue(session.nodeExists("/hst:myproject/hst:sites"), "HST sites should exist");
-
-            // Verify project configuration
-            assertTrue(session.nodeExists("/hst:myproject/hst:configurations/myproject"), "Project config should exist");
-            assertTrue(session.nodeExists("/hst:myproject/hst:configurations/myproject/hst:sitemap"), "Sitemap should exist");
-
-            // Verify core repository structure
-            assertTrue(session.nodeExists("/hippo:configuration"), "Hippo configuration should exist");
-        } finally {
-            if (session != null) {
-                session.logout();
-            }
+            repo.assertNodeExists("/hst:myproject")
+                .assertNodeExists("/hst:myproject/hst:configurations")
+                .assertNodeExists("/hst:myproject/hst:hosts")
+                .assertNodeExists("/hst:myproject/hst:sites")
+                // Verify project configuration
+                .assertNodeExists("/hst:myproject/hst:configurations/myproject")
+                .assertNodeExists("/hst:myproject/hst:configurations/myproject/hst:sitemap")
+                // Verify core repository structure
+                .assertNodeExists("/hippo:configuration");
         }
     }
 
     @Test
     @DisplayName("JAX-RS endpoint works with ConfigService setup")
     void testJaxrsEndpoint() {
+        // Using fluent RequestBuilder (reduces 4 lines to 1 fluent chain)
         String user = "config-service-user";
-        brxm.getHstRequest().setRequestURI("/site/api/hello/" + user);
-
-        String response = brxm.invokeFilter();
-
-        assertEquals("Hello, World! " + user, response);
+        brxm.request()
+                .get("/site/api/hello/" + user)
+                .assertBody("Hello, World! " + user);
     }
 }
