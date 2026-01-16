@@ -37,6 +37,18 @@ public class AnnotationBasedPageModelTest {
 
         JsonNode json = new ObjectMapper().readTree(response);
         assertNotNull(json.get("page"), "Response should have 'page' node");
+        assertTrue(json.get("page").size() > 0, "Page node should contain components");
+
+        // Verify component structure is properly loaded
+        JsonNode pageNode = json.get("page");
+        JsonNode component = pageNode.get("uid0");
+        assertNotNull(component, "Should have uid0 component");
+        assertEquals(8, component.size(), "Component should have 8 fields");
+
+        // Verify key component fields
+        assertNotNull(component.get("id"), "Component should have id");
+        assertNotNull(component.get("type"), "Component should have type");
+        assertNotNull(component.get("meta"), "Component should have meta");
     }
 
     @Test

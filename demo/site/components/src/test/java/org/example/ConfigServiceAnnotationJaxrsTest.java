@@ -35,7 +35,19 @@ public class ConfigServiceAnnotationJaxrsTest {
         Session session = null;
         try {
             session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
-            assertTrue(session.nodeExists("/hst:myproject"));
+
+            // Verify HST configuration structure
+            assertTrue(session.nodeExists("/hst:myproject"), "HST root should exist");
+            assertTrue(session.nodeExists("/hst:myproject/hst:configurations"), "HST configurations should exist");
+            assertTrue(session.nodeExists("/hst:myproject/hst:hosts"), "HST hosts should exist");
+            assertTrue(session.nodeExists("/hst:myproject/hst:sites"), "HST sites should exist");
+
+            // Verify project configuration
+            assertTrue(session.nodeExists("/hst:myproject/hst:configurations/myproject"), "Project config should exist");
+            assertTrue(session.nodeExists("/hst:myproject/hst:configurations/myproject/hst:sitemap"), "Sitemap should exist");
+
+            // Verify core repository structure
+            assertTrue(session.nodeExists("/hippo:configuration"), "Hippo configuration should exist");
         } finally {
             if (session != null) {
                 session.logout();

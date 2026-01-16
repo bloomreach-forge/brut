@@ -304,6 +304,74 @@ src/test/resources/
 
 ---
 
+## One-Liner ConfigService Integration (Easiest)
+
+BRUT 5.1.0+ simplifies ConfigService setup to a single annotation parameter.
+
+### Before (Manual Spring XML + Annotation)
+
+**Step 1:** Create Spring XML configuration:
+```xml
+<!-- custom-jaxrs.xml -->
+<bean id="repository" class="org.bloomreach.forge.brut.resources.ConfigServiceRepository">
+    <constructor-arg>
+        <bean class="org.bloomreach.forge.brut.common.repository.config.ModuleReader">
+            <constructor-arg>
+                <list>
+                    <value>hcm-config</value>
+                    <value>hcm-content</value>
+                </list>
+            </constructor-arg>
+        </bean>
+    </constructor-arg>
+</bean>
+```
+
+**Step 2:** Reference XML in test:
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    springConfigs = {"/custom-jaxrs.xml"}
+)
+```
+
+### After (One-Liner)
+
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    useConfigService = true  // That's it!
+)
+public class NewsTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testEndpoint() {
+        // Test uses real brXM configuration from HCM modules
+        brxm.getHstRequest().setRequestURI("/site/api/news");
+        String response = brxm.invokeFilter();
+        assertEquals("expected", response);
+    }
+}
+```
+
+**What happens behind the scenes:**
+1. BRUT auto-generates Spring XML with ConfigServiceRepository bean
+2. Loads minimal framework module for core brXM node types (editor, hipposysedit, webfiles)
+3. Loads your project's HCM modules from classpath (hcm-config/, hcm-content/)
+4. Repository is ready with production-parity configuration
+
+**Benefits:**
+- ✅ No manual Spring XML for ConfigService setup
+- ✅ Same HCM format as production (YAML + CND)
+- ✅ Explicit module loading (no classpath pollution)
+- ✅ Works with all 3 annotation types (PageModel, JAX-RS, Component)
+- ✅ Permissive CNDs ensure test bootstrapping success
+
+**Note:** The minimal framework uses permissive node type definitions (documented in CND headers) to prioritize test execution over strict validation. This trade-off is acceptable for unit testing scenarios.
+
+---
+
 ## Migration Strategy
 
 ### Recommended Approach: Gradual Migration

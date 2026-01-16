@@ -142,6 +142,41 @@ Automatically uses ConfigServiceRepository with HCM modules - no manual Spring X
 **Minimal Framework CNDs:**
 The embedded minimal framework uses permissive node type definitions to prioritize test execution over strict validation. This is acceptable for unit testing scenarios and documented in the CND headers.
 
+#### 4. Enhanced Auto-Detection
+
+Smart convention-over-configuration improvements for annotation-based tests:
+
+**Multi-File Spring Config Detection:**
+- Automatically detects multiple Spring XML files per test type
+- JAX-RS tests check: `custom-jaxrs.xml`, `annotation-jaxrs.xml`, `rest-resources.xml`, `jaxrs-config.xml`
+- PageModel tests check: `custom-pagemodel.xml`, `annotation-pagemodel.xml`, `custom-component.xml`, `component-config.xml`
+- All matching files are automatically included
+
+**ConfigService-Aware Resource Detection:**
+- CND patterns auto-detected only when `useConfigService=false` (avoids conflicts)
+- YAML patterns auto-detected only when `useConfigService=false` (avoids conflicts)
+- Prevents duplicate loading between ConfigService and legacy import mechanisms
+
+**Example:**
+```java
+@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+// NO springConfigs needed - auto-detects custom-jaxrs.xml + rest-resources.xml
+public class MyTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void test() {
+        // Both Spring configs loaded automatically
+    }
+}
+```
+
+**Benefits:**
+- Less configuration required in annotations
+- Supports projects with multiple Spring config files
+- Intelligent conflict prevention with ConfigService
+- Explicit annotation values always override auto-detection
+
 ### 5.0.1
 
 **Multi-Test Support and Stability Improvements**
