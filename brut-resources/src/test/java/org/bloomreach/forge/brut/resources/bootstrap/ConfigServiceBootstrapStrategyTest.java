@@ -11,6 +11,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -50,6 +51,24 @@ class ConfigServiceBootstrapStrategyTest {
             Collections.emptyList(),
             Collections.emptyList(),
             classLoader
+        );
+
+        assertTrue(strategy.canHandle(context));
+    }
+
+    @Test
+    void testCanHandleReturnsTrueWhenModuleDescriptorsProvided(@TempDir Path tempDir) throws IOException {
+        ConfigServiceBootstrapStrategy strategy = new ConfigServiceBootstrapStrategy();
+
+        Path moduleDescriptor = tempDir.resolve("hcm-module.yaml");
+        Files.writeString(moduleDescriptor, "group:\n  name: test\nproject: test\nmodule:\n  name: test\n");
+
+        BootstrapContext context = new BootstrapContext(
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            List.of(moduleDescriptor),
+            new URLClassLoader(new URL[0], null)
         );
 
         assertTrue(strategy.canHandle(context));

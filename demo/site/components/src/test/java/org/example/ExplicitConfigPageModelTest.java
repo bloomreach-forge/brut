@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Useful when conventions don't match your project structure.
  */
 @BrxmPageModelTest(
-        beanPackages = {"org.example"},
+        beanPackages = {"org.example.beans"},
         hstRoot = "/hst:myproject",
-        springConfig = "/org/example/pagemodel.xml"
+        springConfig = "/org/example/custom-pagemodel.xml"
 )
 public class ExplicitConfigPageModelTest {
 

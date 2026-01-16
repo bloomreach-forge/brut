@@ -92,6 +92,56 @@ protected List<String> contributeSpringConfigurationLocations() {
 - Reflection-based access to package-private ConfigService methods
 - Bootstrap strategy pattern for flexible initialization
 
+#### 2. @BrxmComponentTest Annotation
+
+Complete annotation trilogy - component testing with same zero-config approach:
+
+```java
+@BrxmComponentTest(beanPackages = {"org.example.beans"})
+public class ComponentTest {
+    private DynamicComponentTest brxm;
+
+    @Test
+    void testComponent() throws Exception {
+        assertNotNull(brxm.getHstRequest());
+        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
+    }
+}
+```
+
+**Benefits:**
+- Zero boilerplate component testing
+- Field injection (no inheritance required)
+- Auto-detection of HST root and bean paths
+- Consistent API with PageModel and JAX-RS annotations
+
+#### 3. One-Liner ConfigService Integration
+
+Production-parity configuration simplified to a single parameter:
+
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    useConfigService = true  // That's it!
+)
+```
+
+Automatically uses ConfigServiceRepository with HCM modules - no manual Spring XML configuration required.
+
+**Implementation Details:**
+- Auto-generates Spring configuration with ConfigServiceRepository bean
+- Loads minimal framework module for core brXM node types (editor, hipposysedit, webfiles)
+- Works with all 3 annotation types (PageModel, JAX-RS, Component)
+- Permissive CNDs ensure test bootstrapping success
+
+**Benefits:**
+- Zero Spring XML boilerplate for ConfigService setup
+- Production-parity configuration in tests
+- Explicit HCM module loading (no classpath pollution)
+
+**Minimal Framework CNDs:**
+The embedded minimal framework uses permissive node type definitions to prioritize test execution over strict validation. This is acceptable for unit testing scenarios and documented in the CND headers.
+
 ### 5.0.1
 
 **Multi-Test Support and Stability Improvements**

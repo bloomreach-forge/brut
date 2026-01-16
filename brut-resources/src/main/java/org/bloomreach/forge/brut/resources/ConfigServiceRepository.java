@@ -3,6 +3,7 @@ package org.bloomreach.forge.brut.resources;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
+import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.bloomreach.forge.brut.resources.bootstrap.BootstrapContext;
 import org.bloomreach.forge.brut.resources.bootstrap.ConfigServiceBootstrapStrategy;
 import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
@@ -20,6 +21,8 @@ import javax.jcr.SimpleCredentials;
 import javax.jcr.nodetype.NodeType;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -83,7 +86,13 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         allYamlPatterns.addAll(contributedYamlResourcesPatterns);
         this.yamlResourcesPatterns = allYamlPatterns;
 
-        this.projectNamespace = projectNamespace;
+        if (projectNamespace != null && !projectNamespace.isBlank()) {
+            this.projectNamespace = projectNamespace;
+        } else {
+            this.projectNamespace = ProjectDiscovery.resolveProjectNamespace(
+                Paths.get(System.getProperty("user.dir"))
+            );
+        }
         this.bootstrapStrategy = new ConfigServiceBootstrapStrategy();
 
         LOGGER.info("ConfigServiceRepository initialized for project: {}", projectNamespace);
@@ -117,10 +126,14 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
 
             // Step 2: Bootstrap HST structure using ConfigService
             LOGGER.info("Step 2: Bootstrapping HST via ConfigService");
+            List<Path> moduleDescriptors = ProjectDiscovery.discoverRepositoryModuleDescriptors(
+                Paths.get(System.getProperty("user.dir"))
+            );
             BootstrapContext context = new BootstrapContext(
                 cndResourcesPatterns,
                 yamlResourcesPatterns,
                 Collections.emptyList(),
+                moduleDescriptors,
                 Thread.currentThread().getContextClassLoader()
             );
             bootstrapStrategy.initializeHstStructure(session, projectNamespace, context);

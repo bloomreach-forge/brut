@@ -15,14 +15,11 @@
  */
 package org.bloomreach.forge.brut.resources.annotation;
 
+import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,12 +40,10 @@ class ConventionBasedConfigResolver {
      * @return resolved configuration
      */
     static TestConfig resolve(BrxmPageModelTest annotation, Class<?> testClass) {
-        String packagePath = testClass.getPackage().getName().replace('.', '/');
-
         // Bean patterns: explicit or auto-detect
         List<String> beanPatterns = annotation.beanPackages().length > 0
                 ? toPatterns(annotation.beanPackages())
-                : detectBeanPatterns(packagePath);
+                : detectBeanPatterns(testClass);
 
         // HST root: explicit or auto-detect
         String hstRoot = !annotation.hstRoot().isEmpty()
@@ -58,7 +53,14 @@ class ConventionBasedConfigResolver {
         // Spring config: explicit or auto-detect
         List<String> springConfigs = !annotation.springConfig().isEmpty()
                 ? Arrays.asList(annotation.springConfig())
-                : detectSpringConfigs(packagePath, "custom-pagemodel.xml", testClass.getClassLoader());
+                : detectSpringConfigs(testClass.getPackage().getName().replace('.', '/'),
+                    "custom-pagemodel.xml",
+                    testClass.getClassLoader());
+        if (annotation.useConfigService()) {
+            String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
+            String configPath = ConfigServiceSpringConfig.create(projectNamespace, List.of(), List.of());
+            springConfigs = prependSpringConfig(springConfigs, configPath);
+        }
 
         // Addon modules: explicit or null
         List<String> addonModules = annotation.addonModules().length > 0
@@ -79,12 +81,10 @@ class ConventionBasedConfigResolver {
      * @return resolved configuration
      */
     static TestConfig resolve(BrxmJaxrsTest annotation, Class<?> testClass) {
-        String packagePath = testClass.getPackage().getName().replace('.', '/');
-
         // Bean patterns: explicit or auto-detect (model first, then beans for JAX-RS)
         List<String> beanPatterns = annotation.beanPackages().length > 0
                 ? toPatterns(annotation.beanPackages())
-                : detectJaxrsBeanPatterns(packagePath);
+                : detectJaxrsBeanPatterns(testClass);
 
         // HST root: explicit or auto-detect
         String hstRoot = !annotation.hstRoot().isEmpty()
@@ -98,7 +98,14 @@ class ConventionBasedConfigResolver {
         } else if (!annotation.springConfig().isEmpty()) {
             springConfigs = Arrays.asList(annotation.springConfig());
         } else {
-            springConfigs = detectSpringConfigs(packagePath, "custom-jaxrs.xml", testClass.getClassLoader());
+            springConfigs = detectSpringConfigs(testClass.getPackage().getName().replace('.', '/'),
+                "custom-jaxrs.xml",
+                testClass.getClassLoader());
+        }
+        if (annotation.useConfigService()) {
+            String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
+            String configPath = ConfigServiceSpringConfig.create(projectNamespace, List.of(), List.of());
+            springConfigs = prependSpringConfig(springConfigs, configPath);
         }
 
         // Addon modules: explicit or null
@@ -121,82 +128,32 @@ class ConventionBasedConfigResolver {
         return patterns;
     }
 
-    private static List<String> detectBeanPatterns(String packagePath) {
-        List<String> patterns = new ArrayList<>();
-        patterns.add("classpath*:" + packagePath + "/beans/*.class,");
-        patterns.add("classpath*:" + packagePath + "/model/*.class,");
+    private static List<String> detectBeanPatterns(Class<?> testClass) {
+        List<String> packages = ProjectDiscovery.resolveBeanPackages(
+            testClass,
+            ProjectDiscovery.BeanPackageOrder.BEANS_FIRST,
+            false
+        );
+        List<String> patterns = ProjectDiscovery.toClasspathPatterns(packages, false, true);
         LOG.debug("Auto-detected bean patterns (PageModel): {}", patterns);
         return patterns;
     }
 
-    private static List<String> detectJaxrsBeanPatterns(String packagePath) {
-        List<String> patterns = new ArrayList<>();
-        // JAX-RS typically uses model first
-        patterns.add("classpath*:" + packagePath + "/model/*.class,");
-        patterns.add("classpath*:" + packagePath + "/beans/*.class,");
+    private static List<String> detectJaxrsBeanPatterns(Class<?> testClass) {
+        List<String> packages = ProjectDiscovery.resolveBeanPackages(
+            testClass,
+            ProjectDiscovery.BeanPackageOrder.MODEL_FIRST,
+            false
+        );
+        List<String> patterns = ProjectDiscovery.toClasspathPatterns(packages, false, true);
         LOG.debug("Auto-detected bean patterns (JAX-RS): {}", patterns);
         return patterns;
     }
 
     private static String detectHstRoot() {
-        String projectName = detectProjectName();
-        String hstRoot = "/hst:" + projectName;
+        String hstRoot = ProjectDiscovery.resolveHstRoot(Paths.get(System.getProperty("user.dir")));
         LOG.debug("Auto-detected HST root: {}", hstRoot);
         return hstRoot;
-    }
-
-    private static String detectProjectName() {
-        // Try to find pom.xml and parse artifactId
-        File pom = findPomFile(new File(System.getProperty("user.dir")));
-        if (pom != null) {
-            String artifactId = parsePomArtifactId(pom);
-            if (artifactId != null) {
-                LOG.debug("Detected project name from pom.xml: {}", artifactId);
-                return artifactId;
-            }
-        }
-
-        // Fallback: use directory name
-        String dirName = new File(System.getProperty("user.dir")).getName();
-        LOG.debug("Using directory name as project name: {}", dirName);
-        return dirName;
-    }
-
-    private static File findPomFile(File dir) {
-        if (dir == null || !dir.exists()) {
-            return null;
-        }
-
-        File pom = new File(dir, "pom.xml");
-        if (pom.exists()) {
-            return pom;
-        }
-
-        // Search parent directories
-        return findPomFile(dir.getParentFile());
-    }
-
-    private static String parsePomArtifactId(File pomFile) {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(pomFile);
-
-            NodeList artifactIdNodes = doc.getElementsByTagName("artifactId");
-            if (artifactIdNodes.getLength() > 0) {
-                String artifactId = artifactIdNodes.item(0).getTextContent().trim();
-                // Remove common suffixes
-                if (artifactId.endsWith("-components")) {
-                    artifactId = artifactId.substring(0, artifactId.length() - "-components".length());
-                } else if (artifactId.endsWith("-site")) {
-                    artifactId = artifactId.substring(0, artifactId.length() - "-site".length());
-                }
-                return artifactId;
-            }
-        } catch (Exception e) {
-            LOG.warn("Failed to parse pom.xml at {}: {}", pomFile, e.getMessage());
-        }
-        return null;
     }
 
     private static List<String> detectSpringConfigs(String packagePath, String configFileName, ClassLoader classLoader) {
@@ -211,5 +168,16 @@ class ConventionBasedConfigResolver {
 
     private static boolean resourceExists(String path, ClassLoader classLoader) {
         return classLoader.getResource(path) != null;
+    }
+
+    private static List<String> prependSpringConfig(List<String> configs, String configPath) {
+        List<String> result = new ArrayList<>();
+        if (configPath != null) {
+            result.add(configPath);
+        }
+        if (configs != null) {
+            result.addAll(configs);
+        }
+        return result;
     }
 }

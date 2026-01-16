@@ -55,7 +55,8 @@ import java.lang.annotation.Target;
  * @BrxmPageModelTest(
  *     beanPackages = {"org.example.model", "org.example.beans"},
  *     hstRoot = "/hst:customproject",
- *     springConfig = "/org/example/custom-spring.xml"
+ *     springConfig = "/org/example/custom-spring.xml",
+ *     useConfigService = true
  * )
  * public class MyCustomTest {
  *     // ...
@@ -100,6 +101,16 @@ public @interface BrxmPageModelTest {
      * @return Spring configuration file location
      */
     String springConfig() default "";
+
+    /**
+     * Enable ConfigServiceRepository bootstrap with production HCM modules.
+     *
+     * <p>When enabled, BRUT generates a Spring config that overrides the
+     * repository bean to use ConfigServiceRepository.</p>
+     *
+     * @return true to enable ConfigServiceRepository
+     */
+    boolean useConfigService() default false;
 
     /**
      * HST addon module paths (rarely needed).

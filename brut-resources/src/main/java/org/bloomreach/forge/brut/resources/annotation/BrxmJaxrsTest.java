@@ -58,7 +58,8 @@ import java.lang.annotation.Target;
  * @BrxmJaxrsTest(
  *     beanPackages = {"org.example.model", "org.example.beans"},
  *     hstRoot = "/hst:customproject",
- *     springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"}
+ *     springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"},
+ *     useConfigService = true
  * )
  * public class MyCustomTest {
  *     // ...
@@ -115,6 +116,16 @@ public @interface BrxmJaxrsTest {
      * @return Spring configuration file locations
      */
     String[] springConfigs() default {};
+
+    /**
+     * Enable ConfigServiceRepository bootstrap with production HCM modules.
+     *
+     * <p>When enabled, BRUT generates a Spring config that overrides the
+     * repository bean to use ConfigServiceRepository.</p>
+     *
+     * @return true to enable ConfigServiceRepository
+     */
+    boolean useConfigService() default false;
 
     /**
      * HST addon module paths (rarely needed).

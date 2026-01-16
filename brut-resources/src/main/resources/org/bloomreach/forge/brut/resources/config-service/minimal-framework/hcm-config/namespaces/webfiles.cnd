@@ -1,0 +1,19 @@
+//
+// Minimal Framework CNDs - Permissive Approach
+//
+// These CNDs use permissive child node definitions (+ * (...)) to allow
+// tests to bootstrap without requiring exact brXM node type definitions.
+// This trades strict validation for ease of use and test bootstrapping success.
+//
+// Trade-off: Tests work reliably but don't validate structure as strictly as
+// production brXM. This is acceptable for unit testing scenarios where we
+// prioritize test execution over strict node type validation.
+//
+
+<webfiles = 'http://www.onehippo.org/webfiles/nt/1.0'>
+
+[webfiles:bundle] > nt:base
+  - webfiles:anticache (string)
+
+[webfiles:webfiles] > nt:base
+  + * (webfiles:bundle) = webfiles:bundle

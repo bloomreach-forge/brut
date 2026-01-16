@@ -27,6 +27,7 @@ class BootstrapContextTest {
         assertEquals(cndPatterns, context.getCndPatterns());
         assertEquals(yamlPatterns, context.getYamlPatterns());
         assertEquals(hcmPatterns, context.getHcmConfigPatterns());
+        assertTrue(context.getModuleDescriptors().isEmpty());
         assertEquals(classLoader, context.getClassLoader());
     }
 
@@ -44,6 +45,7 @@ class BootstrapContextTest {
         assertTrue(context.getCndPatterns().isEmpty());
         assertTrue(context.getYamlPatterns().isEmpty());
         assertTrue(context.getHcmConfigPatterns().isEmpty());
+        assertTrue(context.getModuleDescriptors().isEmpty());
         assertNotNull(context.getClassLoader());
     }
 

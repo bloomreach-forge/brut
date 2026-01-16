@@ -144,6 +144,49 @@ public class JaxrsTest {
 
 **Result:** 47 lines → 16 lines (66% reduction)
 
+### Component Testing
+
+```java
+@BrxmComponentTest(beanPackages = {"org.example.beans"})
+public class NewsListComponentTest {
+    private DynamicComponentTest brxm;
+
+    @Test
+    void testComponent() throws Exception {
+        assertNotNull(brxm.getHstRequest());
+        assertNotNull(brxm.getHstResponse());
+        assertNotNull(brxm.getHstRequestContext());
+        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
+    }
+}
+```
+
+**Same zero-config approach for component testing!**
+
+### One-Liner ConfigService Integration
+
+Production-parity configuration in a single parameter:
+
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    useConfigService = true  // Automatically uses HCM modules!
+)
+public class NewsTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testEndpoint() {
+        // Test uses real brXM configuration from HCM modules
+        brxm.getHstRequest().setRequestURI("/site/api/news");
+        String response = brxm.invokeFilter();
+        assertEquals("expected", response);
+    }
+}
+```
+
+**No Spring XML needed** - BRUT auto-generates `ConfigServiceRepository` with your project's HCM modules.
+
 ### Production-Parity Configuration
 
 BRUT 5.1.0+ includes `ConfigServiceRepository` for loading real brXM configuration in tests:

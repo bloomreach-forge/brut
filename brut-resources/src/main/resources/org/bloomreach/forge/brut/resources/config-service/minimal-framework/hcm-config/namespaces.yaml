@@ -1,0 +1,14 @@
+definitions:
+  namespace:
+    autoexport:
+      uri: http://www.onehippo.org/autoexport/1.0
+      cnd: namespaces/autoexport.cnd
+    hipposysedit:
+      uri: http://www.onehippo.org/jcr/hipposysedit/nt/1.2
+      cnd: namespaces/hipposysedit.cnd
+    editor:
+      uri: http://www.hippoecm.org/editor/nt/1.0
+      cnd: namespaces/editor.cnd
+    webfiles:
+      uri: http://www.onehippo.org/webfiles/nt/1.0
+      cnd: namespaces/webfiles.cnd

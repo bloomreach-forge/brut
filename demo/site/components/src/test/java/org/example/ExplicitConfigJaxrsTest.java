@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Useful when conventions don't match your project structure.
  */
 @BrxmJaxrsTest(
-        beanPackages = {"org.example.model", "org.example.beans"},
+        beanPackages = {"org.example.model"},
         hstRoot = "/hst:myproject",
         springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"}
 )
