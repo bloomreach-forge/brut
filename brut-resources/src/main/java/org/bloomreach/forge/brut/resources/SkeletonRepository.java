@@ -48,7 +48,11 @@ public class SkeletonRepository extends BrxmTestingRepository {
             session = this.login(new SimpleCredentials("admin", "admin".toCharArray()));
             registerCnds(session, cndResourcesPatterns);
             importYamlResources(session, yamlResourcesPatterns);
-            recalculateHippoPaths("/content");
+            if (session.getRootNode().hasNode("content")) {
+                recalculateHippoPaths("/content");
+            } else {
+                LOGGER.debug("Skipping /content path recalculation: node does not exist");
+            }
         } catch (RepositoryException e) {
             e.printStackTrace();
         } finally {

@@ -20,6 +20,8 @@ BRUT 5.1.0 introduces a modern annotation-based testing API that reduces boilerp
 | No inheritance | ✅ Field injection | ❌ Must extend base class |
 | JUnit 5 native | ✅ Extension-based | ⚠️ Requires @TestInstance |
 | Setup methods | ❌ Not needed | ✅ Manual @BeforeAll/@BeforeEach |
+| Error messages | ✅ Context-rich with fix suggestions | ⚠️ Generic error messages |
+| Debugging | ✅ Configuration summary logging | ⚠️ Manual logging |
 
 ---
 
@@ -396,15 +398,116 @@ public class NewsTest {
 
 ---
 
+## Enhanced Error Handling (5.1.0)
+
+Annotation-based tests provide significantly better error messages and debugging information.
+
+### Configuration Summary on Startup
+
+Every test logs its resolved configuration at startup:
+
+```
+========================================
+JAX-RS Configuration Summary
+========================================
+Test Class: org.example.NewsApiTest
+
+Bean Patterns:
+  - classpath*:org/example/model/*.class
+
+Spring Configs:
+  - /org/example/custom-jaxrs.xml [AUTO-DETECTED]
+  - /org/example/rest-resources.xml
+
+HST Root: /hst:myproject
+
+========================================
+JAX-RS Initialization Starting
+========================================
+```
+
+This makes it easy to verify what configuration was actually used, especially when auto-detection is involved.
+
+### Context-Rich Error Messages
+
+**Old (Legacy Abstract Classes):**
+```
+IllegalStateException: Test instance not initialized. This should not happen.
+```
+
+**New (Annotation-Based):**
+```
+Invalid test state: Test instance not available in beforeEach
+
+Expected: DynamicJaxrsTest should be initialized in beforeAll
+Actual: Instance is null
+
+This indicates a bug in BRUT or misuse of test infrastructure.
+Please report this issue with full stack trace.
+```
+
+### Missing Field Detection
+
+**Old:**
+```
+IllegalStateException: Test class org.example.MyTest must declare a field of type DynamicJaxrsTest.
+Example: private DynamicJaxrsTest brxm;
+```
+
+**New:**
+```
+Missing required field of type DynamicJaxrsTest in test class: org.example.MyTest
+
+To fix:
+  Add a field of type DynamicJaxrsTest to your test class (any visibility, any name)
+
+Example:
+  private DynamicJaxrsTest brxm;
+
+Fields scanned: testName (String), data (List)
+None matched required type: DynamicJaxrsTest
+```
+
+The new error shows exactly which fields were found, making typos easy to spot.
+
+### Bootstrap Failures with Full Context
+
+**Old:**
+```
+RuntimeException: ConfigService bootstrap failed
+```
+
+**New:**
+```
+Bootstrap failed during: JAX-RS test initialization
+
+Configuration attempted:
+  Bean patterns: classpath*:org/example/model/*.class
+  Spring configs: /org/example/custom-jaxrs.xml, /org/example/rest-resources.xml
+  HST root: /hst:myproject
+
+Root cause: FileNotFoundException: class path resource [org/example/rest-resources.xml] cannot be opened
+
+To fix:
+  1. Check that all specified resources exist on classpath
+  2. Verify bean packages contain valid Spring components
+  3. Ensure Spring config files are well-formed XML
+  4. Check logs above for more specific error details
+```
+
+Shows the complete configuration context and provides actionable steps to fix the issue.
+
+---
+
 ## Troubleshooting
 
 ### Test Field Not Injected
 
-**Error:** `NullPointerException` on `brxm` field
+**Error:** `Missing required field of type DynamicPageModelTest`
 
-**Cause:** Missing field declaration
+**Cause:** Missing or misnamed field declaration
 
-**Solution:**
+**Solution:** The error message will show exactly which fields were scanned. Declare the correct field type:
 ```java
 @BrxmPageModelTest(...)
 public class MyTest {
@@ -416,6 +519,8 @@ public class MyTest {
     }
 }
 ```
+
+**Tip:** Check the "Fields scanned" section in the error message to spot typos.
 
 ### HST Root Not Found
 

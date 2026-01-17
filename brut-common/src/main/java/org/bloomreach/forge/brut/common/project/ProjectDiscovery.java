@@ -166,6 +166,10 @@ public final class ProjectDiscovery {
     }
 
     public static List<Path> discoverRepositoryModuleDescriptors(Path start) {
+        return discoverRepositoryModuleDescriptors(start, List.of());
+    }
+
+    public static List<Path> discoverRepositoryModuleDescriptors(Path start, List<String> requestedModules) {
         Path projectRoot = findProjectRoot(start).orElse(start.toAbsolutePath().normalize());
         ProjectSettings settings = loadProjectSettings(projectRoot).orElse(null);
         String repositoryDataModule = settings != null && settings.getRepositoryDataModule() != null
@@ -178,28 +182,30 @@ public final class ProjectDiscovery {
         }
 
         Set<String> moduleNames = new LinkedHashSet<>();
-        if (settings != null) {
-            addModuleName(moduleNames, settings.getApplicationSubModule());
-            addModuleName(moduleNames, settings.getSiteModule());
-            addModuleName(moduleNames, settings.getDevelopmentSubModule());
-            if (settings.getDevelopmentSubModule() != null) {
-                addModuleName(moduleNames, "site-" + settings.getDevelopmentSubModule());
+
+        // If explicit modules are requested, use ONLY those (exclusive filter)
+        if (requestedModules != null && !requestedModules.isEmpty()) {
+            for (String module : requestedModules) {
+                addModuleName(moduleNames, module);
             }
-            addModuleName(moduleNames, settings.getWebfilesSubModule());
+        } else {
+            // Auto-discover from settings and defaults
+            if (settings != null) {
+                addModuleName(moduleNames, settings.getApplicationSubModule());
+                addModuleName(moduleNames, settings.getSiteModule());
+                addModuleName(moduleNames, settings.getDevelopmentSubModule());
+                if (settings.getDevelopmentSubModule() != null) {
+                    addModuleName(moduleNames, "site-" + settings.getDevelopmentSubModule());
+                }
+                addModuleName(moduleNames, settings.getWebfilesSubModule());
+            }
+            moduleNames.addAll(DEFAULT_REPOSITORY_MODULES);
         }
-        moduleNames.addAll(DEFAULT_REPOSITORY_MODULES);
 
         Set<Path> descriptors = new LinkedHashSet<>();
         for (String moduleName : moduleNames) {
             Path moduleRoot = repositoryDataRoot.resolve(moduleName);
             addModuleDescriptor(descriptors, moduleRoot);
-        }
-
-        try (Stream<Path> stream = Files.list(repositoryDataRoot)) {
-            stream.filter(Files::isDirectory)
-                .forEach(moduleRoot -> addModuleDescriptor(descriptors, moduleRoot));
-        } catch (IOException ignored) {
-            return new ArrayList<>(descriptors);
         }
 
         return new ArrayList<>(descriptors);

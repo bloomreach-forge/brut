@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.stream.Stream;
 
 /**
  * JUnit 5 extension that manages lifecycle for @BrxmPageModelTest annotated tests.
@@ -43,21 +44,24 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
         // Get annotation
         BrxmPageModelTest annotation = testClass.getAnnotation(BrxmPageModelTest.class);
         if (annotation == null) {
-            throw new IllegalStateException("@BrxmPageModelTest annotation not found on " + testClass.getName());
+            throw BrutConfigurationException.missingAnnotation(testClass, "BrxmPageModelTest");
         }
 
         // Resolve configuration
         TestConfig config = ConventionBasedConfigResolver.resolve(annotation, testClass);
 
+        // Log configuration summary
+        ConfigurationSummary.log(LOG, testClass, "PageModel", config);
+
         // Create and initialize DynamicPageModelTest
         DynamicPageModelTest testInstance = new DynamicPageModelTest(config);
 
-        LOG.info("Initializing PageModel test infrastructure for {}", testClass.getSimpleName());
         try {
             testInstance.init();
+            ConfigurationSummary.logSuccess(LOG, "PageModel", testClass);
         } catch (Exception e) {
-            LOG.error("Failed to initialize PageModel test infrastructure", e);
-            throw e;
+            ConfigurationSummary.logFailure(LOG, "PageModel", testClass, e);
+            throw BrutConfigurationException.bootstrapFailed("PageModel test initialization", config, e);
         }
 
         // Store instance for access in beforeEach and afterAll
@@ -72,7 +76,11 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
         DynamicPageModelTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
 
         if (testInstance == null) {
-            throw new IllegalStateException("Test instance not initialized. This should not happen.");
+            throw BrutConfigurationException.invalidState(
+                    "Test instance not available in beforeEach",
+                    "DynamicPageModelTest should be initialized in beforeAll",
+                    "Instance is null"
+            );
         }
 
         // Setup request with defaults for each test method
@@ -106,8 +114,9 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
         Class<?> testClass = testObject.getClass();
 
         // Look for field of type DynamicPageModelTest
+        Field[] allFields = testClass.getDeclaredFields();
         Field targetField = null;
-        for (Field field : testClass.getDeclaredFields()) {
+        for (Field field : allFields) {
             if (DynamicPageModelTest.class.isAssignableFrom(field.getType())) {
                 targetField = field;
                 break;
@@ -115,10 +124,10 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
         }
 
         if (targetField == null) {
-            throw new IllegalStateException(
-                    String.format("Test class %s must declare a field of type DynamicPageModelTest. " +
-                            "Example: private DynamicPageModelTest brxm;", testClass.getName())
-            );
+            String[] scannedFieldInfo = Stream.of(allFields)
+                    .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
+                    .toArray(String[]::new);
+            throw BrutConfigurationException.missingField(testClass, "DynamicPageModelTest", scannedFieldInfo);
         }
 
         // Inject

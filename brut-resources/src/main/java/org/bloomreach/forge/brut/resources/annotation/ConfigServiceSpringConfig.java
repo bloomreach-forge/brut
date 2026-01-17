@@ -7,12 +7,15 @@ import java.util.List;
 
 class ConfigServiceSpringConfig {
 
-    static String create(String projectNamespace, List<String> cndPatterns, List<String> yamlPatterns) {
+    static String create(String projectNamespace,
+                         List<String> cndPatterns,
+                         List<String> yamlPatterns,
+                         List<String> repositoryDataModules) {
         String namespace = projectNamespace != null && !projectNamespace.isBlank()
             ? projectNamespace
             : "project";
 
-        String xml = buildXml(namespace, cndPatterns, yamlPatterns);
+        String xml = buildXml(namespace, cndPatterns, yamlPatterns, repositoryDataModules);
         try {
             Path tempFile = Files.createTempFile("brut-configservice-", ".xml");
             Files.writeString(tempFile, xml, StandardCharsets.UTF_8);
@@ -23,7 +26,10 @@ class ConfigServiceSpringConfig {
         }
     }
 
-    private static String buildXml(String projectNamespace, List<String> cndPatterns, List<String> yamlPatterns) {
+    private static String buildXml(String projectNamespace,
+                                   List<String> cndPatterns,
+                                   List<String> yamlPatterns,
+                                   List<String> repositoryDataModules) {
         StringBuilder builder = new StringBuilder();
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         builder.append("<beans xmlns=\"http://www.springframework.org/schema/beans\"\n");
@@ -33,6 +39,7 @@ class ConfigServiceSpringConfig {
 
         appendListBean(builder, "contributedCndResourcesPatterns", cndPatterns);
         appendListBean(builder, "contributedYamlResourcesPatterns", yamlPatterns);
+        appendListBean(builder, "repositoryDataModules", repositoryDataModules);
 
         builder.append("  <bean id=\"javax.jcr.Repository\"\n");
         builder.append("        class=\"org.bloomreach.forge.brut.resources.ConfigServiceRepository\"\n");
@@ -43,6 +50,7 @@ class ConfigServiceSpringConfig {
         builder.append("    <constructor-arg ref=\"yamlResourcesPatterns\"/>\n");
         builder.append("    <constructor-arg ref=\"contributedYamlResourcesPatterns\"/>\n");
         builder.append("    <constructor-arg value=\"").append(escapeXml(projectNamespace)).append("\"/>\n");
+        builder.append("    <property name=\"additionalRepositoryModules\" ref=\"repositoryDataModules\"/>\n");
         builder.append("  </bean>\n");
         builder.append("</beans>\n");
 

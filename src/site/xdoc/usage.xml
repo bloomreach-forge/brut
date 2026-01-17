@@ -141,6 +141,31 @@ public class JaxrsTest {
           ]]></source>
         </div>
         <p><strong>Benefits:</strong> Same config format as production, no duplicate YAML files, explicit module loading.</p>
+        <p>By default BRUT loads standard repository-data modules (application, site, development, site-development,
+          webfiles). Add extra modules explicitly when needed:</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmPageModelTest(
+    useConfigService = true,
+    repositoryDataModules = {"cms"}
+)
+public class MyTest {
+    // ...
+}
+          ]]></source>
+        </div>
+        <p>When CMS or addon config is present but not needed for delivery-tier tests, BRUT can prune unreachable
+          definitions under <code>/hippo:configuration/hippo:frontend</code>,
+          <code>/hippo:configuration/hippo:modules</code>, and <code>/hippo:configuration/hippo:translations</code>.
+          By default BRUT only allows config roots under <code>/hst:</code>, <code>/content</code>,
+          <code>/webfiles</code>, and <code>/hippo:namespaces</code>.
+          Override with <code>-Dbrut.configservice.allowedConfigRoots=/hst:,/hippo:configuration/hippo:modules</code> or
+          use <code>-Dbrut.configservice.allowedConfigRoots=*</code> to disable filtering.
+          Unreachable roots outside the allowed list are also pruned by default unless
+          <code>brut.configservice.pruneConfigRoots</code> is explicitly set.
+          Override roots with <code>-Dbrut.configservice.pruneConfigRoots=/hippo:configuration/hippo:frontend,/hippo:configuration/hippo:modules</code>,
+          use <code>-Dbrut.configservice.pruneConfigRoots=*</code> to prune any unreachable root, or disable pruning with
+          <code>-Dbrut.configservice.pruneFrontendConfig=false</code>.</p>
       </subsection>
 
       <subsection name="Importing Nodes:">

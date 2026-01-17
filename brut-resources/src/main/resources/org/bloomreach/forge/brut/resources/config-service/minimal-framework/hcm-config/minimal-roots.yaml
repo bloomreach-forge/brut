@@ -16,6 +16,17 @@ definitions:
         jcr:primaryType: hipposys:queryfolder
         /hippo:templates:
           jcr:primaryType: hipposys:queryfolder
+      /hippo:update:
+        jcr:primaryType: hipposys:update
+        /hippo:registry:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hipposys:updaterfolder
+        /hippo:queue:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hipposys:updaterfolder
+        /hippo:history:
+          .meta:residual-child-node-category: system
+          jcr:primaryType: hipposys:updaterfolder
       /hippo:translations:
         jcr:primaryType: hipposys:resourcebundles
         /hippo:templates:

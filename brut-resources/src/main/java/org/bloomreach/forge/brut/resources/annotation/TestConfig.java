@@ -26,12 +26,18 @@ class TestConfig {
     private final String hstRoot;
     private final List<String> springConfigs;
     private final List<String> addonModules;
+    private final List<String> repositoryDataModules;
 
-    TestConfig(List<String> beanPatterns, String hstRoot, List<String> springConfigs, List<String> addonModules) {
+    TestConfig(List<String> beanPatterns,
+               String hstRoot,
+               List<String> springConfigs,
+               List<String> addonModules,
+               List<String> repositoryDataModules) {
         this.beanPatterns = beanPatterns;
         this.hstRoot = hstRoot;
         this.springConfigs = springConfigs;
         this.addonModules = addonModules;
+        this.repositoryDataModules = repositoryDataModules;
     }
 
     List<String> getBeanPatterns() {
@@ -48,5 +54,9 @@ class TestConfig {
 
     List<String> getAddonModules() {
         return addonModules;
+    }
+
+    List<String> getRepositoryDataModules() {
+        return repositoryDataModules;
     }
 }

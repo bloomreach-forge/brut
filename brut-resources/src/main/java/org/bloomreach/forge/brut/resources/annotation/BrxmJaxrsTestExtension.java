@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.stream.Stream;
 
 /**
  * JUnit 5 extension that manages lifecycle for @BrxmJaxrsTest annotated tests.
@@ -43,21 +44,24 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
         // Get annotation
         BrxmJaxrsTest annotation = testClass.getAnnotation(BrxmJaxrsTest.class);
         if (annotation == null) {
-            throw new IllegalStateException("@BrxmJaxrsTest annotation not found on " + testClass.getName());
+            throw BrutConfigurationException.missingAnnotation(testClass, "BrxmJaxrsTest");
         }
 
         // Resolve configuration
         TestConfig config = ConventionBasedConfigResolver.resolve(annotation, testClass);
 
+        // Log configuration summary
+        ConfigurationSummary.log(LOG, testClass, "JAX-RS", config);
+
         // Create and initialize DynamicJaxrsTest
         DynamicJaxrsTest testInstance = new DynamicJaxrsTest(config);
 
-        LOG.info("Initializing JAX-RS test infrastructure for {}", testClass.getSimpleName());
         try {
             testInstance.init();
+            ConfigurationSummary.logSuccess(LOG, "JAX-RS", testClass);
         } catch (Exception e) {
-            LOG.error("Failed to initialize JAX-RS test infrastructure", e);
-            throw e;
+            ConfigurationSummary.logFailure(LOG, "JAX-RS", testClass, e);
+            throw BrutConfigurationException.bootstrapFailed("JAX-RS test initialization", config, e);
         }
 
         // Store instance for access in beforeEach and afterAll
@@ -72,7 +76,11 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
         DynamicJaxrsTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicJaxrsTest.class);
 
         if (testInstance == null) {
-            throw new IllegalStateException("Test instance not initialized. This should not happen.");
+            throw BrutConfigurationException.invalidState(
+                    "Test instance not available in beforeEach",
+                    "DynamicJaxrsTest should be initialized in beforeAll",
+                    "Instance is null"
+            );
         }
 
         // Setup request with defaults for each test method
@@ -106,8 +114,9 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
         Class<?> testClass = testObject.getClass();
 
         // Look for field of type DynamicJaxrsTest
+        Field[] allFields = testClass.getDeclaredFields();
         Field targetField = null;
-        for (Field field : testClass.getDeclaredFields()) {
+        for (Field field : allFields) {
             if (DynamicJaxrsTest.class.isAssignableFrom(field.getType())) {
                 targetField = field;
                 break;
@@ -115,10 +124,10 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
         }
 
         if (targetField == null) {
-            throw new IllegalStateException(
-                    String.format("Test class %s must declare a field of type DynamicJaxrsTest. " +
-                            "Example: private DynamicJaxrsTest brxm;", testClass.getName())
-            );
+            String[] scannedFieldInfo = Stream.of(allFields)
+                    .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
+                    .toArray(String[]::new);
+            throw BrutConfigurationException.missingField(testClass, "DynamicJaxrsTest", scannedFieldInfo);
         }
 
         // Inject

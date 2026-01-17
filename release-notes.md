@@ -177,6 +177,121 @@ public class MyTest {
 - Intelligent conflict prevention with ConfigService
 - Explicit annotation values always override auto-detection
 
+#### 5. Fluent Test Utilities
+
+Chainable APIs for common test operations:
+
+**Fluent Request Builder:**
+```java
+@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+public class FluentApiTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testFluentRequest() {
+        String response = brxm.request()
+            .uri("/site/api/news")
+            .method(HttpMethod.POST)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .queryParam("category", "tech")
+            .execute();
+
+        assertTrue(response.contains("news"));
+    }
+}
+```
+
+**Auto-Managed Repository Sessions:**
+```java
+@Test
+void testRepositoryAccess() {
+    try (RepositorySession session = brxm.repository()) {
+        Node newsNode = session.getNode("/content/documents/news");
+        assertEquals("hippo:handle", newsNode.getPrimaryNodeType().getName());
+    }
+    // Session automatically closed
+}
+```
+
+**Benefits:**
+- Reduces boilerplate for request setup
+- Auto-cleanup of JCR sessions (try-with-resources)
+- Method chaining for readable test code
+- Works with both PageModel and JAX-RS tests
+
+#### 6. Enhanced Error Messages
+
+Context-rich error messages with actionable fix suggestions:
+
+**Before:**
+```
+IllegalStateException: Test instance not initialized. This should not happen.
+```
+
+**After:**
+```
+Invalid test state: Test instance not available in beforeEach
+
+Expected: DynamicPageModelTest should be initialized in beforeAll
+Actual: Instance is null
+
+This indicates a bug in BRUT or misuse of test infrastructure.
+Please report this issue with full stack trace.
+```
+
+**Features:**
+- **Custom Exception Types** - `BrutConfigurationException` and `ComponentConfigurationException` with semantic factory methods
+- **Missing Annotation Errors** - Shows import statement and example usage
+- **Missing Field Errors** - Lists all scanned fields and their types to help identify typos
+- **Bootstrap Failures** - Shows complete configuration context (bean patterns, Spring configs, HST root)
+- **Configuration Summary Logging** - Detailed startup logs showing resolved configuration
+- **Step-by-Step Progress** - ConfigServiceRepository logs each initialization step
+
+**Configuration Summary Example:**
+```
+========================================
+PageModel Configuration Summary
+========================================
+Test Class: org.example.NewsPageModelTest
+
+Bean Patterns:
+  - classpath*:org/example/beans/*.class
+
+Spring Configs:
+  - /org/example/custom-pagemodel.xml [AUTO-DETECTED]
+
+HST Root: /hst:myproject
+
+========================================
+PageModel Initialization Starting
+========================================
+```
+
+**Error Context Example:**
+```
+Bootstrap failed during: PageModel test initialization
+
+Configuration attempted:
+  Bean patterns: classpath*:org/example/beans/*.class
+  Spring configs: /org/example/custom-pagemodel.xml
+  HST root: /hst:myproject
+
+Root cause: FileNotFoundException: /org/example/custom-pagemodel.xml
+
+To fix:
+  1. Check that all specified resources exist on classpath
+  2. Verify bean packages contain valid Spring components
+  3. Ensure Spring config files are well-formed XML
+  4. Check logs above for more specific error details
+```
+
+**Benefits:**
+- Faster debugging with clear error context
+- No more "this should not happen" messages
+- Configuration visibility for troubleshooting
+- Actionable fix suggestions in every error
+- Field scan results show exactly what was found vs. expected
+
 ### 5.0.1
 
 **Multi-Test Support and Stability Improvements**

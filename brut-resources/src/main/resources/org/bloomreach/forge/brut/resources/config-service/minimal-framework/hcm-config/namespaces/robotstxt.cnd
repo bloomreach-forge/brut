@@ -1,0 +1,15 @@
+//
+// Minimal robotstxt CNDs for test bootstrapping.
+//
+
+<robotstxt = 'http://www.onehippo.org/jcr/robotstxt/nt/1.0'>
+
+[robotstxt:section] > hippo:compound
+  - robotstxt:useragent (string)
+  - robotstxt:disallow (string) multiple
+  - * (undefined)
+
+[robotstxt:robotstxt] > hippo:document
+  + robotstxt:section (robotstxt:section) multiple
+  + * (nt:base)
+  - * (undefined)

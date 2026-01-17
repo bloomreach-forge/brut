@@ -135,4 +135,14 @@ public @interface BrxmJaxrsTest {
      * @return addon module paths
      */
     String[] addonModules() default {};
+
+    /**
+     * Additional repository-data module names to include when ConfigService is enabled.
+     *
+     * <p>Defaults to standard brXM modules discovered by BRUT. Add entries to include
+     * extra repository-data submodules.</p>
+     *
+     * @return repository-data module names
+     */
+    String[] repositoryDataModules() default {};
 }

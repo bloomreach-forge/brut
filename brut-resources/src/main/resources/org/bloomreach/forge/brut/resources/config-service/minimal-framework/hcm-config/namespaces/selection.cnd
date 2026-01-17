@@ -1,0 +1,14 @@
+//
+// Minimal selection CNDs for test bootstrapping.
+//
+
+<selection = 'http://forge.onehippo.org/selection/nt/1.0'>
+
+[selection:basedocument] > hippo:document
+
+[selection:listitem] > hippo:compound
+  - selection:key (string)
+  - selection:label (string)
+
+[selection:valuelist] > selection:basedocument orderable
+  + selection:listitem (selection:listitem) multiple

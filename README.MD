@@ -1,6 +1,28 @@
 #  B.R.U.T.
 
-Bloomreach Unit Testing Library for BrXM Delivery Tier
+**Bloomreach Unit Testing Library for BrXM Delivery Tier**
+
+Zero-config unit testing for BrXM HST components, JAX-RS APIs, and Page Model API. Reduces test boilerplate by 66-74% with annotation-based testing.
+
+## What is BRUT?
+
+BRUT provides comprehensive testing infrastructure for Bloomreach Experience Manager (brXM) delivery tier components:
+
+- **Component Testing** - Unit test HST components with mock repository
+- **JAX-RS API Testing** - Test REST endpoints with full HST pipeline
+- **Page Model API Testing** - Test Page Model API responses
+- **Production Parity** - Use real HCM configuration in tests
+- **Zero Config** - Auto-detection of beans, HST root, and Spring configs
+
+**Key Benefits:**
+- ✅ **66-74% Less Code** - Annotation-based API eliminates boilerplate
+- ✅ **Production Config** - Load real HCM modules into tests
+- ✅ **Fast Feedback** - Clear error messages with fix suggestions
+- ✅ **No Inheritance** - Field injection instead of extending base classes
+- ✅ **JUnit 5 Native** - Modern testing patterns
+
+**Docs:**
+- Architecture: `ARCHITECTURE.md`
 
 ## Install
 
@@ -163,6 +185,50 @@ public class NewsListComponentTest {
 
 **Same zero-config approach for component testing!**
 
+### Fluent Test Utilities
+
+BRUT 5.1.0+ provides fluent APIs for common test operations:
+
+#### Fluent Request Builder
+
+```java
+@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+public class FluentApiTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testFluentRequest() {
+        String response = brxm.request()
+            .uri("/site/api/news")
+            .method(HttpMethod.POST)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .queryParam("category", "tech")
+            .execute();
+
+        assertTrue(response.contains("news"));
+    }
+}
+```
+
+#### Auto-Managed Repository Sessions
+
+```java
+@Test
+void testRepositoryAccess() {
+    try (RepositorySession session = brxm.repository()) {
+        Node newsNode = session.getNode("/content/documents/news");
+        assertEquals("hippo:handle", newsNode.getPrimaryNodeType().getName());
+    }
+    // Session automatically closed
+}
+```
+
+**Benefits:**
+- ✅ Chainable request configuration
+- ✅ Auto-cleanup of JCR sessions
+- ✅ Less boilerplate for common operations
+- ✅ Works with both PageModel and JAX-RS tests
+
 ### One-Liner ConfigService Integration
 
 Production-parity configuration in a single parameter:
@@ -186,6 +252,26 @@ public class NewsTest {
 ```
 
 **No Spring XML needed** - BRUT auto-generates `ConfigServiceRepository` with your project's HCM modules.
+By default BRUT loads standard repository-data modules (`application`, `site`, `development`, `site-development`, `webfiles`).
+Add extra modules explicitly when needed:
+
+```java
+@BrxmPageModelTest(
+    useConfigService = true,
+    repositoryDataModules = {"cms"}
+)
+```
+
+If CMS or addon config is present but not needed for delivery-tier tests, BRUT can prune unreachable definitions under
+`/hippo:configuration/hippo:frontend`, `/hippo:configuration/hippo:modules`, and `/hippo:configuration/hippo:translations`.
+By default BRUT only allows config roots under `/hst:`, `/content`, `/webfiles`, and `/hippo:namespaces`.
+Override with `-Dbrut.configservice.allowedConfigRoots=/hst:,/hippo:configuration/hippo:modules` or
+use `-Dbrut.configservice.allowedConfigRoots=*` to disable filtering.
+Unreachable roots outside the allowed list are also pruned by default unless `brut.configservice.pruneConfigRoots`
+is explicitly set.
+Override roots with `-Dbrut.configservice.pruneConfigRoots=/hippo:configuration/hippo:frontend,/hippo:configuration/hippo:modules`,
+use `-Dbrut.configservice.pruneConfigRoots=*` to prune any unreachable root, or disable pruning with
+`-Dbrut.configservice.pruneFrontendConfig=false`.
 
 ### Production-Parity Configuration
 
@@ -214,6 +300,14 @@ public class MyTest {
 - ✅ Works with both PageModel and JAX-RS tests
 
 See [ConfigServiceRepository Documentation](docs/config-service-repository.md) for details.
+
+## Documentation
+
+- **[Quick Reference Guide](docs/quick-reference.md)** - Fast lookup for common patterns
+- **[Migration Guide](docs/migration-5.1.0.md)** - Upgrade from legacy abstract classes
+- **[ConfigService Guide](docs/config-service-repository.md)** - Production-parity configuration
+- **[Release Notes](release-notes.md)** - Version history and features
+- **[Examples](demo/site/components/src/test/java/org/example/)** - Working test examples
 
 ## Contents
 

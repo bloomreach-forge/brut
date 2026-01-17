@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.stream.Stream;
 
 public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
@@ -21,10 +22,12 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
 
         BrxmComponentTest annotation = testClass.getAnnotation(BrxmComponentTest.class);
         if (annotation == null) {
-            throw new IllegalStateException("@BrxmComponentTest annotation not found on " + testClass.getName());
+            throw ComponentConfigurationException.missingAnnotation(testClass, "BrxmComponentTest");
         }
 
         ComponentTestConfig config = ComponentConfigResolver.resolve(annotation, testClass);
+        ComponentConfigurationSummary.log(LOG, testClass, config);
+
         DynamicComponentTest testInstance = new DynamicComponentTest(config);
 
         getStore(context).put(TEST_INSTANCE_KEY, testInstance);
@@ -35,14 +38,23 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
     public void beforeEach(ExtensionContext context) {
         DynamicComponentTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
         if (testInstance == null) {
-            throw new IllegalStateException("Component test instance not initialized. This should not happen.");
+            throw ComponentConfigurationException.invalidState(
+                    "Test instance not available in beforeEach",
+                    "DynamicComponentTest should be initialized in beforeAll",
+                    "Instance is null"
+            );
         }
 
         try {
             testInstance.setup();
+            ComponentConfigurationSummary.logSuccess(LOG, context.getRequiredTestClass());
         } catch (Exception e) {
-            LOG.error("Failed to initialize component test infrastructure", e);
-            throw new RuntimeException("Failed to initialize component test infrastructure", e);
+            ComponentConfigurationSummary.logFailure(LOG, context.getRequiredTestClass(), e);
+            ComponentTestConfig config = ComponentConfigResolver.resolve(
+                    context.getRequiredTestClass().getAnnotation(BrxmComponentTest.class),
+                    context.getRequiredTestClass()
+            );
+            throw ComponentConfigurationException.setupFailed("Component test setup", config, e);
         }
     }
 
@@ -72,8 +84,9 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
         Object testObject = context.getRequiredTestInstance();
         Class<?> testClass = testObject.getClass();
 
+        Field[] allFields = testClass.getDeclaredFields();
         Field targetField = null;
-        for (Field field : testClass.getDeclaredFields()) {
+        for (Field field : allFields) {
             if (DynamicComponentTest.class.isAssignableFrom(field.getType())) {
                 targetField = field;
                 break;
@@ -81,10 +94,10 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
         }
 
         if (targetField == null) {
-            throw new IllegalStateException(
-                String.format("Test class %s must declare a field of type DynamicComponentTest. " +
-                        "Example: private DynamicComponentTest brxm;", testClass.getName())
-            );
+            String[] scannedFieldInfo = Stream.of(allFields)
+                    .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
+                    .toArray(String[]::new);
+            throw ComponentConfigurationException.missingField(testClass, "DynamicComponentTest", scannedFieldInfo);
         }
 
         targetField.setAccessible(true);

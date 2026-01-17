@@ -17,7 +17,10 @@ package org.bloomreach.forge.brut.resources.annotation;
 
 import org.bloomreach.forge.brut.resources.AbstractJaxrsTest;
 import org.bloomreach.forge.brut.resources.MockHstRequest;
+import org.bloomreach.forge.brut.resources.util.RequestBuilder;
+import org.bloomreach.forge.brut.resources.util.RepositorySession;
 
+import javax.jcr.Repository;
 import java.util.Collections;
 import java.util.List;
 
@@ -89,8 +92,8 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
      *
      * @return RequestBuilder for fluent request configuration
      */
-    public org.bloomreach.forge.brut.resources.util.RequestBuilder request() {
-        return new org.bloomreach.forge.brut.resources.util.RequestBuilder(
+    public RequestBuilder request() {
+        return new RequestBuilder(
                 getHstRequest(),
                 this::invokeFilter
         );
@@ -101,8 +104,8 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
      *
      * @return RepositorySession with automatic cleanup
      */
-    public org.bloomreach.forge.brut.resources.util.RepositorySession repository() {
-        javax.jcr.Repository repo = getComponentManager().getComponent(javax.jcr.Repository.class);
-        return org.bloomreach.forge.brut.resources.util.RepositorySession.forRepository(repo);
+    public RepositorySession repository() {
+        Repository repo = getComponentManager().getComponent(Repository.class);
+        return RepositorySession.forRepository(repo);
     }
 }

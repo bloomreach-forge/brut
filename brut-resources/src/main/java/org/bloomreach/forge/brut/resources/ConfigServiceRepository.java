@@ -63,6 +63,7 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
     private final List<String> yamlResourcesPatterns;
     private final String projectNamespace;
     private final ConfigServiceBootstrapStrategy bootstrapStrategy;
+    private List<String> additionalRepositoryModules = Collections.emptyList();
 
     /**
      * Creates repository with ConfigService bootstrap.
@@ -98,6 +99,12 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         LOGGER.info("ConfigServiceRepository initialized for project: {}", projectNamespace);
     }
 
+    public void setAdditionalRepositoryModules(List<String> additionalRepositoryModules) {
+        this.additionalRepositoryModules = additionalRepositoryModules != null
+            ? List.copyOf(additionalRepositoryModules)
+            : Collections.emptyList();
+    }
+
     /**
      * Initializes repository with ConfigService bootstrap.
      * <p>
@@ -111,40 +118,78 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
      */
     public void init() {
         Session session = null;
+        String currentStep = "initialization";
         try {
             LOGGER.info("========================================");
             LOGGER.info("Initializing ConfigServiceRepository");
             LOGGER.info("Project Namespace: {}", projectNamespace);
+            LOGGER.info("CND Patterns: {}", cndResourcesPatterns);
+            LOGGER.info("YAML Patterns: {}", yamlResourcesPatterns);
+            if (!additionalRepositoryModules.isEmpty()) {
+                LOGGER.info("Additional Repository Modules: {}", additionalRepositoryModules);
+            }
             LOGGER.info("========================================");
 
             session = this.login(new SimpleCredentials("admin", "admin".toCharArray()));
 
             // Step 1: Register CNDs (parent method)
+            currentStep = "CND registration";
             LOGGER.info("Step 1: Registering CND node types");
-            registerCnds(session, cndResourcesPatterns);
-            LOGGER.info("Step 1 complete");
+            try {
+                registerCnds(session, cndResourcesPatterns);
+                LOGGER.info("Step 1 complete - {} CND patterns registered", cndResourcesPatterns.size());
+            } catch (Exception e) {
+                throw new RepositoryException(buildStepFailureMessage(currentStep, cndResourcesPatterns,
+                        "Ensure CND files exist at specified patterns and are valid CND syntax"), e);
+            }
 
             // Step 2: Bootstrap HST structure using ConfigService
+            currentStep = "ConfigService HST bootstrap";
             LOGGER.info("Step 2: Bootstrapping HST via ConfigService");
-            List<Path> moduleDescriptors = ProjectDiscovery.discoverRepositoryModuleDescriptors(
-                Paths.get(System.getProperty("user.dir"))
-            );
-            BootstrapContext context = new BootstrapContext(
-                cndResourcesPatterns,
-                yamlResourcesPatterns,
-                Collections.emptyList(),
-                moduleDescriptors,
-                Thread.currentThread().getContextClassLoader()
-            );
-            bootstrapStrategy.initializeHstStructure(session, projectNamespace, context);
-            LOGGER.info("Step 2 complete");
+            try {
+                List<Path> moduleDescriptors = ProjectDiscovery.discoverRepositoryModuleDescriptors(
+                    Paths.get(System.getProperty("user.dir")),
+                    additionalRepositoryModules
+                );
+                LOGGER.info("Discovered {} HCM module descriptor(s)", moduleDescriptors.size());
+
+                if (moduleDescriptors.isEmpty()) {
+                    throw new RepositoryException(
+                        "No HCM module descriptors found (hcm-module.yaml).\n\n" +
+                        "To fix:\n" +
+                        "  1. Create META-INF/hcm-module.yaml in your test resources\n" +
+                        "  2. Ensure it contains valid HCM module configuration\n" +
+                        "  3. Check that test resources are on the classpath"
+                    );
+                }
+
+                BootstrapContext context = new BootstrapContext(
+                    cndResourcesPatterns,
+                    yamlResourcesPatterns,
+                    Collections.emptyList(),
+                    moduleDescriptors,
+                    Thread.currentThread().getContextClassLoader()
+                );
+                bootstrapStrategy.initializeHstStructure(session, projectNamespace, context);
+                LOGGER.info("Step 2 complete - HST structure created");
+            } catch (Exception e) {
+                throw new RepositoryException(buildStepFailureMessage(currentStep, yamlResourcesPatterns,
+                        "Check that hcm-module.yaml and HST configuration YAML files exist and are valid"), e);
+            }
 
             // Step 3: Import YAML content (parent method)
+            currentStep = "YAML resource import";
             LOGGER.info("Step 3: Importing YAML resources");
-            importYamlResources(session, yamlResourcesPatterns);
-            LOGGER.info("Step 3 complete");
+            try {
+                importYamlResources(session, yamlResourcesPatterns);
+                LOGGER.info("Step 3 complete - {} YAML patterns imported", yamlResourcesPatterns.size());
+            } catch (Exception e) {
+                throw new RepositoryException(buildStepFailureMessage(currentStep, yamlResourcesPatterns,
+                        "Verify YAML files are well-formed and contain valid JCR content structure"), e);
+            }
 
             // Step 4: Recalculate hippo paths (parent method)
+            currentStep = "hippo paths recalculation";
             LOGGER.info("Step 4: Recalculating hippo paths");
             try {
                 recalculateHippoPathsIfExists("/content", session);
@@ -160,8 +205,10 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         } catch (RepositoryException e) {
             LOGGER.error("========================================");
             LOGGER.error("ConfigServiceRepository initialization FAILED");
+            LOGGER.error("Failed during: {}", currentStep);
             LOGGER.error("========================================", e);
-            throw new RuntimeException("ConfigService bootstrap failed", e);
+            throw new RuntimeException("ConfigServiceRepository initialization failed during " + currentStep +
+                    ". See error details above.", e);
         } finally {
             if (session != null && session.isLive()) {
                 session.logout();
@@ -169,21 +216,45 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         }
     }
 
+    private String buildStepFailureMessage(String step, List<String> patterns, String suggestion) {
+        return String.format(
+            "Step failed: %s\n\n" +
+            "Patterns attempted:\n  %s\n\n" +
+            "To fix:\n  %s",
+            step,
+            String.join("\n  ", patterns),
+            suggestion
+        );
+    }
+
     /**
      * Helper to import YAML resources (mirrors parent private method).
      */
     private void importYamlResources(Session session, List<String> yamlResourcePatterns) throws RepositoryException {
         try {
+            int totalResources = 0;
             for (String yamlResourcePattern : yamlResourcePatterns) {
                 Resource[] resources = resolveResourcePattern(yamlResourcePattern);
+                LOGGER.debug("Pattern '{}' matched {} resource(s)", yamlResourcePattern, resources.length);
                 for (Resource resource : resources) {
-                    ImporterUtils.importYaml(resource.getURL(), session.getRootNode(),
-                            "", "hippostd:folder");
+                    try {
+                        LOGGER.debug("Importing YAML: {}", resource.getFilename());
+                        ImporterUtils.importYaml(resource.getURL(), session.getRootNode(),
+                                "", "hippostd:folder");
+                        totalResources++;
+                    } catch (Exception e) {
+                        throw new RepositoryException(
+                            String.format("Failed to import YAML resource: %s\nPattern: %s\nCause: %s",
+                                    resource.getFilename(), yamlResourcePattern, e.getMessage()), e);
+                    }
                 }
             }
             session.save();
+            LOGGER.debug("Successfully imported {} YAML resource(s)", totalResources);
+        } catch (RepositoryException ex) {
+            throw ex;
         } catch (Exception ex) {
-            throw new RepositoryException(ex);
+            throw new RepositoryException("Unexpected error during YAML import: " + ex.getMessage(), ex);
         }
     }
 
@@ -202,12 +273,17 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
     private void registerNamespaces(Session session, Resource[] cndResources) throws RepositoryException {
         for (Resource cndResource : cndResources) {
             try {
+                LOGGER.debug("Registering CND: {}", cndResource.getFilename());
                 NodeType[] nodeTypes = CndImporter.registerNodeTypes(new InputStreamReader(cndResource.getInputStream()), session);
+                LOGGER.debug("Registered {} node type(s) from {}", nodeTypes.length, cndResource.getFilename());
                 for (NodeType nt : nodeTypes) {
-                    LOGGER.debug("Registered: {}", nt.getName());
+                    LOGGER.debug("  - {}", nt.getName());
                 }
             } catch (Exception e) {
-                throw new RepositoryException(e);
+                throw new RepositoryException(
+                    String.format("Failed to register CND file: %s\nCause: %s\n\n" +
+                            "To fix:\n  Verify CND file syntax is valid and readable",
+                            cndResource.getFilename(), e.getMessage()), e);
             }
         }
     }
@@ -219,11 +295,7 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         try {
             ClassLoader cl = this.getClass().getClassLoader();
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-            Resource[] resources = resolver.getResources(pattern);
-            for (Resource resource : resources) {
-                LOGGER.debug("RESOURCE: {}", resource.getFilename());
-            }
-            return resources;
+            return resolver.getResources(pattern);
         } catch (Exception e) {
             throw new RepositoryException(e);
         }

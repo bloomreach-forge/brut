@@ -15,7 +15,7 @@
 [hipposysedit:prototype] > nt:base
   + * (nt:base)
 [hipposysedit:prototypeset] > nt:base
-  + * (nt:base)
+  + * (nt:base) sns
 [hipposysedit:field] > nt:base
   - hipposysedit:mandatory (boolean)
   - hipposysedit:multiple (boolean)
@@ -29,6 +29,7 @@
   - hipposysedit:node (boolean)
   - hipposysedit:supertype (string) multiple
   - hipposysedit:uri (string)
+  - hipposysedit:validators (string) multiple
   + * (hipposysedit:field)
 
 [hipposysedit:templatetype] orderable

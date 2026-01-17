@@ -62,6 +62,9 @@ class ConventionBasedConfigResolver {
                     "pagemodel",
                     testClass.getClassLoader()
                   );
+        List<String> repositoryDataModules = annotation.repositoryDataModules().length > 0
+                ? Arrays.asList(annotation.repositoryDataModules())
+                : List.of();
         if (annotation.useConfigService()) {
             String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
 
@@ -69,7 +72,12 @@ class ConventionBasedConfigResolver {
             List<String> cndPatterns = detectCndPatterns(projectNamespace, true, testClass.getClassLoader());
             List<String> yamlPatterns = detectYamlPatterns(projectNamespace, true, testClass.getClassLoader());
 
-            String configPath = ConfigServiceSpringConfig.create(projectNamespace, cndPatterns, yamlPatterns);
+            String configPath = ConfigServiceSpringConfig.create(
+                projectNamespace,
+                cndPatterns,
+                yamlPatterns,
+                repositoryDataModules
+            );
             springConfigs = prependSpringConfig(springConfigs, configPath);
         }
 
@@ -78,10 +86,11 @@ class ConventionBasedConfigResolver {
                 ? Arrays.asList(annotation.addonModules())
                 : null;
 
-        LOG.info("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, addonModules={}",
-                testClass.getSimpleName(), beanPatterns, hstRoot, springConfigs, addonModules);
+        LOG.debug("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, " +
+                "addonModules={}, repositoryDataModules={}",
+                testClass.getSimpleName(), beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
 
-        return new TestConfig(beanPatterns, hstRoot, springConfigs, addonModules);
+        return new TestConfig(beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
     }
 
     /**
@@ -115,6 +124,9 @@ class ConventionBasedConfigResolver {
                 testClass.getClassLoader()
             );
         }
+        List<String> repositoryDataModules = annotation.repositoryDataModules().length > 0
+                ? Arrays.asList(annotation.repositoryDataModules())
+                : List.of();
         if (annotation.useConfigService()) {
             String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
 
@@ -122,7 +134,12 @@ class ConventionBasedConfigResolver {
             List<String> cndPatterns = detectCndPatterns(projectNamespace, true, testClass.getClassLoader());
             List<String> yamlPatterns = detectYamlPatterns(projectNamespace, true, testClass.getClassLoader());
 
-            String configPath = ConfigServiceSpringConfig.create(projectNamespace, cndPatterns, yamlPatterns);
+            String configPath = ConfigServiceSpringConfig.create(
+                projectNamespace,
+                cndPatterns,
+                yamlPatterns,
+                repositoryDataModules
+            );
             springConfigs = prependSpringConfig(springConfigs, configPath);
         }
 
@@ -131,10 +148,11 @@ class ConventionBasedConfigResolver {
                 ? Arrays.asList(annotation.addonModules())
                 : null;
 
-        LOG.info("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, addonModules={}",
-                testClass.getSimpleName(), beanPatterns, hstRoot, springConfigs, addonModules);
+        LOG.debug("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, " +
+                "addonModules={}, repositoryDataModules={}",
+                testClass.getSimpleName(), beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
 
-        return new TestConfig(beanPatterns, hstRoot, springConfigs, addonModules);
+        return new TestConfig(beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
     }
 
     private static List<String> toPatterns(String[] packages) {

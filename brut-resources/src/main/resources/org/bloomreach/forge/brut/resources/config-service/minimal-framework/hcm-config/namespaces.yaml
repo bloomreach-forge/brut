@@ -6,9 +6,18 @@ definitions:
     hipposysedit:
       uri: http://www.onehippo.org/jcr/hipposysedit/nt/1.2
       cnd: namespaces/hipposysedit.cnd
+    hipposys:
+      uri: http://www.onehippo.org/jcr/hipposys/nt/1.0
+      cnd: namespaces/hipposys.cnd
     editor:
       uri: http://www.hippoecm.org/editor/nt/1.0
       cnd: namespaces/editor.cnd
     webfiles:
       uri: http://www.onehippo.org/webfiles/nt/1.0
       cnd: namespaces/webfiles.cnd
+    dxphst:
+      uri: http://www.onehippo.org/jcr/dxphst/nt/1.0
+      cnd: namespaces/dxphst.cnd
+    robotstxt:
+      uri: http://www.onehippo.org/jcr/robotstxt/nt/1.0
+      cnd: namespaces/robotstxt.cnd
