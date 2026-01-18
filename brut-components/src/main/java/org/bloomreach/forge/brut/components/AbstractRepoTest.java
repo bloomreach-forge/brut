@@ -82,9 +82,100 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
             // here it must be relative to root
             requestContext.setSiteContentBasePath(path.substring(1));
             requestContext.setSiteContentBaseBean(hippoBean);
+            // Also configure the mount's content path for consistency
+            mount.setContentPath(path.substring(1));
         } catch (ObjectBeanManagerException e) {
             throw new HstComponentException(e);
         }
+    }
+
+    /**
+     * Auto-resolve the site content base bean from the mount's configured content path.
+     * This bridges the gap between HST configuration and HstRequestContext.
+     * <p>
+     * Call this method after the mount has been configured with a content path,
+     * typically via HCM/YAML configuration or manual {@code mount.setContentPath()}.
+     * </p>
+     *
+     * @return true if auto-resolution succeeded, false if contentPath was null/empty or bean couldn't be resolved
+     */
+    protected boolean autoResolveSiteContentBase() {
+        String contentPath = mount.getContentPath();
+        if (StringUtils.isBlank(contentPath)) {
+            return false;
+        }
+        String absolutePath = contentPath.startsWith("/") ? contentPath : "/" + contentPath;
+        try {
+            HippoBean hippoBean = (HippoBean) requestContext.getObjectBeanManager().getObject(absolutePath);
+            if (hippoBean == null) {
+                return false;
+            }
+            requestContext.setSiteContentBasePath(contentPath.startsWith("/") ? contentPath.substring(1) : contentPath);
+            requestContext.setSiteContentBaseBean(hippoBean);
+            return true;
+        } catch (ObjectBeanManagerException e) {
+            return false;
+        }
+    }
+
+    /**
+     * @return the site content base bean, or null if not configured
+     */
+    protected HippoBean getSiteContentBaseBeanOrNull() {
+        return requestContext.getSiteContentBaseBean();
+    }
+
+    /**
+     * @return true if the site content base bean is available
+     */
+    protected boolean hasSiteContentBaseBean() {
+        return requestContext.getSiteContentBaseBean() != null;
+    }
+
+    /**
+     * @return the site content base bean
+     * @throws IllegalStateException if the site content base bean is not configured
+     */
+    protected HippoBean requireSiteContentBaseBean() {
+        HippoBean baseBean = requestContext.getSiteContentBaseBean();
+        if (baseBean == null) {
+            String contentPath = mount.getContentPath();
+            throw new IllegalStateException(
+                "Site content base bean is null. Mount contentPath: '" + contentPath + "'. " +
+                "Call setSiteContentBase() or ensure the content folder exists in your test YAML."
+            );
+        }
+        return baseBean;
+    }
+
+    /**
+     * Safely retrieves a bean relative to the site content base.
+     *
+     * @param relativePath path relative to the site content base (e.g., "banners/hero")
+     * @return the resolved bean, or null if base bean is null or path doesn't resolve
+     */
+    protected HippoBean getRelativeBean(String relativePath) {
+        HippoBean baseBean = getSiteContentBaseBeanOrNull();
+        if (baseBean == null) {
+            return null;
+        }
+        return baseBean.getBean(relativePath);
+    }
+
+    /**
+     * Safely retrieves a typed bean relative to the site content base.
+     *
+     * @param relativePath path relative to the site content base
+     * @param beanClass    the expected bean class
+     * @param <T>          the bean type
+     * @return the resolved bean, or null if base bean is null or path doesn't resolve
+     */
+    protected <T extends HippoBean> T getRelativeBean(String relativePath, Class<T> beanClass) {
+        HippoBean baseBean = getSiteContentBaseBeanOrNull();
+        if (baseBean == null) {
+            return null;
+        }
+        return baseBean.getBean(relativePath, beanClass);
     }
 
     protected abstract String getAnnotatedClassesResourcePath();

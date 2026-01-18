@@ -215,13 +215,20 @@ public final class ProjectDiscovery {
         if (moduleRoot == null) {
             return;
         }
-        Path compiled = moduleRoot.resolve("target/classes/hcm-module.yaml");
-        Path source = moduleRoot.resolve("src/main/resources/hcm-module.yaml");
+        resolveCompiledOrSourcePath(moduleRoot, "hcm-module.yaml")
+            .ifPresent(path -> descriptors.add(path.toAbsolutePath().normalize()));
+    }
+
+    private static Optional<Path> resolveCompiledOrSourcePath(Path moduleRoot, String relativePath) {
+        Path compiled = moduleRoot.resolve("target/classes/" + relativePath);
         if (Files.exists(compiled)) {
-            descriptors.add(compiled.toAbsolutePath().normalize());
-        } else if (Files.exists(source)) {
-            descriptors.add(source.toAbsolutePath().normalize());
+            return Optional.of(compiled);
         }
+        Path source = moduleRoot.resolve("src/main/resources/" + relativePath);
+        if (Files.exists(source)) {
+            return Optional.of(source);
+        }
+        return Optional.empty();
     }
 
     private static Optional<Path> findProjectSettingsPath(Path projectRoot) {
@@ -263,18 +270,11 @@ public final class ProjectDiscovery {
             ? settings.getSiteModule()
             : "site";
 
-        Path repositoryDataRoot = projectRoot.resolve(repositoryDataModule);
-        Path siteModuleRoot = repositoryDataRoot.resolve(siteModule);
+        Path siteModuleRoot = projectRoot.resolve(repositoryDataModule).resolve(siteModule);
 
-        Path compiled = siteModuleRoot.resolve("target/classes/hcm-module.yaml");
-        Path source = siteModuleRoot.resolve("src/main/resources/hcm-module.yaml");
-        Path descriptor = Files.exists(compiled) ? compiled : source;
-
-        if (!Files.exists(descriptor)) {
-            return null;
-        }
-
-        return parseProjectNameFromHcmModule(descriptor);
+        return resolveCompiledOrSourcePath(siteModuleRoot, "hcm-module.yaml")
+            .map(ProjectDiscovery::parseProjectNameFromHcmModule)
+            .orElse(null);
     }
 
     private static String parseProjectNameFromHcmModule(Path hcmModulePath) {

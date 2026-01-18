@@ -35,154 +35,109 @@ import java.util.List;
 class ConventionBasedConfigResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConventionBasedConfigResolver.class);
+    private static final String PAGEMODEL = "pagemodel";
+    private static final String JAXRS = "jaxrs";
 
-    /**
-     * Resolves test configuration from PageModel annotation and test class.
-     *
-     * @param annotation annotation instance
-     * @param testClass test class
-     * @return resolved configuration
-     */
     static TestConfig resolve(BrxmPageModelTest annotation, Class<?> testClass) {
-        // Bean patterns: explicit or auto-detect
-        List<String> beanPatterns = annotation.beanPackages().length > 0
-                ? toPatterns(annotation.beanPackages())
-                : detectBeanPatterns(testClass);
-
-        // HST root: explicit or auto-detect
-        String hstRoot = !annotation.hstRoot().isEmpty()
-                ? annotation.hstRoot()
-                : detectHstRoot();
-
-        // Spring config: explicit or auto-detect
-        List<String> springConfigs = !annotation.springConfig().isEmpty()
-                ? Arrays.asList(annotation.springConfig())
-                : detectMultipleSpringConfigs(
-                    testClass.getPackage().getName().replace('.', '/'),
-                    "pagemodel",
-                    testClass.getClassLoader()
-                  );
-        List<String> repositoryDataModules = annotation.repositoryDataModules().length > 0
-                ? Arrays.asList(annotation.repositoryDataModules())
-                : List.of();
-        if (annotation.useConfigService()) {
-            String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
-
-            // Auto-detect CND and YAML patterns
-            List<String> cndPatterns = detectCndPatterns(projectNamespace, true, testClass.getClassLoader());
-            List<String> yamlPatterns = detectYamlPatterns(projectNamespace, true, testClass.getClassLoader());
-
-            String configPath = ConfigServiceSpringConfig.create(
-                projectNamespace,
-                cndPatterns,
-                yamlPatterns,
-                repositoryDataModules
-            );
-            springConfigs = prependSpringConfig(springConfigs, configPath);
-        }
-
-        // Addon modules: explicit or null
-        List<String> addonModules = annotation.addonModules().length > 0
-                ? Arrays.asList(annotation.addonModules())
-                : null;
-
-        LOG.debug("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, " +
-                "addonModules={}, repositoryDataModules={}",
-                testClass.getSimpleName(), beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
-
-        return new TestConfig(beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
+        return resolveConfig(
+            annotation.beanPackages(),
+            annotation.hstRoot(),
+            resolveSpringConfigs(annotation.springConfig(), new String[0], testClass, PAGEMODEL),
+            annotation.addonModules(),
+            annotation.repositoryDataModules(),
+            annotation.useConfigService(),
+            ProjectDiscovery.BeanPackageOrder.BEANS_FIRST,
+            testClass
+        );
     }
 
-    /**
-     * Resolves test configuration from JAX-RS annotation and test class.
-     *
-     * @param annotation annotation instance
-     * @param testClass test class
-     * @return resolved configuration
-     */
     static TestConfig resolve(BrxmJaxrsTest annotation, Class<?> testClass) {
-        // Bean patterns: explicit or auto-detect (model first, then beans for JAX-RS)
-        List<String> beanPatterns = annotation.beanPackages().length > 0
-                ? toPatterns(annotation.beanPackages())
-                : detectJaxrsBeanPatterns(testClass);
+        return resolveConfig(
+            annotation.beanPackages(),
+            annotation.hstRoot(),
+            resolveSpringConfigs(annotation.springConfig(), annotation.springConfigs(), testClass, JAXRS),
+            annotation.addonModules(),
+            annotation.repositoryDataModules(),
+            annotation.useConfigService(),
+            ProjectDiscovery.BeanPackageOrder.MODEL_FIRST,
+            testClass
+        );
+    }
 
-        // HST root: explicit or auto-detect
-        String hstRoot = !annotation.hstRoot().isEmpty()
-                ? annotation.hstRoot()
-                : detectHstRoot();
+    private static TestConfig resolveConfig(String[] beanPackages,
+                                            String hstRoot,
+                                            List<String> springConfigs,
+                                            String[] addonModulesArray,
+                                            String[] repositoryDataModulesArray,
+                                            boolean useConfigService,
+                                            ProjectDiscovery.BeanPackageOrder beanOrder,
+                                            Class<?> testClass) {
+        List<String> beanPatterns = beanPackages.length > 0
+                ? toPatterns(beanPackages)
+                : detectBeanPatterns(testClass, beanOrder);
 
-        // Spring configs: explicit or auto-detect
-        List<String> springConfigs;
-        if (annotation.springConfigs().length > 0) {
-            springConfigs = Arrays.asList(annotation.springConfigs());
-        } else if (!annotation.springConfig().isEmpty()) {
-            springConfigs = Arrays.asList(annotation.springConfig());
-        } else {
-            springConfigs = detectMultipleSpringConfigs(
-                testClass.getPackage().getName().replace('.', '/'),
-                "jaxrs",
-                testClass.getClassLoader()
-            );
-        }
-        List<String> repositoryDataModules = annotation.repositoryDataModules().length > 0
-                ? Arrays.asList(annotation.repositoryDataModules())
+        String resolvedHstRoot = !hstRoot.isEmpty() ? hstRoot : detectHstRoot();
+
+        List<String> repositoryDataModules = repositoryDataModulesArray.length > 0
+                ? Arrays.asList(repositoryDataModulesArray)
                 : List.of();
-        if (annotation.useConfigService()) {
-            String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
 
-            // Auto-detect CND and YAML patterns
-            List<String> cndPatterns = detectCndPatterns(projectNamespace, true, testClass.getClassLoader());
-            List<String> yamlPatterns = detectYamlPatterns(projectNamespace, true, testClass.getClassLoader());
-
-            String configPath = ConfigServiceSpringConfig.create(
-                projectNamespace,
-                cndPatterns,
-                yamlPatterns,
-                repositoryDataModules
-            );
-            springConfigs = prependSpringConfig(springConfigs, configPath);
+        if (useConfigService) {
+            springConfigs = applyConfigService(springConfigs, repositoryDataModules, testClass);
         }
 
-        // Addon modules: explicit or null
-        List<String> addonModules = annotation.addonModules().length > 0
-                ? Arrays.asList(annotation.addonModules())
+        List<String> addonModules = addonModulesArray.length > 0
+                ? Arrays.asList(addonModulesArray)
                 : null;
 
         LOG.debug("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, " +
                 "addonModules={}, repositoryDataModules={}",
-                testClass.getSimpleName(), beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
+                testClass.getSimpleName(), beanPatterns, resolvedHstRoot, springConfigs,
+                addonModules, repositoryDataModules);
 
-        return new TestConfig(beanPatterns, hstRoot, springConfigs, addonModules, repositoryDataModules);
+        return new TestConfig(beanPatterns, resolvedHstRoot, springConfigs, addonModules, repositoryDataModules);
+    }
+
+    private static List<String> resolveSpringConfigs(String singleConfig, String[] multiConfigs,
+                                                     Class<?> testClass, String testType) {
+        if (multiConfigs.length > 0) {
+            return Arrays.asList(multiConfigs);
+        }
+        if (!singleConfig.isEmpty()) {
+            return Arrays.asList(singleConfig);
+        }
+        return detectMultipleSpringConfigs(
+            testClass.getPackage().getName().replace('.', '/'),
+            testType,
+            testClass.getClassLoader()
+        );
+    }
+
+    private static List<String> applyConfigService(List<String> springConfigs,
+                                                   List<String> repositoryDataModules,
+                                                   Class<?> testClass) {
+        String projectNamespace = ProjectDiscovery.resolveProjectNamespace(
+            Paths.get(System.getProperty("user.dir")));
+        List<String> cndPatterns = detectCndPatterns(projectNamespace, true, testClass.getClassLoader());
+        List<String> yamlPatterns = detectYamlPatterns(projectNamespace, true, testClass.getClassLoader());
+
+        String configPath = ConfigServiceSpringConfig.create(
+            projectNamespace, cndPatterns, yamlPatterns, repositoryDataModules);
+        return prependSpringConfig(springConfigs, configPath);
     }
 
     private static List<String> toPatterns(String[] packages) {
         List<String> patterns = new ArrayList<>();
         for (String pkg : packages) {
-            String pattern = "classpath*:" + pkg.replace('.', '/') + "/*.class,";
-            patterns.add(pattern);
+            patterns.add("classpath*:" + pkg.replace('.', '/') + "/*.class,");
         }
         return patterns;
     }
 
-    private static List<String> detectBeanPatterns(Class<?> testClass) {
-        List<String> packages = ProjectDiscovery.resolveBeanPackages(
-            testClass,
-            ProjectDiscovery.BeanPackageOrder.BEANS_FIRST,
-            false
-        );
+    private static List<String> detectBeanPatterns(Class<?> testClass, ProjectDiscovery.BeanPackageOrder order) {
+        List<String> packages = ProjectDiscovery.resolveBeanPackages(testClass, order, false);
         List<String> patterns = ProjectDiscovery.toClasspathPatterns(packages, false, true);
-        LOG.debug("Auto-detected bean patterns (PageModel): {}", patterns);
-        return patterns;
-    }
-
-    private static List<String> detectJaxrsBeanPatterns(Class<?> testClass) {
-        List<String> packages = ProjectDiscovery.resolveBeanPackages(
-            testClass,
-            ProjectDiscovery.BeanPackageOrder.MODEL_FIRST,
-            false
-        );
-        List<String> patterns = ProjectDiscovery.toClasspathPatterns(packages, false, true);
-        LOG.debug("Auto-detected bean patterns (JAX-RS): {}", patterns);
+        LOG.debug("Auto-detected bean patterns ({}): {}", order, patterns);
         return patterns;
     }
 
@@ -196,32 +151,22 @@ class ConventionBasedConfigResolver {
         return classLoader.getResource(path) != null;
     }
 
-    /**
-     * Detects multiple Spring config files in the test package.
-     * Checks for common config file names used across brXM projects.
-     *
-     * @param packagePath package path in classpath format (org/example)
-     * @param testType "jaxrs" or "pagemodel" to determine file priority
-     * @param classLoader classloader to check resource existence
-     * @return list of detected config file paths, or null if none found
-     */
-    private static List<String> detectMultipleSpringConfigs(String packagePath, String testType, ClassLoader classLoader) {
+    private static List<String> detectMultipleSpringConfigs(String packagePath, String testType,
+                                                            ClassLoader classLoader) {
         List<String> candidateFiles = new ArrayList<>();
 
-        // Type-specific candidate files
-        if ("jaxrs".equals(testType)) {
+        if (JAXRS.equals(testType)) {
             candidateFiles.add("custom-jaxrs.xml");
             candidateFiles.add("annotation-jaxrs.xml");
             candidateFiles.add("rest-resources.xml");
             candidateFiles.add("jaxrs-config.xml");
-        } else if ("pagemodel".equals(testType)) {
+        } else if (PAGEMODEL.equals(testType)) {
             candidateFiles.add("custom-pagemodel.xml");
             candidateFiles.add("annotation-pagemodel.xml");
             candidateFiles.add("custom-component.xml");
             candidateFiles.add("component-config.xml");
         }
 
-        // Scan for existing files
         List<String> detectedConfigs = new ArrayList<>();
         for (String candidateFile : candidateFiles) {
             String path = "/" + packagePath + "/" + candidateFile;
@@ -236,69 +181,31 @@ class ConventionBasedConfigResolver {
             return null;
         }
 
-        LOG.info("Auto-detected {} Spring config files: {}", detectedConfigs.size(), detectedConfigs);
+        LOG.debug("Auto-detected {} Spring config(s): {}", detectedConfigs.size(), detectedConfigs);
         return detectedConfigs;
     }
 
-    /**
-     * Auto-detects YAML resource patterns for repository initialization.
-     * Only activates when ConfigService is disabled to avoid conflicts.
-     *
-     * @param projectNamespace project namespace (e.g., "myproject")
-     * @param useConfigService whether ConfigService is enabled
-     * @param classLoader classloader to verify pattern resources exist
-     * @return list of detected YAML patterns, or empty list
-     */
-    private static List<String> detectYamlPatterns(String projectNamespace, boolean useConfigService, ClassLoader classLoader) {
-        // Skip auto-detection if ConfigService is enabled (it handles YAML internally)
+    private static List<String> detectYamlPatterns(String projectNamespace, boolean useConfigService,
+                                                   ClassLoader classLoader) {
         if (useConfigService) {
             LOG.debug("Skipping YAML auto-detection: ConfigService is enabled");
             return List.of();
         }
 
         List<String> candidatePatterns = new ArrayList<>();
-
-        // Standard HCM patterns
         candidatePatterns.add("classpath*:hcm-config/**/*.yaml");
         candidatePatterns.add("classpath*:hcm-content/**/*.yaml");
-
-        // Test-specific patterns
         candidatePatterns.add("classpath*:test-repository-data/**/*.yaml");
 
-        // Project-specific legacy pattern
         if (projectNamespace != null && !projectNamespace.isEmpty()) {
             candidatePatterns.add("classpath*:org/" + projectNamespace + "/imports/**/*.yaml");
         }
 
-        // Verify at least one pattern has resources
-        List<String> validPatterns = new ArrayList<>();
-        for (String pattern : candidatePatterns) {
-            if (patternHasResources(pattern, classLoader)) {
-                validPatterns.add(pattern);
-                LOG.debug("Auto-detected YAML pattern: {}", pattern);
-            }
-        }
-
-        if (validPatterns.isEmpty()) {
-            LOG.debug("No YAML resources found for auto-detection patterns");
-            return List.of();
-        }
-
-        LOG.info("Auto-detected {} YAML patterns: {}", validPatterns.size(), validPatterns);
-        return validPatterns;
+        return filterValidPatterns(candidatePatterns, classLoader, "YAML");
     }
 
-    /**
-     * Auto-detects CND resource patterns for node type registration.
-     * Only activates when ConfigService is disabled.
-     *
-     * @param projectNamespace project namespace (e.g., "myproject")
-     * @param useConfigService whether ConfigService is enabled
-     * @param classLoader classloader to verify pattern resources exist
-     * @return list of detected CND patterns, or empty list
-     */
-    private static List<String> detectCndPatterns(String projectNamespace, boolean useConfigService, ClassLoader classLoader) {
-        // Skip auto-detection if ConfigService is enabled
+    private static List<String> detectCndPatterns(String projectNamespace, boolean useConfigService,
+                                                  ClassLoader classLoader) {
         if (useConfigService) {
             LOG.debug("Skipping CND auto-detection: ConfigService is enabled");
             return List.of();
@@ -306,39 +213,35 @@ class ConventionBasedConfigResolver {
 
         List<String> candidatePatterns = new ArrayList<>();
 
-        // Project-specific CND
         if (projectNamespace != null && !projectNamespace.isEmpty()) {
             candidatePatterns.add("classpath*:org/" + projectNamespace + "/namespaces/*.cnd");
             candidatePatterns.add("classpath*:**/" + projectNamespace + ".cnd");
         }
 
-        // Standard locations
         candidatePatterns.add("classpath*:namespaces/**/*.cnd");
 
+        return filterValidPatterns(candidatePatterns, classLoader, "CND");
+    }
+
+    private static List<String> filterValidPatterns(List<String> candidatePatterns, ClassLoader classLoader,
+                                                    String patternType) {
         List<String> validPatterns = new ArrayList<>();
         for (String pattern : candidatePatterns) {
             if (patternHasResources(pattern, classLoader)) {
                 validPatterns.add(pattern);
-                LOG.debug("Auto-detected CND pattern: {}", pattern);
+                LOG.debug("Auto-detected {} pattern: {}", patternType, pattern);
             }
         }
 
         if (validPatterns.isEmpty()) {
-            LOG.debug("No CND resources found for auto-detection patterns");
+            LOG.debug("No {} resources found for auto-detection patterns", patternType);
             return List.of();
         }
 
-        LOG.info("Auto-detected {} CND patterns: {}", validPatterns.size(), validPatterns);
+        LOG.debug("Auto-detected {} {} pattern(s): {}", validPatterns.size(), patternType, validPatterns);
         return validPatterns;
     }
 
-    /**
-     * Checks if at least one resource matches the given classpath pattern.
-     *
-     * @param pattern Spring ResourceLoader pattern (classpath*:...)
-     * @param classLoader classloader to resolve resources
-     * @return true if at least one matching resource exists
-     */
     private static boolean patternHasResources(String pattern, ClassLoader classLoader) {
         try {
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(classLoader);

@@ -1,0 +1,28 @@
+<rep='internal'>
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<hippo='http://www.onehippo.org/jcr/hippo/nt/2.0'>
+<hippostd='http://www.onehippo.org/jcr/hippostd/nt/2.0'>
+<hippostdpubwf='http://www.onehippo.org/jcr/hippostdpubwf/nt/1.0'>
+
+[hippostdpubwf:document] > hippostd:publishable mixin
+- hippostdpubwf:creationDate (Date) mandatory
+- hippostdpubwf:createdBy (String) mandatory
+- hippostdpubwf:lastModificationDate (Date) mandatory
+- hippostdpubwf:lastModifiedBy (String) mandatory
+- hippostdpubwf:publicationDate (Date)
+- hippostdpubwf:publishedBy (String)
+- hippostdpubwf:depublicationDate (Date)
+- hippostdpubwf:depublishedBy (String)
+
+[hippostdpubwf:request] > hippo:request
+- hippostdpubwf:type (String) < 'rejected', 'publish', 'depublish', 'scheduledpublish', 'scheduleddepublish', 'delete', 'collection', 'scheduledpublishdepublish'
+- hippostdpubwf:reason (String)
+- hippostdpubwf:reqdate (Date)
+- hippostdpubwf:username (String)
+- hippostdpubwf:document (Reference)
+- hippostdpubwf:refId (String)
+- hippostdpubwf:creationDate (Date)
+
+[hippostdpubwf:audittrace] > nt:base mixin

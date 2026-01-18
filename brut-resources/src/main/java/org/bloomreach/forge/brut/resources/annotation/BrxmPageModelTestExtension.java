@@ -18,15 +18,15 @@ package org.bloomreach.forge.brut.resources.annotation;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException;
+import org.bloomreach.forge.brut.common.junit.TestInstanceInjector;
+import org.bloomreach.forge.brut.common.logging.TestConfigurationLogger;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.util.stream.Stream;
 
 /**
  * JUnit 5 extension that manages lifecycle for @BrxmPageModelTest annotated tests.
@@ -36,39 +36,34 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
 
     private static final Logger LOG = LoggerFactory.getLogger(BrxmPageModelTestExtension.class);
     private static final String TEST_INSTANCE_KEY = "brxm.test.instance";
+    private static final String FRAMEWORK = "PageModel";
+    private static final String ANNOTATION_PACKAGE = "org.bloomreach.forge.brut.resources.annotation";
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         Class<?> testClass = context.getRequiredTestClass();
 
-        // Get annotation
         BrxmPageModelTest annotation = testClass.getAnnotation(BrxmPageModelTest.class);
         if (annotation == null) {
-            throw BrutConfigurationException.missingAnnotation(testClass, "BrxmPageModelTest");
+            throw BrutTestConfigurationException.missingAnnotation(testClass, "BrxmPageModelTest", ANNOTATION_PACKAGE);
         }
 
-        // Resolve configuration
         TestConfig config = ConventionBasedConfigResolver.resolve(annotation, testClass);
+        logTestConfig(testClass, config);
 
-        // Log configuration summary
-        ConfigurationSummary.log(LOG, testClass, "PageModel", config);
-
-        // Create and initialize DynamicPageModelTest
         DynamicPageModelTest testInstance = new DynamicPageModelTest(config);
 
         try {
             testInstance.init();
-            ConfigurationSummary.logSuccess(LOG, "PageModel", testClass);
+            TestConfigurationLogger.logSuccess(LOG, FRAMEWORK, testClass);
         } catch (Exception e) {
-            ConfigurationSummary.logFailure(LOG, "PageModel", testClass, e);
-            throw BrutConfigurationException.bootstrapFailed("PageModel test initialization", config, e);
+            TestConfigurationLogger.logFailure(LOG, FRAMEWORK, testClass, e);
+            throw BrutTestConfigurationException.bootstrapFailed(FRAMEWORK + " test initialization",
+                    config.getBeanPatterns(), config.getSpringConfigs(), config.getHstRoot(), e);
         }
 
-        // Store instance for access in beforeEach and afterAll
         getStore(context).put(TEST_INSTANCE_KEY, testInstance);
-
-        // Inject into test class field
-        injectTestInstance(context, testInstance);
+        TestInstanceInjector.inject(context, testInstance, DynamicPageModelTest.class, LOG);
     }
 
     @Override
@@ -76,14 +71,13 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
         DynamicPageModelTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
 
         if (testInstance == null) {
-            throw BrutConfigurationException.invalidState(
+            throw BrutTestConfigurationException.invalidState(
                     "Test instance not available in beforeEach",
                     "DynamicPageModelTest should be initialized in beforeAll",
                     "Instance is null"
             );
         }
 
-        // Setup request with defaults for each test method
         testInstance.setupForNewRequest();
         testInstance.getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         testInstance.getHstRequest().setMethod(HttpMethod.GET);
@@ -109,30 +103,13 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
         return context.getStore(ExtensionContext.Namespace.create(BrxmPageModelTestExtension.class, context.getRequiredTestClass()));
     }
 
-    private void injectTestInstance(ExtensionContext context, DynamicPageModelTest testInstance) throws Exception {
-        Object testObject = context.getRequiredTestInstance();
-        Class<?> testClass = testObject.getClass();
-
-        // Look for field of type DynamicPageModelTest
-        Field[] allFields = testClass.getDeclaredFields();
-        Field targetField = null;
-        for (Field field : allFields) {
-            if (DynamicPageModelTest.class.isAssignableFrom(field.getType())) {
-                targetField = field;
-                break;
-            }
-        }
-
-        if (targetField == null) {
-            String[] scannedFieldInfo = Stream.of(allFields)
-                    .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
-                    .toArray(String[]::new);
-            throw BrutConfigurationException.missingField(testClass, "DynamicPageModelTest", scannedFieldInfo);
-        }
-
-        // Inject
-        targetField.setAccessible(true);
-        targetField.set(testObject, testInstance);
-        LOG.debug("Injected DynamicPageModelTest instance into field: {}", targetField.getName());
+    private void logTestConfig(Class<?> testClass, TestConfig config) {
+        TestConfigurationLogger.logConfiguration(LOG, testClass, FRAMEWORK, log -> {
+            TestConfigurationLogger.logBeanPatterns(log, config.getBeanPatterns());
+            TestConfigurationLogger.logSpringConfigs(log, config.getSpringConfigs());
+            TestConfigurationLogger.logHstRoot(log, config.getHstRoot());
+            TestConfigurationLogger.logModules(log, "Repository Data Modules", config.getRepositoryDataModules());
+            TestConfigurationLogger.logModules(log, "Addon Modules", config.getAddonModules());
+        });
     }
 }

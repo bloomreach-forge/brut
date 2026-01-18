@@ -35,6 +35,28 @@
 
 This release introduces production-parity HST configuration in tests by leveraging brXM's `ConfigurationConfigService`.
 
+#### Code Quality: Clean Architecture Refactoring
+
+Major refactoring following Uncle Bob's Clean Code principles:
+
+**Consolidated Exception Handling:**
+- Unified `BrutTestConfigurationException` in `brut-common` replaces duplicate exception classes
+- Factory methods for semantic error creation: `missingAnnotation()`, `missingField()`, `setupFailed()`, `bootstrapFailed()`, `resourceNotFound()`
+
+**Consolidated Logging:**
+- Unified `TestConfigurationLogger` in `brut-common` provides consistent configuration logging
+- Methods: `logConfiguration()`, `logSuccess()`, `logFailure()`, `logBeanPatterns()`, `logSpringConfigs()`
+
+**Extracted Responsibilities from ConfigServiceBootstrapStrategy:**
+- `RuntimeTypeStubber` - Handles runtime stubbing of missing JCR namespaces and node types
+- `JcrNodeSynchronizer` - Handles JCR node synchronization between source and target trees
+- `ConfigServiceReflectionBridge` - Encapsulates reflection calls to ConfigService methods
+- Result: ConfigServiceBootstrapStrategy reduced from ~1650 to ~1180 lines (28% reduction)
+
+**Shared Utilities:**
+- `TestInstanceInjector` in `brut-common` - Shared field injection for JUnit 5 extensions
+- `AbstractBrutRepository` in `brut-common` - Shared CND registration and namespace handling
+
 **Key Features:**
 
 * **ConfigServiceRepository** - New repository implementation using brXM's production ConfigService for HST bootstrap

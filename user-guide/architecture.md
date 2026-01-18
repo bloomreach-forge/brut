@@ -9,10 +9,20 @@ initializes the HST model, then executes the same pipelines used in production (
 - In-memory repository and YAML import utilities.
 - Repository configuration comes from `repository.xml` on the classpath (you can override it).
 - Test authentication is provided by an in-memory login module.
+- **Shared utilities:**
+  - `BrutTestConfigurationException` - Unified error handling with factory methods
+  - `TestConfigurationLogger` - Consistent configuration logging
+  - `TestInstanceInjector` - JUnit 5 field injection
+  - `AbstractBrutRepository` - Shared CND/namespace handling
 
 ### brut-resources
 - Loads HCM modules (config + content) via Config Service APIs.
 - Initializes the HST container and request pipelines.
+- **Bootstrap components:**
+  - `ConfigServiceBootstrapStrategy` - Orchestrates HCM-based bootstrap
+  - `RuntimeTypeStubber` - Stubs missing namespaces/node types
+  - `JcrNodeSynchronizer` - Syncs JCR nodes between trees
+  - `ConfigServiceReflectionBridge` - Reflection access to ConfigService
 
 ### brut-components
 - Component-test utilities and mocks for HST components.

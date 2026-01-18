@@ -1,5 +1,8 @@
 package org.bloomreach.forge.brut.components.annotation;
 
+import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException;
+import org.bloomreach.forge.brut.common.junit.TestInstanceInjector;
+import org.bloomreach.forge.brut.common.logging.TestConfigurationLogger;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -8,13 +11,12 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.util.stream.Stream;
-
 public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(BrxmComponentTestExtension.class);
     private static final String TEST_INSTANCE_KEY = "brxm.component.test.instance";
+    private static final String FRAMEWORK = "Component";
+    private static final String ANNOTATION_PACKAGE = "org.bloomreach.forge.brut.components.annotation";
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
@@ -22,23 +24,23 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
 
         BrxmComponentTest annotation = testClass.getAnnotation(BrxmComponentTest.class);
         if (annotation == null) {
-            throw ComponentConfigurationException.missingAnnotation(testClass, "BrxmComponentTest");
+            throw BrutTestConfigurationException.missingAnnotation(testClass, "BrxmComponentTest", ANNOTATION_PACKAGE);
         }
 
         ComponentTestConfig config = ComponentConfigResolver.resolve(annotation, testClass);
-        ComponentConfigurationSummary.log(LOG, testClass, config);
+        logComponentConfig(testClass, config);
 
         DynamicComponentTest testInstance = new DynamicComponentTest(config);
 
         getStore(context).put(TEST_INSTANCE_KEY, testInstance);
-        injectTestInstance(context, testInstance);
+        TestInstanceInjector.inject(context, testInstance, DynamicComponentTest.class, LOG);
     }
 
     @Override
     public void beforeEach(ExtensionContext context) {
         DynamicComponentTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
         if (testInstance == null) {
-            throw ComponentConfigurationException.invalidState(
+            throw BrutTestConfigurationException.invalidState(
                     "Test instance not available in beforeEach",
                     "DynamicComponentTest should be initialized in beforeAll",
                     "Instance is null"
@@ -47,14 +49,17 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
 
         try {
             testInstance.setup();
-            ComponentConfigurationSummary.logSuccess(LOG, context.getRequiredTestClass());
+            TestConfigurationLogger.logSuccess(LOG, FRAMEWORK, context.getRequiredTestClass());
         } catch (Exception e) {
-            ComponentConfigurationSummary.logFailure(LOG, context.getRequiredTestClass(), e);
+            TestConfigurationLogger.logFailure(LOG, FRAMEWORK, context.getRequiredTestClass(), e);
             ComponentTestConfig config = ComponentConfigResolver.resolve(
                     context.getRequiredTestClass().getAnnotation(BrxmComponentTest.class),
                     context.getRequiredTestClass()
             );
-            throw ComponentConfigurationException.setupFailed("Component test setup", config, e);
+            String configDesc = String.format("  Bean patterns: %s%n  Test resource path: %s",
+                    config.getAnnotatedClassesResourcePath(),
+                    config.getTestResourcePath() != null ? config.getTestResourcePath() : "NONE");
+            throw BrutTestConfigurationException.setupFailed("Component test setup", configDesc, e);
         }
     }
 
@@ -80,28 +85,15 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
         return context.getStore(ExtensionContext.Namespace.create(BrxmComponentTestExtension.class, context.getRequiredTestClass()));
     }
 
-    private void injectTestInstance(ExtensionContext context, DynamicComponentTest testInstance) throws Exception {
-        Object testObject = context.getRequiredTestInstance();
-        Class<?> testClass = testObject.getClass();
-
-        Field[] allFields = testClass.getDeclaredFields();
-        Field targetField = null;
-        for (Field field : allFields) {
-            if (DynamicComponentTest.class.isAssignableFrom(field.getType())) {
-                targetField = field;
-                break;
+    private void logComponentConfig(Class<?> testClass, ComponentTestConfig config) {
+        TestConfigurationLogger.logConfiguration(LOG, testClass, FRAMEWORK, log -> {
+            log.info("Bean Patterns:");
+            log.info("  {}", config.getAnnotatedClassesResourcePath());
+            if (config.getTestResourcePath() != null) {
+                log.info("Test Resource Path: {}", config.getTestResourcePath());
+            } else {
+                log.info("Test Resource Path: NONE");
             }
-        }
-
-        if (targetField == null) {
-            String[] scannedFieldInfo = Stream.of(allFields)
-                    .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
-                    .toArray(String[]::new);
-            throw ComponentConfigurationException.missingField(testClass, "DynamicComponentTest", scannedFieldInfo);
-        }
-
-        targetField.setAccessible(true);
-        targetField.set(testObject, testInstance);
-        LOG.debug("Injected DynamicComponentTest instance into field: {}", targetField.getName());
+        });
     }
 }

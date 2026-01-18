@@ -1,34 +1,26 @@
 package org.bloomreach.forge.brut.resources;
 
-import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
+import org.bloomreach.forge.brut.common.repository.AbstractBrutRepository;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.bloomreach.forge.brut.resources.bootstrap.BootstrapContext;
 import org.bloomreach.forge.brut.resources.bootstrap.ConfigServiceBootstrapStrategy;
-import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.nodetype.NodeType;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-
-import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
 
 /**
  * JCR repository that uses brXM's production ConfigService for HST bootstrap.
@@ -55,9 +47,10 @@ import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
  * @see ConfigServiceBootstrapStrategy
  * @since 5.2.0
  */
-public class ConfigServiceRepository extends BrxmTestingRepository {
+public class ConfigServiceRepository extends AbstractBrutRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigServiceRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigServiceRepository.class);
+    private static final String HST_CONTENT_PROPERTY = "hst:content";
 
     private final List<String> cndResourcesPatterns;
     private final List<String> yamlResourcesPatterns;
@@ -78,7 +71,8 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
                                    List<String> yamlResourcesPatterns, List<String> contributedYamlResourcesPatterns,
                                    String projectNamespace)
             throws RepositoryException, IOException {
-        // Merge patterns
+        super();
+
         List<String> allCndPatterns = new ArrayList<>(cndResourcesPatterns);
         allCndPatterns.addAll(contributedCndResourcesPatterns);
         this.cndResourcesPatterns = allCndPatterns;
@@ -96,7 +90,7 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         }
         this.bootstrapStrategy = new ConfigServiceBootstrapStrategy();
 
-        LOGGER.info("ConfigServiceRepository initialized for project: {}", projectNamespace);
+        LOG.info("ConfigServiceRepository initialized for project: {}", this.projectNamespace);
     }
 
     public void setAdditionalRepositoryModules(List<String> additionalRepositoryModules) {
@@ -120,38 +114,24 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
         Session session = null;
         String currentStep = "initialization";
         try {
-            LOGGER.info("========================================");
-            LOGGER.info("Initializing ConfigServiceRepository");
-            LOGGER.info("Project Namespace: {}", projectNamespace);
-            LOGGER.info("CND Patterns: {}", cndResourcesPatterns);
-            LOGGER.info("YAML Patterns: {}", yamlResourcesPatterns);
-            if (!additionalRepositoryModules.isEmpty()) {
-                LOGGER.info("Additional Repository Modules: {}", additionalRepositoryModules);
-            }
-            LOGGER.info("========================================");
+            LOG.debug("Initializing ConfigServiceRepository for project: {}", projectNamespace);
 
             session = this.login(new SimpleCredentials("admin", "admin".toCharArray()));
 
-            // Step 1: Register CNDs (parent method)
             currentStep = "CND registration";
-            LOGGER.info("Step 1: Registering CND node types");
             try {
                 registerCnds(session, cndResourcesPatterns);
-                LOGGER.info("Step 1 complete - {} CND patterns registered", cndResourcesPatterns.size());
             } catch (Exception e) {
                 throw new RepositoryException(buildStepFailureMessage(currentStep, cndResourcesPatterns,
                         "Ensure CND files exist at specified patterns and are valid CND syntax"), e);
             }
 
-            // Step 2: Bootstrap HST structure using ConfigService
             currentStep = "ConfigService HST bootstrap";
-            LOGGER.info("Step 2: Bootstrapping HST via ConfigService");
             try {
                 List<Path> moduleDescriptors = ProjectDiscovery.discoverRepositoryModuleDescriptors(
                     Paths.get(System.getProperty("user.dir")),
                     additionalRepositoryModules
                 );
-                LOGGER.info("Discovered {} HCM module descriptor(s)", moduleDescriptors.size());
 
                 if (moduleDescriptors.isEmpty()) {
                     throw new RepositoryException(
@@ -171,44 +151,36 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
                     Thread.currentThread().getContextClassLoader()
                 );
                 bootstrapStrategy.initializeHstStructure(session, projectNamespace, context);
-                LOGGER.info("Step 2 complete - HST structure created");
             } catch (Exception e) {
                 throw new RepositoryException(buildStepFailureMessage(currentStep, yamlResourcesPatterns,
                         "Check that hcm-module.yaml and HST configuration YAML files exist and are valid"), e);
             }
 
-            // Step 3: Import YAML content (parent method)
             currentStep = "YAML resource import";
-            LOGGER.info("Step 3: Importing YAML resources");
             try {
                 importYamlResources(session, yamlResourcesPatterns);
-                LOGGER.info("Step 3 complete - {} YAML patterns imported", yamlResourcesPatterns.size());
             } catch (Exception e) {
                 throw new RepositoryException(buildStepFailureMessage(currentStep, yamlResourcesPatterns,
                         "Verify YAML files are well-formed and contain valid JCR content structure"), e);
             }
 
-            // Step 4: Recalculate hippo paths (parent method)
             currentStep = "hippo paths recalculation";
-            LOGGER.info("Step 4: Recalculating hippo paths");
             try {
-                recalculateHippoPathsIfExists("/content", session);
-                LOGGER.info("Step 4 complete");
+                if (session.getRootNode().hasNode("content")) {
+                    recalculateHippoPaths("/content");
+                }
             } catch (Exception e) {
-                LOGGER.warn("Path recalculation failed (non-fatal): {}", e.getMessage());
+                LOG.warn("Path recalculation failed (non-fatal): {}", e.getMessage());
             }
 
-            LOGGER.info("========================================");
-            LOGGER.info("ConfigServiceRepository initialization COMPLETE");
-            LOGGER.info("========================================");
+            currentStep = "content path setup";
+            ensureContentPaths(session);
+
+            LOG.info("ConfigServiceRepository initialized for project: {}", projectNamespace);
 
         } catch (RepositoryException e) {
-            LOGGER.error("========================================");
-            LOGGER.error("ConfigServiceRepository initialization FAILED");
-            LOGGER.error("Failed during: {}", currentStep);
-            LOGGER.error("========================================", e);
-            throw new RuntimeException("ConfigServiceRepository initialization failed during " + currentStep +
-                    ". See error details above.", e);
+            LOG.error("ConfigServiceRepository failed during {}: {}", currentStep, e.getMessage());
+            throw new RuntimeException("ConfigServiceRepository initialization failed during " + currentStep, e);
         } finally {
             if (session != null && session.isLive()) {
                 session.logout();
@@ -218,39 +190,36 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
 
     private String buildStepFailureMessage(String step, List<String> patterns, String suggestion) {
         return String.format(
-            "Step failed: %s\n\n" +
-            "Patterns attempted:\n  %s\n\n" +
-            "To fix:\n  %s",
+            "Step failed: %s%n%n" +
+            "Patterns attempted:%n  %s%n%n" +
+            "To fix:%n  %s",
             step,
             String.join("\n  ", patterns),
             suggestion
         );
     }
 
-    /**
-     * Helper to import YAML resources (mirrors parent private method).
-     */
     private void importYamlResources(Session session, List<String> yamlResourcePatterns) throws RepositoryException {
         try {
             int totalResources = 0;
             for (String yamlResourcePattern : yamlResourcePatterns) {
                 Resource[] resources = resolveResourcePattern(yamlResourcePattern);
-                LOGGER.debug("Pattern '{}' matched {} resource(s)", yamlResourcePattern, resources.length);
+                LOG.debug("Pattern '{}' matched {} resource(s)", yamlResourcePattern, resources.length);
                 for (Resource resource : resources) {
                     try {
-                        LOGGER.debug("Importing YAML: {}", resource.getFilename());
+                        LOG.debug("Importing YAML: {}", resource.getFilename());
                         ImporterUtils.importYaml(resource.getURL(), session.getRootNode(),
                                 "", "hippostd:folder");
                         totalResources++;
                     } catch (Exception e) {
                         throw new RepositoryException(
-                            String.format("Failed to import YAML resource: %s\nPattern: %s\nCause: %s",
+                            String.format("Failed to import YAML resource: %s%nPattern: %s%nCause: %s",
                                     resource.getFilename(), yamlResourcePattern, e.getMessage()), e);
                     }
                 }
             }
             session.save();
-            LOGGER.debug("Successfully imported {} YAML resource(s)", totalResources);
+            LOG.debug("Successfully imported {} YAML resource(s)", totalResources);
         } catch (RepositoryException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -259,121 +228,63 @@ public class ConfigServiceRepository extends BrxmTestingRepository {
     }
 
     /**
-     * Helper to register CNDs (from SkeletonRepository).
+     * Ensures that hst:content paths in HST site configurations exist in JCR.
+     * Creates stub folders for any missing content paths to support getSiteContentBaseBean().
      */
-    private void registerCnds(Session session, List<String> cndResourcesPatterns) throws RepositoryException {
-        for (String cndResourcePattern : cndResourcesPatterns) {
-            registerNamespaces(session, resolveResourcePattern(cndResourcePattern));
-        }
-    }
-
-    /**
-     * Helper to register namespaces from CND resources (from SkeletonRepository).
-     */
-    private void registerNamespaces(Session session, Resource[] cndResources) throws RepositoryException {
-        for (Resource cndResource : cndResources) {
-            try {
-                LOGGER.debug("Registering CND: {}", cndResource.getFilename());
-                NodeType[] nodeTypes = CndImporter.registerNodeTypes(new InputStreamReader(cndResource.getInputStream()), session);
-                LOGGER.debug("Registered {} node type(s) from {}", nodeTypes.length, cndResource.getFilename());
-                for (NodeType nt : nodeTypes) {
-                    LOGGER.debug("  - {}", nt.getName());
+    private void ensureContentPaths(Session session) {
+        try {
+            // Check project-specific HST root and fallback to /hst:hst
+            String projectHstRoot = "/hst:" + projectNamespace;
+            String[] hstRoots = {projectHstRoot, "/hst:hst"};
+            for (String hstRoot : hstRoots) {
+                if (session.nodeExists(hstRoot)) {
+                    ensureContentPathsUnder(session, session.getNode(hstRoot));
                 }
-            } catch (Exception e) {
-                throw new RepositoryException(
-                    String.format("Failed to register CND file: %s\nCause: %s\n\n" +
-                            "To fix:\n  Verify CND file syntax is valid and readable",
-                            cndResource.getFilename(), e.getMessage()), e);
-            }
-        }
-    }
-
-    /**
-     * Helper to resolve resource patterns (mirrors parent private method).
-     */
-    private Resource[] resolveResourcePattern(String pattern) throws RepositoryException {
-        try {
-            ClassLoader cl = this.getClass().getClassLoader();
-            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-            return resolver.getResources(pattern);
-        } catch (Exception e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    /**
-     * Helper to recalculate paths only if node exists (from SkeletonRepository).
-     */
-    private void recalculateHippoPathsIfExists(String absolutePath, Session session) {
-        try {
-            if (session.getRootNode().hasNode(absolutePath.substring(1))) {
-                recalculateHippoPaths(absolutePath);
-                LOGGER.info("Recalculated hippo paths for: {}", absolutePath);
-            } else {
-                LOGGER.debug("Skipping path recalculation: {} node does not exist", absolutePath);
             }
         } catch (RepositoryException e) {
-            LOGGER.warn("Failed to check if {} exists: {}", absolutePath, e.getMessage());
+            LOG.debug("Content path setup skipped: {}", e.getMessage());
+        }
+    }
+
+    private void ensureContentPathsUnder(Session session, Node node) throws RepositoryException {
+        if (node.hasProperty(HST_CONTENT_PROPERTY)) {
+            Property contentProp = node.getProperty(HST_CONTENT_PROPERTY);
+            String contentPath = contentProp.getString();
+            if (contentPath != null && !contentPath.isEmpty()) {
+                String absolutePath = contentPath.startsWith("/") ? contentPath : "/" + contentPath;
+                if (!session.nodeExists(absolutePath)) {
+                    ensureContentPath(session, absolutePath);
+                    LOG.info("Created stub content folder at '{}' for HST config '{}'",
+                            absolutePath, node.getPath());
+                }
+            }
+        }
+        // Recurse into child nodes
+        for (NodeIterator children = node.getNodes(); children.hasNext(); ) {
+            ensureContentPathsUnder(session, children.nextNode());
         }
     }
 
     /**
-     * Recalculates hippo paths (from SkeletonRepository).
+     * Creates a stub content folder at the given path, ensuring all parent folders exist.
      */
-    private void recalculateHippoPaths(String absolutePath) {
-        Session session = null;
-        try {
-            session = this.login(new SimpleCredentials("admin", "admin".toCharArray()));
-            Node rootNode = session.getRootNode();
-            Node node = rootNode.getNode(absolutePath.substring(1));
-            calculateHippoPaths(node, getPathsForNode(node, rootNode));
-            session.save();
-        } catch (RepositoryException e) {
-            throw new RuntimeRepositoryException(e);
-        } finally {
-            if (session != null && session.isLive()) {
-                session.logout();
+    private void ensureContentPath(Session session, String path) throws RepositoryException {
+        String[] segments = path.substring(1).split("/");
+        Node current = session.getRootNode();
+
+        for (String segment : segments) {
+            if (segment.isEmpty()) {
+                continue;
             }
-        }
-    }
-
-    private LinkedList<String> getPathsForNode(Node node, Node rootNode) throws RepositoryException {
-        LinkedList<String> paths = new LinkedList<>();
-        Node parentNode = node;
-        do {
-            parentNode = parentNode.getParent();
-            paths.add(parentNode.getIdentifier());
-        } while (!parentNode.isSame(rootNode));
-        return paths;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void calculateHippoPaths(Node node, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, node.getIdentifier());
-        setHippoPath(node, paths);
-        for (NodeIterator nodes = node.getNodes(); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            if (!subnode.isNodeType("hippo:handle")) {
-                if (!subnode.isNodeType("hippotranslation:translations")) {
-                    calculateHippoPaths(subnode, (LinkedList<String>) paths.clone());
-                }
+            if (current.hasNode(segment)) {
+                current = current.getNode(segment);
             } else {
-                setHandleHippoPaths(subnode, (LinkedList<String>) paths.clone());
+                current = current.addNode(segment, "hippostd:folder");
+                if (current.canAddMixin("mix:referenceable")) {
+                    current.addMixin("mix:referenceable");
+                }
             }
         }
-    }
-
-    private void setHippoPath(Node node, LinkedList<String> paths) throws RepositoryException {
-        node.setProperty(HIPPO_PATHS, paths.toArray(new String[0]));
-    }
-
-    private void setHandleHippoPaths(Node handle, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, handle.getIdentifier());
-        for (NodeIterator nodes = handle.getNodes(handle.getName()); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            paths.add(0, subnode.getIdentifier());
-            setHippoPath(subnode, paths);
-            paths.remove(0);
-        }
+        session.save();
     }
 }

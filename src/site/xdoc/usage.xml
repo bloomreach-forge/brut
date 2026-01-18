@@ -103,7 +103,7 @@ public class JaxrsTest {
           <li>Native JUnit 5 support</li>
         </ul>
 
-        <p><strong>See also:</strong> <a href="https://github.com/bloomreach-forge/brut/blob/master/docs/migration-5.1.0.md">Migration Guide</a></p>
+        <p><strong>See also:</strong> <a href="quick-reference.html">Quick Reference Guide</a></p>
       </subsection>
 
       <subsection name="Production-Parity Configuration">

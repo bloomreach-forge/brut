@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.NamespaceException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.ItemExistsException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -31,8 +30,6 @@ import javax.jcr.nodetype.PropertyDefinition;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -124,15 +121,9 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
     @Override
     public void initializeHstStructure(Session session, String projectNamespace,
                                       BootstrapContext context) throws RepositoryException {
-        LOG.info("========================================");
-        LOG.info("Using ConfigurationConfigService bootstrap strategy");
-        LOG.info("Project Namespace: {}", projectNamespace);
-        LOG.info("========================================");
+        LOG.debug("ConfigService bootstrap starting for project: {}", projectNamespace);
 
         try {
-            // Load test modules EXPLICITLY by path (NO classpath scanning)
-            // This avoids discovering framework modules that have dependency conflicts
-            LOG.info("Loading test modules explicitly (no classpath scanning)...");
             LoadedModules loadedModules = loadModulesExplicitly(context);
             ConfigurationModelImpl configModel = loadedModules.model;
             List<ModuleImpl> modules = loadedModules.modules;
@@ -141,28 +132,21 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             for (Object ignored : configModel.getModules()) {
                 moduleCount++;
             }
-            LOG.info("Successfully loaded {} test module(s) explicitly", moduleCount);
+            LOG.debug("Loaded {} HCM module(s)", moduleCount);
             if (moduleCount == 0) {
                 throw new RepositoryException("No HCM modules found for ConfigService bootstrap. " +
                     "Ensure hcm-module.yaml is available on the classpath or filesystem.");
             }
 
-            // Create empty baseline (first boot scenario)
-            LOG.debug("Creating empty baseline for first-boot scenario");
             ConfigurationModelImpl baseline;
             try (ConfigurationModelImpl emptyModel = new ConfigurationModelImpl()) {
                 baseline = emptyModel.build();
             }
 
-            // Apply configuration via ConfigService using reflection
-            LOG.debug("Instantiating ConfigurationConfigService");
             ConfigurationConfigService configService = new ConfigurationConfigService();
 
-            LOG.info("Applying namespaces and node types via reflection...");
-            invokeApplyNamespacesAndNodeTypes(configService, baseline, configModel, session);
-
-            LOG.info("Computing and writing configuration delta via reflection...");
-            applyConfigDeltaWithRetries(configService, baseline, configModel, session);
+            ConfigServiceReflectionBridge.invokeApplyNamespacesAndNodeTypes(configService, baseline, configModel, session);
+            ConfigServiceReflectionBridge.applyConfigDeltaWithRetries(configService, baseline, configModel, session);
 
             ensureMandatoryConfigChildren(session);
             ensureSelectionNamespace(session);
@@ -173,15 +157,10 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             ensureMissingStateSummaries(session);
             session.save();
 
-            LOG.info("========================================");
-            LOG.info("ConfigurationConfigService bootstrap completed successfully");
-            LOG.info("HST configuration structure created via production code path");
-            LOG.info("========================================");
+            LOG.info("ConfigService bootstrap completed for project: {}", projectNamespace);
 
         } catch (Exception e) {
-            LOG.error("========================================");
-            LOG.error("ConfigurationConfigService bootstrap FAILED");
-            LOG.error("========================================", e);
+            LOG.error("ConfigService bootstrap failed for project: {}", projectNamespace, e);
             throw new RepositoryException("Failed to bootstrap using ConfigurationConfigService", e);
         }
     }
@@ -345,363 +324,11 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
         Node standardRoot = session.getNode(standardHstRoot);
 
-        syncProjectSite(standardRoot, projectRoot, projectHstRoot);
-        syncProjectConfiguration(standardRoot, projectRoot, projectHstRoot);
-        syncProjectHosts(standardRoot, projectRoot, projectHstRoot);
+        JcrNodeSynchronizer.syncProjectSite(standardRoot, projectRoot, projectHstRoot);
+        JcrNodeSynchronizer.syncProjectConfiguration(standardRoot, projectRoot, projectHstRoot);
+        JcrNodeSynchronizer.syncProjectHosts(standardRoot, projectRoot, projectHstRoot);
 
         LOG.info("Project-specific HST root {} synced successfully", projectHstRoot);
-    }
-
-    private void copySiteNode(Node source, Node parent, String name) throws RepositoryException {
-        Node site = parent.addNode(name, source.getPrimaryNodeType().getName());
-
-        for (javax.jcr.PropertyIterator props = source.getProperties(); props.hasNext(); ) {
-            javax.jcr.Property prop = props.nextProperty();
-            if (!prop.getDefinition().isProtected()) {
-                if (prop.isMultiple()) {
-                    site.setProperty(prop.getName(), prop.getValues());
-                } else {
-                    site.setProperty(prop.getName(), prop.getValue());
-                }
-            }
-        }
-
-        for (NodeIterator children = source.getNodes(); children.hasNext(); ) {
-            Node child = children.nextNode();
-            copyNodeRecursively(child, site);
-        }
-    }
-
-    private void copyConfigurationNode(Node source, Node parent, String name) throws RepositoryException {
-        Node config = parent.addNode(name, source.getPrimaryNodeType().getName());
-
-        for (javax.jcr.PropertyIterator props = source.getProperties(); props.hasNext(); ) {
-            javax.jcr.Property prop = props.nextProperty();
-            if (!prop.getDefinition().isProtected()) {
-                if (prop.isMultiple()) {
-                    config.setProperty(prop.getName(), prop.getValues());
-                } else {
-                    config.setProperty(prop.getName(), prop.getValue());
-                }
-            }
-        }
-
-        for (NodeIterator children = source.getNodes(); children.hasNext(); ) {
-            Node child = children.nextNode();
-            copyNodeRecursively(child, config);
-        }
-    }
-
-    private void syncProjectSite(Node standardRoot,
-                                 Node projectRoot,
-                                 String projectHstRoot) throws RepositoryException {
-        if (!standardRoot.hasNode("hst:sites")) {
-            return;
-        }
-        Node standardSites = standardRoot.getNode("hst:sites");
-        Node projectSites = getOrAddChild(projectRoot, "hst:sites", "hst:sites");
-
-        List<String> orderedChildren = new ArrayList<>();
-        for (NodeIterator children = standardSites.getNodes(); children.hasNext(); ) {
-            Node sourceSite = children.nextNode();
-            orderedChildren.add(sourceSite.getName());
-            if (projectSites.hasNode(sourceSite.getName())) {
-                Node targetSite = projectSites.getNode(sourceSite.getName());
-                if (!sourceSite.getPrimaryNodeType().getName().equals(targetSite.getPrimaryNodeType().getName())) {
-                    LOG.warn("Replacing site {} due to primary type mismatch (source {}, target {})",
-                        sourceSite.getPath(),
-                        sourceSite.getPrimaryNodeType().getName(),
-                        targetSite.getPrimaryNodeType().getName());
-                    targetSite.remove();
-                    copyNodeRecursively(sourceSite, projectSites);
-                    continue;
-                }
-                syncNodeRecursively(sourceSite, targetSite);
-            } else {
-                copyNodeRecursively(sourceSite, projectSites);
-            }
-        }
-
-        if (projectSites.getPrimaryNodeType().hasOrderableChildNodes()) {
-            for (String childName : orderedChildren) {
-                if (projectSites.hasNode(childName)) {
-                    projectSites.orderBefore(childName, null);
-                }
-            }
-        }
-
-        if (!orderedChildren.isEmpty()) {
-            LOG.info("Synced {} site(s) at {}/hst:sites", orderedChildren.size(), projectHstRoot);
-        }
-    }
-
-    private void syncProjectConfiguration(Node standardRoot,
-                                          Node projectRoot,
-                                          String projectHstRoot) throws RepositoryException {
-        if (!standardRoot.hasNode("hst:configurations")) {
-            return;
-        }
-        Node standardConfigs = standardRoot.getNode("hst:configurations");
-        Node projectConfigs = getOrAddChild(projectRoot, "hst:configurations", "hst:configurations");
-
-        List<String> orderedChildren = new ArrayList<>();
-        for (NodeIterator children = standardConfigs.getNodes(); children.hasNext(); ) {
-            Node sourceConfig = children.nextNode();
-            orderedChildren.add(sourceConfig.getName());
-            if (projectConfigs.hasNode(sourceConfig.getName())) {
-                Node targetConfig = projectConfigs.getNode(sourceConfig.getName());
-                if (!sourceConfig.getPrimaryNodeType().getName().equals(targetConfig.getPrimaryNodeType().getName())) {
-                    LOG.warn("Replacing configuration {} due to primary type mismatch (source {}, target {})",
-                        sourceConfig.getPath(),
-                        sourceConfig.getPrimaryNodeType().getName(),
-                        targetConfig.getPrimaryNodeType().getName());
-                    targetConfig.remove();
-                    copyNodeRecursively(sourceConfig, projectConfigs);
-                    continue;
-                }
-                syncNodeRecursively(sourceConfig, targetConfig);
-            } else {
-                copyNodeRecursively(sourceConfig, projectConfigs);
-            }
-        }
-
-        if (projectConfigs.getPrimaryNodeType().hasOrderableChildNodes()) {
-            for (String childName : orderedChildren) {
-                if (projectConfigs.hasNode(childName)) {
-                    projectConfigs.orderBefore(childName, null);
-                }
-            }
-        }
-
-        if (!orderedChildren.isEmpty()) {
-            LOG.info("Synced {} configuration(s) at {}/hst:configurations", orderedChildren.size(), projectHstRoot);
-        }
-    }
-
-    private void syncProjectHosts(Node standardRoot,
-                                  Node projectRoot,
-                                  String projectHstRoot) throws RepositoryException {
-        if (!standardRoot.hasNode("hst:hosts")) {
-            return;
-        }
-        Node sourceHosts = standardRoot.getNode("hst:hosts");
-        if (projectRoot.hasNode("hst:hosts")) {
-            syncNodeRecursively(sourceHosts, projectRoot.getNode("hst:hosts"));
-        } else {
-            copyNodeRecursively(sourceHosts, projectRoot);
-        }
-        LOG.info("Synced project hosts at {}/hst:hosts", projectHstRoot);
-    }
-
-    private Node getOrAddChild(Node parent, String name, String primaryType) throws RepositoryException {
-        if (parent.hasNode(name)) {
-            return parent.getNode(name);
-        }
-        return parent.addNode(name, primaryType);
-    }
-
-    private void syncNodeRecursively(Node source, Node target) throws RepositoryException {
-        for (NodeType mixin : source.getMixinNodeTypes()) {
-            if (!target.isNodeType(mixin.getName())) {
-                target.addMixin(mixin.getName());
-            }
-        }
-
-        for (javax.jcr.PropertyIterator props = source.getProperties(); props.hasNext(); ) {
-            javax.jcr.Property prop = props.nextProperty();
-            if (prop.getDefinition().isProtected()) {
-                continue;
-            }
-            if (prop.isMultiple()) {
-                target.setProperty(prop.getName(), prop.getValues());
-            } else {
-                target.setProperty(prop.getName(), prop.getValue());
-            }
-        }
-
-        List<String> orderedChildren = new ArrayList<>();
-        for (NodeIterator children = source.getNodes(); children.hasNext(); ) {
-            Node child = children.nextNode();
-            orderedChildren.add(child.getName());
-            if (target.hasNode(child.getName())) {
-                Node targetChild = target.getNode(child.getName());
-                if (!child.getPrimaryNodeType().getName().equals(targetChild.getPrimaryNodeType().getName())) {
-                    LOG.warn("Replacing {} due to primary type mismatch (source {}, target {})",
-                        child.getPath(),
-                        child.getPrimaryNodeType().getName(),
-                        targetChild.getPrimaryNodeType().getName());
-                    Node parent = targetChild.getParent();
-                    targetChild.remove();
-                    copyNodeRecursively(child, parent);
-                    continue;
-                }
-                syncNodeRecursively(child, targetChild);
-            } else {
-                copyNodeRecursively(child, target);
-            }
-        }
-
-        if (target.getPrimaryNodeType().hasOrderableChildNodes()) {
-            for (String childName : orderedChildren) {
-                if (target.hasNode(childName)) {
-                    target.orderBefore(childName, null);
-                }
-            }
-        }
-    }
-
-    private void copyNodeRecursively(Node source, Node parent) throws RepositoryException {
-        Node copy = parent.addNode(source.getName(), source.getPrimaryNodeType().getName());
-
-        for (NodeType mixin : source.getMixinNodeTypes()) {
-            copy.addMixin(mixin.getName());
-        }
-
-        for (javax.jcr.PropertyIterator props = source.getProperties(); props.hasNext(); ) {
-            javax.jcr.Property prop = props.nextProperty();
-            if (!prop.getDefinition().isProtected()) {
-                if (prop.isMultiple()) {
-                    copy.setProperty(prop.getName(), prop.getValues());
-                } else {
-                    copy.setProperty(prop.getName(), prop.getValue());
-                }
-            }
-        }
-
-        for (NodeIterator children = source.getNodes(); children.hasNext(); ) {
-            Node child = children.nextNode();
-            copyNodeRecursively(child, copy);
-        }
-    }
-
-    /**
-     * Invokes package-private applyNamespacesAndNodeTypes method via reflection.
-     * <p>
-     * Method signature: void applyNamespacesAndNodeTypes(ConfigurationModel baseline,
-     *                                                     ConfigurationModel update,
-     *                                                     Session session)
-     */
-    private void invokeApplyNamespacesAndNodeTypes(ConfigurationConfigService configService,
-                                                   ConfigurationModelImpl baseline,
-                                                   ConfigurationModelImpl update,
-                                                   Session session) throws Exception {
-        try {
-            Method method = ConfigurationConfigService.class.getDeclaredMethod(
-                "applyNamespacesAndNodeTypes",
-                org.onehippo.cm.model.ConfigurationModel.class,
-                org.onehippo.cm.model.ConfigurationModel.class,
-                Session.class
-            );
-            method.setAccessible(true);
-            method.invoke(configService, baseline, update, session);
-            method.setAccessible(false);
-
-            LOG.debug("Successfully invoked applyNamespacesAndNodeTypes via reflection");
-        } catch (Exception e) {
-            LOG.error("Failed to invoke applyNamespacesAndNodeTypes via reflection", e);
-            throw new RepositoryException("Reflection invocation failed for applyNamespacesAndNodeTypes", e);
-        }
-    }
-
-    /**
-     * Invokes package-private computeAndWriteDelta method via reflection.
-     * <p>
-     * Method signature: void computeAndWriteDelta(ConfigurationModel baseline,
-     *                                             ConfigurationModel update,
-     *                                             Session session,
-     *                                             boolean forceApply)
-     */
-    private void invokeComputeAndWriteDelta(ConfigurationConfigService configService,
-                                           ConfigurationModelImpl baseline,
-                                           ConfigurationModelImpl update,
-                                           Session session,
-                                           boolean forceApply) throws Exception {
-        try {
-            Method method = ConfigurationConfigService.class.getDeclaredMethod(
-                "computeAndWriteDelta",
-                org.onehippo.cm.model.ConfigurationModel.class,
-                org.onehippo.cm.model.ConfigurationModel.class,
-                Session.class,
-                boolean.class
-            );
-            method.setAccessible(true);
-            method.invoke(configService, baseline, update, session, forceApply);
-            method.setAccessible(false);
-
-            LOG.debug("Successfully invoked computeAndWriteDelta via reflection");
-        } catch (Exception e) {
-            LOG.error("Failed to invoke computeAndWriteDelta via reflection", e);
-            throw new RepositoryException("Reflection invocation failed for computeAndWriteDelta", e);
-        }
-    }
-
-    private void applyConfigDeltaWithRetries(ConfigurationConfigService configService,
-                                             ConfigurationModelImpl baseline,
-                                             ConfigurationModelImpl update,
-                                             Session session) throws RepositoryException {
-        Set<String> removedPaths = new HashSet<>();
-        int attempts = 0;
-        while (true) {
-            try {
-                invokeComputeAndWriteDelta(configService, baseline, update, session, true);
-                return;
-            } catch (RepositoryException e) {
-                String existingPath = extractItemExistsPath(e);
-                if (existingPath == null || removedPaths.contains(existingPath) || attempts >= MAX_ITEM_EXISTS_RETRIES) {
-                    throw e;
-                }
-                session.refresh(false);
-                if (!removeExistingNode(session, existingPath)) {
-                    throw e;
-                }
-                removedPaths.add(existingPath);
-                attempts++;
-                LOG.warn("Removed existing node {} after ItemExistsException; retrying ConfigService delta.", existingPath);
-            } catch (Exception e) {
-                throw new RepositoryException("Failed to compute configuration delta", e);
-            }
-        }
-    }
-
-    private String extractItemExistsPath(Throwable error) {
-        ItemExistsException itemExists = findItemExistsException(error);
-        if (itemExists == null) {
-            return null;
-        }
-        String message = itemExists.getMessage();
-        if (message == null) {
-            return null;
-        }
-        String marker = "exists:";
-        int start = message.indexOf(marker);
-        if (start < 0) {
-            return null;
-        }
-        String path = message.substring(start + marker.length()).trim();
-        return path.isEmpty() ? null : path;
-    }
-
-    private ItemExistsException findItemExistsException(Throwable error) {
-        Throwable current = error;
-        while (current != null) {
-            if (current instanceof ItemExistsException) {
-                return (ItemExistsException) current;
-            }
-            current = current.getCause();
-        }
-        return null;
-    }
-
-    private boolean removeExistingNode(Session session, String path) throws RepositoryException {
-        if (path == null || !path.startsWith("/") || !session.nodeExists(path)) {
-            return false;
-        }
-        Node node = session.getNode(path);
-        if (node.getDepth() == 0) {
-            return false;
-        }
-        node.remove();
-        return true;
     }
 
     @Override
@@ -1346,9 +973,9 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
                 if (stubNamespaces) {
                     NamespaceException nsEx = findCause(e, NamespaceException.class);
                     if (nsEx != null) {
-                        String prefix = extractNamespacePrefix(nsEx.getMessage());
+                        String prefix = RuntimeTypeStubber.extractNamespacePrefix(nsEx.getMessage());
                         if (prefix != null && stubbedNamespaces.add(prefix)) {
-                            registerStubNamespace(session, prefix);
+                            RuntimeTypeStubber.registerStubNamespace(session, prefix);
                             continue;
                         }
                     }
@@ -1357,9 +984,9 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
                 if (stubNodeTypes) {
                     NoSuchNodeTypeException ntEx = findCause(e, NoSuchNodeTypeException.class);
                     if (ntEx != null) {
-                        String nodeType = extractNodeType(ntEx.getMessage());
+                        String nodeType = RuntimeTypeStubber.extractNodeType(ntEx.getMessage());
                         if (nodeType != null && stubbedNodeTypes.add(nodeType)) {
-                            registerStubNodeType(session, nodeType, stubbedNamespaces);
+                            RuntimeTypeStubber.registerStubNodeType(session, nodeType, stubbedNamespaces);
                             continue;
                         }
                     }
@@ -1382,162 +1009,6 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             current = current.getCause();
         }
         return null;
-    }
-
-    private String extractNamespacePrefix(String message) {
-        if (message == null) {
-            return null;
-        }
-        int colonIdx = message.indexOf(':');
-        if (colonIdx > 0 && colonIdx < 50) {
-            return message.substring(0, colonIdx).trim();
-        }
-        return null;
-    }
-
-    private void registerStubNamespace(Session session, String prefix) throws RepositoryException {
-        String uri = "urn:brut:stub:" + prefix;
-        try {
-            session.getWorkspace().getNamespaceRegistry().registerNamespace(prefix, uri);
-            LOG.warn("Stubbed missing namespace '{}' -> '{}' for delivery-tier tests. " +
-                "Disable with -D{}=false", prefix, uri, STUB_MISSING_NAMESPACES_PROPERTY);
-        } catch (NamespaceException e) {
-            LOG.debug("Namespace '{}' already registered or conflict: {}", prefix, e.getMessage());
-        }
-    }
-
-    private String extractNodeType(String message) {
-        if (message == null) {
-            return null;
-        }
-
-        // Handle expanded URI format: {http://...}localName
-        int braceStart = message.indexOf('{');
-        int braceEnd = message.indexOf('}', braceStart + 1);
-        if (braceStart >= 0 && braceEnd > braceStart) {
-            String uri = message.substring(braceStart + 1, braceEnd);
-            int localEnd = braceEnd + 1;
-            while (localEnd < message.length() && !Character.isWhitespace(message.charAt(localEnd))) {
-                localEnd++;
-            }
-            String localName = message.substring(braceEnd + 1, localEnd);
-            if (!localName.isEmpty() && isValidNCName(localName)) {
-                return "{" + uri + "}" + localName;
-            }
-        }
-
-        // Handle prefix:localName format
-        int colonIdx = message.indexOf(':');
-        if (colonIdx > 0) {
-            int start = message.lastIndexOf(' ', colonIdx);
-            String candidate = message.substring(start < 0 ? 0 : start + 1).trim();
-            if (candidate.contains(":")) {
-                int end = candidate.indexOf(' ');
-                String nodeType = end > 0 ? candidate.substring(0, end) : candidate;
-                if (isValidPrefixedNodeTypeName(nodeType)) {
-                    return nodeType;
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean isValidPrefixedNodeTypeName(String name) {
-        if (name == null || name.isEmpty()) {
-            return false;
-        }
-        int colonIdx = name.indexOf(':');
-        if (colonIdx <= 0 || colonIdx == name.length() - 1) {
-            return false;
-        }
-        String prefix = name.substring(0, colonIdx);
-        String localName = name.substring(colonIdx + 1);
-        return isValidNCName(prefix) && isValidNCName(localName);
-    }
-
-    private boolean isValidNCName(String name) {
-        if (name == null || name.isEmpty()) {
-            return false;
-        }
-        char first = name.charAt(0);
-        if (!Character.isLetter(first) && first != '_') {
-            return false;
-        }
-        for (int i = 1; i < name.length(); i++) {
-            char c = name.charAt(i);
-            if (!Character.isLetterOrDigit(c) && c != '_' && c != '-' && c != '.') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void registerStubNodeType(Session session, String nodeType, Set<String> stubbedNamespaces)
-            throws RepositoryException {
-        String prefix;
-        String uri;
-        String localName;
-        String qualifiedName;
-
-        // Handle expanded URI format: {uri}localName
-        if (nodeType.startsWith("{")) {
-            int braceEnd = nodeType.indexOf('}');
-            if (braceEnd <= 1) {
-                return;
-            }
-            uri = nodeType.substring(1, braceEnd);
-            localName = nodeType.substring(braceEnd + 1);
-            prefix = derivePrefixFromUri(uri);
-            qualifiedName = prefix + ":" + localName;
-        } else {
-            // Handle prefix:localName format
-            int colonIdx = nodeType.indexOf(':');
-            if (colonIdx <= 0) {
-                return;
-            }
-            prefix = nodeType.substring(0, colonIdx);
-            localName = nodeType.substring(colonIdx + 1);
-            uri = "urn:brut:stub:" + prefix;
-            qualifiedName = nodeType;
-        }
-
-        try {
-            session.getNamespaceURI(prefix);
-        } catch (NamespaceException e) {
-            session.getWorkspace().getNamespaceRegistry().registerNamespace(prefix, uri);
-            stubbedNamespaces.add(prefix);
-        }
-
-        String cnd = String.format(
-            "<%s='%s'>\n[%s] > nt:base\n  - * (UNDEFINED) multiple\n  + * (nt:base) = nt:base sns",
-            prefix, uri, qualifiedName);
-
-        try {
-            CndImporter.registerNodeTypes(new StringReader(cnd), session);
-            LOG.warn("Stubbed missing node type '{}' for delivery-tier tests. " +
-                "Disable with -D{}=false", qualifiedName, STUB_MISSING_NODE_TYPES_PROPERTY);
-        } catch (Exception e) {
-            LOG.debug("Failed to register stub node type '{}': {}", qualifiedName, e.getMessage());
-        }
-    }
-
-    private String derivePrefixFromUri(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return "stub";
-        }
-        // Extract meaningful segment from URI like http://www.onehippo.org/jcr/hippofacnav/nt/1.0.1
-        // Try to find a segment that looks like a namespace prefix
-        String[] segments = uri.split("/");
-        for (int i = segments.length - 1; i >= 0; i--) {
-            String segment = segments[i];
-            if (segment.isEmpty() || segment.matches("\\d+\\.\\d+.*") || "nt".equals(segment)) {
-                continue;
-            }
-            if (isValidNCName(segment) && segment.length() <= 20) {
-                return segment;
-            }
-        }
-        return "stub" + Math.abs(uri.hashCode() % 10000);
     }
 
     private int contentPathDepth(ContentSource contentSource) {

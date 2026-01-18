@@ -170,7 +170,7 @@ ModuleReader automatically discovers:
 - `hcm-content/**/*.yaml` → Content
 - `namespaces/**/*.cnd` → Node types
 
-### ❌ Common Mistakes
+### Common Mistakes
 
 ```yaml
 # WRONG - config: key is invalid for ModuleReader
@@ -371,4 +371,4 @@ src/test/
 
 ## Version
 
-Available since: BRUT 5.1.0-SNAPSHOT
+Available since: BRUT 5.1.0
