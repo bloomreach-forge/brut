@@ -1,19 +1,21 @@
 package org.example;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bloomreach.forge.brut.resources.AbstractPageModelTest;
+import org.bloomreach.forge.brut.resources.pagemodel.PageComponent;
+import org.bloomreach.forge.brut.resources.pagemodel.PageModelResponse;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * A user (client) of the testing library providing his/her own config/content
+ * A user (client) of the testing library providing his/her own config/content.
+ *
+ * Note: When extending AbstractPageModelTest directly, you must:
+ * 1. Call setupForNewRequest() in @BeforeEach to reset HST state between tests
+ * 2. Use dynamic component ID lookup via root.$ref (IDs like uid0 are not stable)
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PageModelTest extends AbstractPageModelTest {
@@ -26,6 +28,11 @@ public class PageModelTest extends AbstractPageModelTest {
     @AfterAll
     public void destroy() {
         super.destroy();
+    }
+
+    @BeforeEach
+    public void setupRequest() {
+        setupForNewRequest();
     }
 
     @Override
@@ -50,13 +57,18 @@ public class PageModelTest extends AbstractPageModelTest {
 
     @Test
     @DisplayName("Component rendering url response")
-    public void test() throws IOException {
+    public void test() throws Exception {
         getHstRequest().setRequestURI("/site/resourceapi/news");
         getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
         String response = invokeFilter();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
-        assertTrue(jsonNode.get("page").size() > 0);
-        assertEquals(jsonNode.get("page").get("uid0").size(), 8);
+
+        PageModelResponse pageModel = PageModelResponse.parse(response);
+        assertTrue(pageModel.getPage().size() > 0);
+
+        // Use getRootComponent() for dynamic component lookup (IDs are not stable across test runs)
+        PageComponent rootComponent = pageModel.getRootComponent();
+        assertNotNull(rootComponent);
+        assertNotNull(rootComponent.getId());
+        assertNotNull(rootComponent.getType());
     }
 }

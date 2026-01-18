@@ -15,7 +15,9 @@
  */
 package org.bloomreach.forge.brut.resources.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bloomreach.forge.brut.resources.MockHstRequest;
+import org.bloomreach.forge.brut.resources.pagemodel.PageModelResponse;
 import org.hippoecm.hst.mock.core.request.MockHstRequestContext;
 
 import jakarta.ws.rs.HttpMethod;
@@ -162,6 +164,18 @@ public class RequestBuilder {
     public String execute() {
         applyQueryParams();
         return executor.invokeFilter();
+    }
+
+    /**
+     * Executes the request and parses the response as a PageModelResponse.
+     * Convenience method for PageModel API requests.
+     *
+     * @return parsed PageModelResponse
+     * @throws JsonProcessingException if JSON parsing fails
+     */
+    public PageModelResponse executeAsPageModel() throws JsonProcessingException {
+        String json = execute();
+        return PageModelResponse.parse(json);
     }
 
     /**

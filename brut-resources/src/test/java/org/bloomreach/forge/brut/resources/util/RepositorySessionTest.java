@@ -25,6 +25,7 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +82,7 @@ class RepositorySessionTest {
     @DisplayName("assertNodeExists() succeeds for existing node")
     void testAssertNodeExistsSuccess() throws Exception {
         // Create a test node first
-        Session session = repository.login(new javax.jcr.SimpleCredentials("admin", "admin".toCharArray()));
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         session.getRootNode().addNode("testnode", "nt:unstructured");
         session.save();
         session.logout();
@@ -127,7 +128,7 @@ class RepositorySessionTest {
     @DisplayName("getNode() returns NodeAssert for existing node")
     void testGetNode() throws Exception {
         // Create a test node
-        Session session = repository.login(new javax.jcr.SimpleCredentials("admin", "admin".toCharArray()));
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         Node testNode = session.getRootNode().addNode("testnode", "nt:unstructured");
         testNode.setProperty("testprop", "testvalue");
         session.save();
@@ -186,7 +187,7 @@ class RepositorySessionTest {
         }
 
         // Verify in new session
-        Session verifySession = repository.login(new javax.jcr.SimpleCredentials("admin", "admin".toCharArray()));
+        Session verifySession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         assertTrue(verifySession.nodeExists("/testnode"));
         verifySession.logout();
     }
@@ -282,7 +283,7 @@ class RepositorySessionTest {
     @DisplayName("getNode() and NodeAssert integration")
     void testGetNodeAndNodeAssert() throws Exception {
         // Setup test node with properties
-        Session session = repository.login(new javax.jcr.SimpleCredentials("admin", "admin".toCharArray()));
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         Node testNode = session.getRootNode().addNode("testnode", "nt:unstructured");
         testNode.setProperty("testprop", "testvalue");
         testNode.addNode("childnode", "nt:unstructured");

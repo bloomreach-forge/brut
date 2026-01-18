@@ -53,7 +53,7 @@ public class ImporterUtils {
             // Register the custom node types defined in the CND file, using JCR Commons CndImporter
             NodeType[] nodeTypes = CndImporter.registerNodeTypes(new InputStreamReader(cndResource), session);
             for (NodeType nodeType : nodeTypes) {
-                LOGGER.info("registered: {}", nodeType.getName());
+                LOGGER.debug("Registered node type: {}", nodeType.getName());
             }
         } catch (Exception e) {
             throw new RepositoryException(e);

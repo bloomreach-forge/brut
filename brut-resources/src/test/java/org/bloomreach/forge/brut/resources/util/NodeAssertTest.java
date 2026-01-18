@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +42,7 @@ class NodeAssertTest {
     void setUp() throws Exception {
         testRepository = new BrxmTestingRepository();
         repository = testRepository;
-        session = repository.login(new javax.jcr.SimpleCredentials("admin", "admin".toCharArray()));
+        session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
 
         // Create test node structure
         testNode = session.getRootNode().addNode("testnode", "nt:unstructured");

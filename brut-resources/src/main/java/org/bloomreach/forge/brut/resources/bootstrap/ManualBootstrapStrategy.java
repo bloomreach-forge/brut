@@ -40,30 +40,17 @@ public class ManualBootstrapStrategy implements JcrBootstrapStrategy {
     @Override
     public void initializeHstStructure(Session session, String projectNamespace,
                                       BootstrapContext context) throws RepositoryException {
-        LOG.info("========================================");
-        LOG.info("Using manual bootstrap strategy (minimal HST setup)");
-        LOG.info("Project Namespace: {}", projectNamespace);
-        LOG.info("========================================");
+        LOG.debug("Manual bootstrap (minimal HST setup) for project: {}", projectNamespace);
 
-        LOG.debug("No HST JCR structure will be created");
-        LOG.debug("Tests will rely on Spring/HST container setup without persistent JCR nodes");
-
-        // Check if HCM config patterns were provided (legacy approach)
         if (!context.getHcmConfigPatterns().isEmpty()) {
-            LOG.warn("HCM config patterns provided but manual strategy does not process them");
-            LOG.warn("Consider adding hcm-module.yaml to use ConfigServiceBootstrapStrategy instead");
+            LOG.warn("HCM config patterns provided but no hcm-module.yaml found - consider adding one");
         }
 
-        LOG.info("========================================");
-        LOG.info("Manual bootstrap strategy completed");
-        LOG.info("Note: No HST JCR nodes created (minimal setup)");
-        LOG.info("========================================");
+        LOG.info("Manual bootstrap completed (no HST JCR nodes created)");
     }
 
     @Override
     public boolean canHandle(BootstrapContext context) {
-        // Always returns true - this is the fallback strategy
-        LOG.debug("Manual bootstrap strategy can always handle as fallback");
         return true;
     }
 }

@@ -164,5 +164,10 @@
   <bean id="cleanupValve" parent="abstractValve" class="org.bloomreach.forge.brut.resources.BrutCleanupValve">
     <property name="valveName" value="cleanupValve"/>
   </bean>
+
+  <bean id="siteContentBaseResolverValve" parent="abstractValve"
+        class="org.bloomreach.forge.brut.resources.SiteContentBaseResolverValve">
+    <property name="valveName" value="siteContentBaseResolverValve"/>
+  </bean>
 </beans>
 
