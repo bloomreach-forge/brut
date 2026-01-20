@@ -1,6 +1,8 @@
 package org.bloomreach.forge.brut.components.annotation;
 
+import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.bloomreach.forge.brut.components.BaseComponentTest;
+import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 import org.bloomreach.forge.brut.components.mock.MockComponentManager;
 import org.hippoecm.hst.content.beans.standard.HippoBean;
 import org.hippoecm.hst.mock.core.component.MockHstRequest;
@@ -11,6 +13,7 @@ import org.hippoecm.hst.mock.core.request.MockResolvedSiteMapItem;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import java.net.URL;
 
 public class DynamicComponentTest extends BaseComponentTest {
 
@@ -105,5 +108,51 @@ public class DynamicComponentTest extends BaseComponentTest {
 
     public void setComponentParameters(Object parameterInfo) {
         setComponentParameterInfo(parameterInfo);
+    }
+
+    /**
+     * Register multiple node types at once.
+     * Wraps RepositoryException in SetupTeardownException for cleaner test code.
+     *
+     * @param nodeTypes varargs of node type names (e.g., "myproject:Article", "myproject:Author")
+     */
+    public void registerNodeTypes(String... nodeTypes) {
+        try {
+            for (String nodeType : nodeTypes) {
+                super.registerNodeType(nodeType);
+            }
+        } catch (RepositoryException e) {
+            throw new SetupTeardownException(e);
+        }
+    }
+
+    /**
+     * Import YAML content into the repository.
+     * Uses "hippostd:folder" as the default folder type.
+     *
+     * @param resourcePath classpath resource path (e.g., "/test-content.yaml")
+     * @param targetPath   target path in repository (e.g., "/content/documents")
+     */
+    public void importYaml(String resourcePath, String targetPath) {
+        importYaml(resourcePath, targetPath, "hippostd:folder");
+    }
+
+    /**
+     * Import YAML content into the repository with custom folder type.
+     *
+     * @param resourcePath classpath resource path (e.g., "/test-content.yaml")
+     * @param targetPath   target path in repository (e.g., "/content/documents")
+     * @param folderType   JCR node type for folders (e.g., "hippostd:folder")
+     */
+    public void importYaml(String resourcePath, String targetPath, String folderType) {
+        try {
+            URL resource = getClass().getResource(resourcePath);
+            if (resource == null) {
+                throw new IllegalArgumentException("Resource not found: " + resourcePath);
+            }
+            ImporterUtils.importYaml(resource, getRootNode(), targetPath, folderType);
+        } catch (Exception e) {
+            throw new SetupTeardownException(e);
+        }
     }
 }
