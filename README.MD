@@ -60,7 +60,7 @@ BRUT 5.1.0+ provides zero-config annotation-based testing with automatic setup a
 #### Page Model API Test
 ```java
 @BrxmPageModelTest(
-    beanPackages = {"org.example.beans"}
+    useConfigService = true  // Uses real HCM config from your project
 )
 public class MyPageModelTest {
     private DynamicPageModelTest brxm;
@@ -80,7 +80,6 @@ public class MyPageModelTest {
 #### JAX-RS REST API Test
 ```java
 @BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
     springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"}
 )
 public class MyJaxrsTest {
@@ -94,6 +93,8 @@ public class MyJaxrsTest {
     }
 }
 ```
+
+> **`useConfigService = true`** loads your project's real HCM configuration (HST sitemap, channels, content types, and CND definitions) into the test repository. Without it, BRUT uses minimal stub data sufficient for basic tests but lacking production routes and content structures. Enable this option for production-parity testing where your tests exercise actual HST pipelines and content paths.
 
 ### Key Features
 
