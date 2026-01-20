@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>BRUT Quick Reference Guide</title>
+  </properties>
+  <body>
+
+    <section name="Quick Reference Guide">
+
+      <subsection name="1. Add Dependency">
+        <div class="brush: xml">
+          <source><![CDATA[
+<!-- For JAX-RS / Page Model API Testing -->
+<dependency>
+  <groupId>org.bloomreach.forge.brut</groupId>
+  <artifactId>brut-resources</artifactId>
+  <version>${brut.version}</version>
+  <scope>test</scope>
+</dependency>
+
+<!-- For Component Testing -->
+<dependency>
+  <groupId>org.bloomreach.forge.brut</groupId>
+  <artifactId>brut-components</artifactId>
+  <version>${brut.version}</version>
+  <scope>test</scope>
+</dependency>
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="2. Create Your First Test">
+
+        <h4>JAX-RS API Test</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
+import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+public class MyApiTest {
+    private DynamicJaxrsTest brxm;
+
+    @Test
+    void testEndpoint() {
+        brxm.getHstRequest().setRequestURI("/site/api/hello");
+        String response = brxm.invokeFilter();
+        assertEquals("Hello, World!", response);
+    }
+}
+          ]]></source>
+        </div>
+
+        <h4>Page Model API Test</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.resources.annotation.BrxmPageModelTest;
+import org.bloomreach.forge.brut.resources.annotation.DynamicPageModelTest;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmPageModelTest(beanPackages = {"org.example.beans"})
+public class MyPageModelTest {
+    private DynamicPageModelTest brxm;
+
+    @Test
+    void testComponent() {
+        brxm.getHstRequest().setRequestURI("/site/resourceapi/news");
+        String response = brxm.invokeFilter();
+        assertTrue(response.contains("page"));
+    }
+}
+          ]]></source>
+        </div>
+
+        <h4>Component Test</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
+import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmComponentTest(beanPackages = {"org.example.beans"})
+public class MyComponentTest {
+    private DynamicComponentTest brxm;
+
+    @Test
+    void testComponent() {
+        assertNotNull(brxm.getHstRequest());
+        assertNotNull(brxm.getHstResponse());
+        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
+    }
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="3. Configuration Options">
+        <p>All annotations support these parameters:</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(
+    // Required
+    beanPackages = {"org.example.model", "org.example.beans"},
+
+    // Optional - auto-detected if not specified
+    hstRoot = "/hst:myproject",
+    springConfigs = {"/org/example/custom-jaxrs.xml"},
+    addonModules = {"/org/example/addon"},
+
+    // Optional - production config
+    useConfigService = true  // Loads real HCM modules
+)
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="4. Fluent APIs">
+
+        <h4>Request Builder</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testWithFluentApi() {
+    String response = brxm.request()
+        .uri("/site/api/news")
+        .method(HttpMethod.POST)
+        .header("Content-Type", "application/json")
+        .queryParam("category", "tech")
+        .execute();
+
+    assertTrue(response.contains("news"));
+}
+          ]]></source>
+        </div>
+
+        <h4>Repository Access</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testRepositoryAccess() {
+    try (RepositorySession session = brxm.repository()) {
+        Node newsNode = session.getNode("/content/documents/news");
+        assertEquals("hippo:handle", newsNode.getPrimaryNodeType().getName());
+    }
+    // Auto-cleanup on try-with-resources exit
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="5. Production Config (ConfigService)">
+
+        <h4>One-Liner</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    useConfigService = true  // Uses HCM modules from classpath
+)
+          ]]></source>
+        </div>
+
+        <h4>HCM Structure</h4>
+        <div class="brush: plain">
+          <source><![CDATA[
+src/test/resources/
+├── META-INF/
+│   └── hcm-module.yaml
+├── hcm-config/
+│   └── hst/
+│       ├── configurations.yaml
+│       ├── hosts.yaml
+│       └── sites.yaml
+└── hcm-content/
+    └── content/
+        └── documents/
+          ]]></source>
+        </div>
+
+        <p>See <a href="config-service-repository.html">ConfigService Repository Guide</a> for detailed setup.</p>
+      </subsection>
+
+    </section>
+
+    <section name="For AI Agents">
+
+      <subsection name="Implementation Pattern">
+        <p>When implementing BRUT tests, follow this exact structure:</p>
+
+        <h4>1. Annotation Declaration</h4>
+        <ul>
+          <li><strong>Annotation:</strong> <code>@Brxm{Type}Test</code> where Type = PageModel | Jaxrs | Component</li>
+          <li><strong>Required Parameters:</strong> beanPackages (String array)</li>
+          <li><strong>Optional Parameters:</strong> hstRoot, springConfigs, addonModules, useConfigService</li>
+        </ul>
+
+        <h4>2. Field Declaration</h4>
+        <ul>
+          <li><strong>Type:</strong> <code>Dynamic{Type}Test</code> where Type = PageModel | Jaxrs | Component</li>
+          <li><strong>Visibility:</strong> Any (private, protected, public, package-private)</li>
+          <li><strong>Name:</strong> Any valid identifier (convention: "brxm")</li>
+          <li><strong>Initialization:</strong> Automatic by JUnit extension</li>
+        </ul>
+
+        <h4>3. Test Method Pattern</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void descriptiveName() {
+    // 1. Setup request
+    brxm.getHstRequest().setRequestURI("/uri");
+
+    // 2. Execute
+    String response = brxm.invokeFilter();
+
+    // 3. Assert
+    assertEquals(expected, actual);
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Auto-Detection Rules">
+        <table>
+          <tr><th>Setting</th><th>Auto-Detection</th><th>Override</th></tr>
+          <tr>
+            <td>Bean Packages</td>
+            <td>NONE - must specify</td>
+            <td><code>beanPackages = {"org.example.beans"}</code></td>
+          </tr>
+          <tr>
+            <td>HST Root</td>
+            <td><code>/hst:${artifactId}</code> from pom.xml</td>
+            <td><code>hstRoot = "/hst:customname"</code></td>
+          </tr>
+          <tr>
+            <td>Spring Configs</td>
+            <td>JAX-RS: custom-jaxrs.xml, rest-resources.xml<br/>PageModel: custom-pagemodel.xml, component-config.xml</td>
+            <td><code>springConfigs = {"/path/to/config.xml"}</code></td>
+          </tr>
+        </table>
+      </subsection>
+
+      <subsection name="Error Handling Semantics">
+        <p><strong>Exception Type:</strong> <code>BrutTestConfigurationException</code> (unified in brut-common)</p>
+
+        <h4>Error Categories</h4>
+        <ol>
+          <li><strong>Missing Annotation</strong> - Annotation not present on test class</li>
+          <li><strong>Missing Field</strong> - No field of required type found</li>
+          <li><strong>Bootstrap Failed</strong> - Initialization error with full config context</li>
+          <li><strong>Resource Not Found</strong> - File/resource missing from classpath</li>
+          <li><strong>Invalid State</strong> - Internal framework error</li>
+        </ol>
+
+        <h4>Error Message Structure</h4>
+        <div class="brush: plain">
+          <source><![CDATA[
+{Problem Description}
+
+{Context Section - Configuration/State}
+
+{Root Cause}
+
+To fix:
+  1. {Action Item 1}
+  2. {Action Item 2}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Package Structure">
+        <div class="brush: plain">
+          <source><![CDATA[
+brut-common:
+  org.bloomreach.forge.brut.common.exception
+    - BrutTestConfigurationException (unified errors)
+  org.bloomreach.forge.brut.common.logging
+    - TestConfigurationLogger (logging utilities)
+  org.bloomreach.forge.brut.common.junit
+    - TestInstanceInjector (JUnit extension helper)
+
+brut-resources:
+  org.bloomreach.forge.brut.resources.annotation
+    - BrxmPageModelTest (annotation)
+    - BrxmJaxrsTest (annotation)
+    - DynamicPageModelTest (test class)
+    - DynamicJaxrsTest (test class)
+  org.bloomreach.forge.brut.resources.bootstrap
+    - ConfigServiceBootstrapStrategy (orchestrator)
+    - RuntimeTypeStubber (namespace/nodetype stubbing)
+    - JcrNodeSynchronizer (node sync operations)
+    - ConfigServiceReflectionBridge (ConfigService reflection)
+
+brut-components:
+  org.bloomreach.forge.brut.components.annotation
+    - BrxmComponentTest (annotation)
+    - DynamicComponentTest (test class)
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Implementation Checklist">
+        <p>When generating BRUT tests, verify:</p>
+        <ul>
+          <li>Annotation present on class</li>
+          <li><code>beanPackages</code> parameter specified</li>
+          <li>Field of correct Dynamic*Test type declared</li>
+          <li>Field not initialized (handled by extension)</li>
+          <li>Test methods use <code>brxm.*</code> to access test infrastructure</li>
+          <li>No inheritance (no <code>extends</code> clause)</li>
+          <li>No manual setup/teardown methods needed</li>
+          <li>Imports include annotation and dynamic test class</li>
+        </ul>
+      </subsection>
+
+    </section>
+
+    <section name="Troubleshooting">
+      <table>
+        <tr><th>Issue</th><th>Fix</th></tr>
+        <tr>
+          <td>NullPointerException on <code>brxm</code> field</td>
+          <td>Declare field: <code>private DynamicPageModelTest brxm;</code></td>
+        </tr>
+        <tr>
+          <td>"Missing @BrxmPageModelTest annotation"</td>
+          <td>Add annotation to test class</td>
+        </tr>
+        <tr>
+          <td>"Bean packages: NONE" warning</td>
+          <td>Add <code>beanPackages = {"org.example.beans"}</code> to annotation</td>
+        </tr>
+        <tr>
+          <td>Spring config not found</td>
+          <td>Verify file exists at path, use absolute path starting with <code>/</code></td>
+        </tr>
+        <tr>
+          <td>HST root not found</td>
+          <td>Override with correct path: <code>hstRoot = "/hst:actualname"</code></td>
+        </tr>
+      </table>
+    </section>
+
+  </body>
+</document>

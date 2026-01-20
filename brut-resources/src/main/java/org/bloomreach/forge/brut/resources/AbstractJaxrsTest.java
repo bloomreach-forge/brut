@@ -92,6 +92,7 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         unregisterHstModel();
         registerHstModel();
         setupHstResponse();
+        hstRequest.invalidateSession();
     }
 
     @Override
@@ -120,7 +121,8 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
-        containerConfiguration.setProperty("hst.configuration.rootPath", contributeHstConfigurationRootPath());
+        String hstRoot = resolveExistingHstRoot(contributeHstConfigurationRootPath());
+        containerConfiguration.setProperty("hst.configuration.rootPath", hstRoot);
         HstManagerImpl hstManager = (HstManagerImpl) componentManager.getComponent(HstManager.class);
         hstManager.setServletContext(hstRequest.getServletContext());
     }

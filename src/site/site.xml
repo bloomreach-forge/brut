@@ -41,6 +41,8 @@
       <item name="Demo Project" href="demoproject.html" />
       <item name="Installation" href="install.html" />
       <item name="Usage" href="usage.html" />
+      <item name="Quick Reference" href="quick-reference.html" />
+      <item name="ConfigService Repository" href="config-service-repository.html" />
       <item name="JavaDocs" href="apidocs/index.html" />
       <item name="Release Notes" href="release-notes.html" />
     </menu>

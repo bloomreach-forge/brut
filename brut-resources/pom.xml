@@ -19,6 +19,16 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.onehippo.cms</groupId>
+            <artifactId>hippo-configuration-management-model</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-repository-engine</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.onehippo.cms7</groupId>
             <artifactId>hippo-services</artifactId>
             <version>${hippo.release.version}</version>
@@ -254,7 +264,8 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
+            <!-- compile scope needed for annotation API (overrides parent test scope) -->
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

@@ -7,8 +7,12 @@ public class DeterministicJsonPointerFactory extends JsonPointerFactoryImpl {
     private static ThreadLocal<DeterministicJsonPointerFactory> tlDeterministicJsonPointerFactoryHolder = new ThreadLocal<>();
 
     public static DeterministicJsonPointerFactory get() {
-        reset();
-        return tlDeterministicJsonPointerFactoryHolder.get();
+        DeterministicJsonPointerFactory factory = tlDeterministicJsonPointerFactoryHolder.get();
+        if (factory == null) {
+            factory = new DeterministicJsonPointerFactory();
+            tlDeterministicJsonPointerFactoryHolder.set(factory);
+        }
+        return factory;
     }
 
     private static void set(DeterministicJsonPointerFactory jsonPointerFactory) {
@@ -23,6 +27,7 @@ public class DeterministicJsonPointerFactory extends JsonPointerFactoryImpl {
 
     @Override
     public String createJsonPointerId() {
-        return createJsonPointerIdForString("id" + get().id++);
+        DeterministicJsonPointerFactory factory = get();
+        return createJsonPointerIdForString("id" + factory.id++);
     }
 }

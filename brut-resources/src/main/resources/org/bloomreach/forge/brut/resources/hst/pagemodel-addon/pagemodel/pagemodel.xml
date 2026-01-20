@@ -53,6 +53,7 @@
     <property name="processingValves">
       <list>
         <ref bean="contextResolvingValve"/>
+        <ref bean="siteContentBaseResolverValve"/>
         <ref bean="localizationValve"/>
         <ref bean="pageInfoRenderingValve"/>
         <ref bean="pageCachingValve"/>

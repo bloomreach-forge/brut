@@ -1,5 +1,6 @@
 package org.bloomreach.forge.brut.resources;
 
+import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.hippoecm.hst.container.HstDelegateeFilterBean;
 import org.hippoecm.hst.container.HstFilter;
 import org.hippoecm.hst.container.RequestContextProvider;
@@ -21,11 +22,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockServletContext;
 
 import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractResourceTest {
@@ -151,6 +158,7 @@ public abstract class AbstractResourceTest {
      * Sets RequestContextProvider ThreadLocal for JAX-RS resources to access.
      */
     protected String invokeFilter() {
+        setupHstResponse();
         performValidation();
 
         HstDelegateeFilterBean filter = componentManager.getComponent(HstFilter.class.getName());
@@ -254,4 +262,80 @@ public abstract class AbstractResourceTest {
      */
 
     protected abstract String contributeHstConfigurationRootPath();
+
+    protected String resolveExistingHstRoot(String configuredRoot) {
+        String normalizedConfigured = normalizeHstRootPath(configuredRoot);
+        String projectNamespace = ProjectDiscovery.resolveProjectNamespace(Paths.get(System.getProperty("user.dir")));
+        String fallbackRoot = normalizedConfigured != null
+            ? normalizedConfigured
+            : normalizeHstRootPath(projectNamespace != null ? "/hst:" + projectNamespace : null);
+        if (fallbackRoot == null) {
+            fallbackRoot = configuredRoot;
+        }
+
+        if (componentManager == null) {
+            return fallbackRoot;
+        }
+        Repository repository = componentManager.getComponent(Repository.class);
+        if (repository == null) {
+            return fallbackRoot;
+        }
+
+        Set<String> candidates = new LinkedHashSet<>();
+        if (normalizedConfigured != null) {
+            candidates.add(normalizedConfigured);
+        }
+        String projectRoot = normalizeHstRootPath(projectNamespace != null ? "/hst:" + projectNamespace : null);
+        if (projectRoot != null) {
+            candidates.add(projectRoot);
+        }
+        candidates.add("/hst:hst");
+
+        Session session = null;
+        try {
+            session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+            for (String candidate : candidates) {
+                if (candidate != null && hasHstRootStructure(session, candidate)) {
+                    if (normalizedConfigured != null && !candidate.equals(normalizedConfigured)) {
+                        LOGGER.warn("HST root '{}' not found; using '{}' from repository", normalizedConfigured, candidate);
+                    }
+                    return candidate;
+                }
+            }
+        } catch (RepositoryException e) {
+            LOGGER.warn("Unable to validate HST root; using '{}'", fallbackRoot, e);
+        } finally {
+            if (session != null && session.isLive()) {
+                session.logout();
+            }
+        }
+
+        return fallbackRoot;
+    }
+
+    private boolean hasHstRootStructure(Session session, String hstRoot) throws RepositoryException {
+        if (session == null || hstRoot == null || hstRoot.isBlank()) {
+            return false;
+        }
+        if (!session.nodeExists(hstRoot)) {
+            return false;
+        }
+        return session.nodeExists(hstRoot + "/hst:configurations")
+            || session.nodeExists(hstRoot + "/hst:sites")
+            || session.nodeExists(hstRoot + "/hst:hosts");
+    }
+
+    private String normalizeHstRootPath(String hstRoot) {
+        if (hstRoot == null) {
+            return null;
+        }
+        String trimmed = hstRoot.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        if (trimmed.startsWith("/")) {
+            return trimmed;
+        }
+        return "/" + trimmed;
+    }
 }

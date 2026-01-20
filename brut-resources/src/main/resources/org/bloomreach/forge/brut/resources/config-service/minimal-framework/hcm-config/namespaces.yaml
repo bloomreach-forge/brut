@@ -1,0 +1,44 @@
+definitions:
+  namespace:
+    hippo:
+      uri: http://www.onehippo.org/jcr/hippo/nt/2.0.4
+      cnd: namespaces/hippo.cnd
+    hippostd:
+      uri: http://www.onehippo.org/jcr/hippostd/nt/2.0
+      cnd: namespaces/hippostd.cnd
+    hippostdpubwf:
+      uri: http://www.onehippo.org/jcr/hippostdpubwf/nt/1.0
+      cnd: namespaces/hippostdpubwf.cnd
+    hippogallery:
+      uri: http://www.onehippo.org/jcr/hippogallery/nt/2.0
+      cnd: namespaces/hippogallery.cnd
+    hippotranslation:
+      uri: http://www.onehippo.org/jcr/hippotranslation/nt/1.0
+      cnd: namespaces/hippotranslation.cnd
+    hippogallerypicker:
+      uri: http://www.hippoecm.org/hippogallerypicker/nt/2.0
+      cnd: namespaces/hippogallerypicker.cnd
+    hippofacnav:
+      uri: http://www.onehippo.org/jcr/hippofacnav/nt/1.0.1
+      cnd: namespaces/hippofacnav.cnd
+    autoexport:
+      uri: http://www.onehippo.org/autoexport/1.0
+      cnd: namespaces/autoexport.cnd
+    hipposysedit:
+      uri: http://www.onehippo.org/jcr/hipposysedit/nt/1.2
+      cnd: namespaces/hipposysedit.cnd
+    hipposys:
+      uri: http://www.onehippo.org/jcr/hipposys/nt/1.0
+      cnd: namespaces/hipposys.cnd
+    editor:
+      uri: http://www.hippoecm.org/editor/nt/1.0
+      cnd: namespaces/editor.cnd
+    webfiles:
+      uri: http://www.onehippo.org/webfiles/nt/1.0
+      cnd: namespaces/webfiles.cnd
+    dxphst:
+      uri: http://www.onehippo.org/jcr/dxphst/nt/1.0
+      cnd: namespaces/dxphst.cnd
+    robotstxt:
+      uri: http://www.onehippo.org/jcr/robotstxt/nt/1.0
+      cnd: namespaces/robotstxt.cnd

@@ -50,8 +50,14 @@
     </section>
 
     <section name="Dependency Management">
-      <subsection name="">
+      <subsection name="Version Requirements">
         <p>Make sure the dependencies are installed as <code>test</code> scoped</p>
+        <p><strong>Recommended:</strong> Use BRUT 5.1.0+ with JUnit 5 for annotation-based testing support (<code>@BrxmPageModelTest</code>, <code>@BrxmJaxrsTest</code>)</p>
+        <ul>
+          <li><strong>BRUT 5.1.0+</strong> - Annotation-based testing API, ConfigServiceRepository, 66-74% less boilerplate</li>
+          <li><strong>BRUT 5.0.x</strong> - Multi-test support, thread-safe initialization, JUnit 4 and 5 support</li>
+          <li><strong>JUnit 5</strong> - Required for annotation-based testing (JUnit 4 still supported for legacy abstract classes)</li>
+        </ul>
       </subsection>
 
       <subsection name="Component Testing Dependencies">
