@@ -127,7 +127,22 @@ public class DynamicComponentTest extends BaseComponentTest {
     }
 
     /**
-     * Import YAML content into the repository.
+     * Register a node type with a specified supertype.
+     * Wraps RepositoryException in SetupTeardownException for cleaner test code.
+     *
+     * @param nodeType  the node type to register (e.g., "myproject:Article")
+     * @param superType the supertype for inheritance (e.g., "myproject:BaseDocument")
+     */
+    public void registerNodeTypeWithSupertype(String nodeType, String superType) {
+        try {
+            super.registerNodeType(nodeType, superType);
+        } catch (RepositoryException e) {
+            throw new SetupTeardownException(e);
+        }
+    }
+
+    /**
+     * Import stubbed YAML content into the repository.
      * Uses "hippostd:folder" as the default folder type.
      *
      * @param resourcePath classpath resource path (e.g., "/test-content.yaml")
@@ -145,8 +160,20 @@ public class DynamicComponentTest extends BaseComponentTest {
      * @param folderType   JCR node type for folders (e.g., "hippostd:folder")
      */
     public void importYaml(String resourcePath, String targetPath, String folderType) {
+        importYaml(resourcePath, targetPath, folderType, getClass());
+    }
+
+    /**
+     * Import YAML content into the repository using a specific class's classloader.
+     *
+     * @param resourcePath classpath resource path (e.g., "/test-content.yaml")
+     * @param targetPath   target path in repository (e.g., "/content/documents")
+     * @param folderType   JCR node type for folders (e.g., "hippostd:folder")
+     * @param resourceClass class to use for resource loading
+     */
+    public void importYaml(String resourcePath, String targetPath, String folderType, Class<?> resourceClass) {
         try {
-            URL resource = getClass().getResource(resourcePath);
+            URL resource = resourceClass.getResource(resourcePath);
             if (resource == null) {
                 throw new IllegalArgumentException("Resource not found: " + resourcePath);
             }

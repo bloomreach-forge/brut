@@ -12,10 +12,13 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(BrxmComponentTestExtension.class);
     private static final String TEST_INSTANCE_KEY = "brxm.component.test.instance";
+    private static final String TEST_CONFIG_KEY = "brxm.component.test.config";
     private static final String FRAMEWORK = "Component";
     private static final String ANNOTATION_PACKAGE = "org.bloomreach.forge.brut.components.annotation";
 
@@ -44,6 +47,7 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
         DynamicComponentTest testInstance = new DynamicComponentTest(config);
 
         getRootStore(context).put(TEST_INSTANCE_KEY, testInstance);
+        getRootStore(context).put(TEST_CONFIG_KEY, config);
         TestInstanceInjector.inject(context, testInstance, DynamicComponentTest.class, LOG);
     }
 
@@ -58,14 +62,14 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
             );
         }
 
+        ComponentTestConfig config = getRootStore(context).get(TEST_CONFIG_KEY, ComponentTestConfig.class);
+
         try {
             testInstance.setup();
+            applyAnnotationConfig(testInstance, config);
             TestConfigurationLogger.logSuccess(LOG, FRAMEWORK, context.getRequiredTestClass());
         } catch (Exception e) {
             TestConfigurationLogger.logFailure(LOG, FRAMEWORK, context.getRequiredTestClass(), e);
-            Class<?> rootClass = NestedTestClassSupport.getRootTestClass(context.getRequiredTestClass());
-            BrxmComponentTest annotation = NestedTestClassSupport.findAnnotation(context.getRequiredTestClass(), BrxmComponentTest.class);
-            ComponentTestConfig config = ComponentConfigResolver.resolve(annotation, rootClass);
             String configDesc = String.format("  Bean patterns: %s%n  Test resource path: %s",
                     config.getAnnotatedClassesResourcePath(),
                     config.getTestResourcePath() != null ? config.getTestResourcePath() : "NONE");
@@ -109,5 +113,44 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
                 log.info("Test Resource Path: NONE");
             }
         });
+    }
+
+    private void applyAnnotationConfig(DynamicComponentTest testInstance, ComponentTestConfig config) {
+        registerNodeTypes(testInstance, config);
+        if (config.hasContent() && config.hasContentRoot()) {
+            testInstance.importYaml(config.getContent(), config.getContentRoot(),
+                    "hippostd:folder", config.getTestClass());
+            testInstance.recalculateRepositoryPaths();
+            testInstance.setSiteContentBasePath(config.getContentRoot());
+        }
+    }
+
+    private void registerNodeTypes(DynamicComponentTest testInstance, ComponentTestConfig config) {
+        String[] explicitTypes = config.getNodeTypes();
+
+        if (explicitTypes.length == 0) {
+            Set<String> scannedTypes = NodeTypeScanner.scanForNodeTypes(config.getAnnotatedClassesResourcePath());
+            if (!scannedTypes.isEmpty()) {
+                LOG.debug("Auto-registering {} node type(s) from @Node annotations", scannedTypes.size());
+                testInstance.registerNodeTypes(scannedTypes.toArray(new String[0]));
+            }
+            return;
+        }
+
+        for (String nodeTypeDef : explicitTypes) {
+            String trimmed = nodeTypeDef.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+
+            int extendsIdx = trimmed.toLowerCase().indexOf(" extends ");
+            if (extendsIdx > 0) {
+                String nodeType = trimmed.substring(0, extendsIdx).trim();
+                String superType = trimmed.substring(extendsIdx + 9).trim();
+                testInstance.registerNodeTypeWithSupertype(nodeType, superType);
+            } else {
+                testInstance.registerNodeTypes(trimmed);
+            }
+        }
     }
 }

@@ -24,9 +24,17 @@
 
     <section name="Quick Reference Guide">
 
-      <subsection name="1. Add Dependency">
+      <subsection name="1. Add Dependencies">
         <div class="brush: xml">
           <source><![CDATA[
+<!-- JUnit 5 (Required for annotation-based testing) -->
+<dependency>
+  <groupId>org.junit.jupiter</groupId>
+  <artifactId>junit-jupiter</artifactId>
+  <version>5.10.2</version>
+  <scope>test</scope>
+</dependency>
+
 <!-- For JAX-RS / Page Model API Testing -->
 <dependency>
   <groupId>org.bloomreach.forge.brut</groupId>
@@ -44,6 +52,7 @@
 </dependency>
           ]]></source>
         </div>
+        <p><strong>Note:</strong> Most brXM projects already include JUnit 5 via the parent POM.</p>
       </subsection>
 
       <subsection name="2. Create Your First Test">
@@ -106,7 +115,12 @@ import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmComponentTest(beanPackages = {"org.example.beans"})
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/news.yaml",
+    contentRoot = "/content/documents/mychannel"
+)
+// nodeTypes auto-detected from @Node annotations in beanPackages!
 public class MyComponentTest {
     private DynamicComponentTest brxm;
 
@@ -119,6 +133,10 @@ public class MyComponentTest {
 }
           ]]></source>
         </div>
+        <p><strong>Node Type Auto-Detection:</strong> When <code>nodeTypes</code> is not specified,
+           types are automatically detected from <code>@Node(jcrType="...")</code> annotations in bean classes.
+           Use explicit <code>nodeTypes</code> only for inheritance (<code>"ns:Child extends ns:Parent"</code>)
+           or types outside scanned packages.</p>
       </subsection>
 
       <subsection name="3. Configuration Options">
@@ -135,7 +153,15 @@ public class MyComponentTest {
     addonModules = {"/org/example/addon"},
 
     // Optional - production config
-    useConfigService = true  // Loads real HCM modules
+    loadProjectContent = true  // Loads real HCM modules
+)
+
+// @BrxmComponentTest also supports:
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/test-content.yaml",    // YAML content to import
+    contentRoot = "/content/documents", // Where to import content
+    nodeTypes = {"ns:Type extends ns:Base"} // Optional - auto-detected from @Node
 )
           ]]></source>
         </div>
@@ -182,7 +208,7 @@ void testRepositoryAccess() {
           <source><![CDATA[
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    useConfigService = true  // Uses HCM modules from classpath
+    loadProjectContent = true  // Uses HCM modules from classpath
 )
           ]]></source>
         </div>
@@ -218,7 +244,7 @@ src/test/resources/
         <ul>
           <li><strong>Annotation:</strong> <code>@Brxm{Type}Test</code> where Type = PageModel | Jaxrs | Component</li>
           <li><strong>Required Parameters:</strong> beanPackages (String array)</li>
-          <li><strong>Optional Parameters:</strong> hstRoot, springConfigs, addonModules, useConfigService</li>
+          <li><strong>Optional Parameters:</strong> hstRoot, springConfigs, addonModules, loadProjectContent</li>
         </ul>
 
         <h4>2. Field Declaration</h4>

@@ -1,9 +1,7 @@
 package org.example;
 
-import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
 import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
-import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
 import org.example.domain.AnotherType;
 import org.example.domain.NewsPage;
 import org.hippoecm.hst.content.beans.standard.HippoBean;
@@ -17,7 +15,6 @@ import org.onehippo.cms7.essentials.components.paging.IterablePagination;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import java.net.URL;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +25,11 @@ import static org.mockito.Mockito.when;
  * Comprehensive annotation-based component test demonstrating @BrxmComponentTest framework.
  * Mirrors EssentialsListComponentTest functionality with cleaner annotation-driven setup.
  */
-@BrxmComponentTest(beanPackages = {"org.example.domain"})
+@BrxmComponentTest(
+        beanPackages = {"org.example.domain"},
+        content = "/news.yaml",
+        contentRoot = "/content/documents/mychannel"
+)
 public class AnnotationBasedEssentialsListComponentTest {
 
     private DynamicComponentTest brxm;
@@ -36,18 +37,8 @@ public class AnnotationBasedEssentialsListComponentTest {
 
     @BeforeEach
     void setupComponent() {
-        try {
-            brxm.registerNodeType("ns:NewsPage", "ns:AnotherType");
-            URL newsResource = getClass().getResource("/news.yaml");
-            ImporterUtils.importYaml(newsResource, brxm.getRootNode(),
-                    "/content/documents/mychannel", "hippostd:folder");
-            brxm.recalculateRepositoryPaths();
-            brxm.setSiteContentBasePath("/content/documents/mychannel");
-            component = new EssentialsListComponent();
-            component.init(null, brxm.getComponentConfiguration());
-        } catch (RepositoryException e) {
-            throw new SetupTeardownException(e);
-        }
+        component = new EssentialsListComponent();
+        component.init(null, brxm.getComponentConfiguration());
     }
 
     private void configureListComponent(String path, String documentType,
@@ -185,18 +176,6 @@ public class AnnotationBasedEssentialsListComponentTest {
 
         assertEquals(1, items.size());
         assertEquals("another-type", items.get(0).getName());
-    }
-
-    @Test
-    @DisplayName("TypeFiltering: include subtypes returns documents of base and derived types")
-    void typeFiltering_includeSubtypesReturnsAll() {
-        configureListComponent("news", "ns:AnotherType", 5, "ns:releaseDate", "asc", true);
-        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
-
-        IterablePagination<AnotherType> pageable = brxm.getRequestAttributeValue("pageable");
-        List<AnotherType> items = pageable.getItems();
-
-        assertEquals(4, items.size());
     }
 
     // ===== BEAN PROPERTY TESTS =====

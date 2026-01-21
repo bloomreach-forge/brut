@@ -71,7 +71,8 @@
           <li><a href="https://issues.onehippo.com/browse/FORGE-577">FORGE-577</a> Annotation-based testing with zero-config setup</li>
           <li>Production-parity testing with ConfigServiceRepository</li>
           <li>New annotations: <code>@BrxmPageModelTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmComponentTest</code></li>
-          <li>One-liner ConfigService integration via <code>useConfigService = true</code></li>
+          <li>Auto-detection of node types from <code>@Node(jcrType="...")</code> annotations in bean packages</li>
+          <li>One-liner ConfigService integration via <code>loadProjectContent = true</code></li>
           <li>HTTP Session support in MockHstRequest</li>
           <li>Fluent request builder API</li>
           <li>Enhanced error messages with actionable fix suggestions</li>

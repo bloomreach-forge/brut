@@ -30,6 +30,11 @@ class ComponentConfigResolver {
             ? null
             : annotation.testResourcePath();
 
-        return new ComponentTestConfig(annotatedClassesResourcePath, testResourcePath);
+        String[] nodeTypes = annotation.nodeTypes();
+        String content = annotation.content();
+        String contentRoot = annotation.contentRoot();
+
+        return new ComponentTestConfig(annotatedClassesResourcePath, testResourcePath,
+                nodeTypes, content, contentRoot, testClass);
     }
 }

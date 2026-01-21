@@ -2,9 +2,17 @@
 
 ## For Developers
 
-### 1. Add Dependency
+### 1. Add Dependencies
 
 ```xml
+<!-- JUnit 5 (Required for annotation-based testing) -->
+<dependency>
+  <groupId>org.junit.jupiter</groupId>
+  <artifactId>junit-jupiter</artifactId>
+  <version>5.10.2</version>
+  <scope>test</scope>
+</dependency>
+
 <!-- For JAX-RS / Page Model API Testing -->
 <dependency>
   <groupId>org.bloomreach.forge.brut</groupId>
@@ -21,6 +29,8 @@
   <scope>test</scope>
 </dependency>
 ```
+
+**Note:** Most brXM projects already include JUnit 5 via the parent POM.
 
 ### 2. Create Your First Test
 
@@ -105,7 +115,7 @@ public class MyComponentTest {
     addonModules = {"/org/example/addon"},
 
     // Optional - production config
-    useConfigService = true  // Loads real HCM modules
+    loadProjectContent = true  // Loads real HCM modules
 )
 ```
 
@@ -125,7 +135,7 @@ public class MyComponentTest {
 - You have custom JAX-RS resources to register
 - You need to provide CND/YAML patterns for content
 - Spring config names don't match auto-detection patterns
-- You're mixing `useConfigService = true` with custom resources
+- You're mixing `loadProjectContent = true` with custom resources
 
 **Specify `hstRoot` explicitly when:**
 - HST root doesn't match Maven artifactId
@@ -189,7 +199,7 @@ When testing custom REST endpoints, create a Spring config to register your reso
 **Usage:**
 ```java
 @BrxmJaxrsTest(
-    useConfigService = true,
+    loadProjectContent = true,
     springConfigs = {"/com/example/test-jaxrs-resources.xml"}
 )
 class MyResourceTest {
@@ -267,7 +277,31 @@ void testRepositoryAccess() {
 
 ### 5. Component Test Patterns
 
-**Setup with Custom Node Types and Content:**
+**Annotation-Driven Setup with Auto-Detection:**
+
+Node types are automatically detected from `@Node(jcrType="...")` annotations in your bean packages - no manual registration needed:
+
+```java
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/test-content.yaml",
+    contentRoot = "/content/documents/myproject"
+)
+class MyComponentTest {
+    private DynamicComponentTest brxm;
+    private MyComponent component;
+
+    @BeforeEach
+    void setUp() {
+        // Node types auto-detected from @Node annotations in beanPackages!
+        // Content imported automatically from annotation parameters
+        component = new MyComponent();
+        component.init(null, brxm.getComponentConfiguration());
+    }
+}
+```
+
+**Manual Setup (when needed):**
 ```java
 @BrxmComponentTest()  // beanPackages optional for simple tests
 class MyComponentTest {
@@ -276,7 +310,8 @@ class MyComponentTest {
 
     @BeforeEach
     void setUp() throws RepositoryException {
-        // Register custom node types
+        // Manual node type registration (only needed for types not in beanPackages
+        // or when you need type inheritance)
         brxm.registerNodeType("myproject:Article");
         brxm.registerNodeType("myproject:Author");
 
@@ -295,6 +330,20 @@ class MyComponentTest {
         component = new MyComponent();
         component.init(null, brxm.getComponentConfiguration());
     }
+}
+```
+
+**Node Type Inheritance (explicit nodeTypes required):**
+```java
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    nodeTypes = {"myproject:Article extends myproject:BaseDocument", "myproject:BaseDocument"},
+    content = "/test-content.yaml",
+    contentRoot = "/content/documents/myproject"
+)
+class InheritanceTest {
+    // When you need type inheritance for includeSubtypes queries,
+    // specify nodeTypes explicitly with "extends" syntax
 }
 ```
 
@@ -336,6 +385,32 @@ void testWithRequestParameters() {
 }
 ```
 
+### 5a. Stubbed vs Production Test Data
+
+**Stubbed YAML (recommended for unit tests):**
+```java
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/test-articles.yaml",      // Minimal, focused test data
+    contentRoot = "/content/documents/site"
+)
+```
+- Fast, isolated, reproducible
+- Test controls exactly what data exists
+- YAML documents expected data structure
+
+**Production HCM (for integration tests):**
+```java
+@BrxmPageModelTest(
+    beanPackages = {"org.example.beans"},
+    loadProjectContent = true  // Loads real HCM modules
+)
+```
+- Validates real HST configuration
+- Slower, depends on project content state
+
+**See also:** [Stubbing Test Data Guide](stubbing-test-data.md) for YAML structure examples and best practices.
+
 ### 6. HTTP Session Support
 
 **Using Sessions in Tests:**
@@ -375,7 +450,7 @@ brxm.getHstRequest().invalidateSession();
 
 **Navigating Page Model Structure:**
 ```java
-@BrxmPageModelTest(useConfigService = true)
+@BrxmPageModelTest(loadProjectContent = true)
 class MyPageModelTest {
     private DynamicPageModelTest brxm;
 
@@ -435,7 +510,7 @@ class MyPageModelTest {
 ```java
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    useConfigService = true  // Uses HCM modules from classpath
+    loadProjectContent = true  // Uses HCM modules from classpath
 )
 ```
 
@@ -470,7 +545,7 @@ Parameters:
   - hstRoot: String (auto-detected from Maven artifactId)
   - springConfigs: String array (auto-detected from classpath)
   - addonModules: String array (optional)
-  - useConfigService: boolean (default false - use HCM modules for HST bootstrap)
+  - loadProjectContent: boolean (default false - use HCM modules for HST bootstrap)
 ```
 
 **2. Field Declaration:**
@@ -611,7 +686,7 @@ public class ExplicitTest {
 ```java
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    useConfigService = true
+    loadProjectContent = true
 )
 public class ProductionConfigTest {
     private DynamicJaxrsTest brxm;
@@ -685,6 +760,7 @@ brut-components:
 
 ## Further Documentation
 
+- **Stubbing Test Data:** [stubbing-test-data.md](stubbing-test-data.md)
 - **ConfigService Details:** [config-service-repository.md](config-service-repository.md)
 - **Architecture:** [architecture.md](architecture.md)
 - **Release Notes:** [../release-notes.md](../release-notes.md)

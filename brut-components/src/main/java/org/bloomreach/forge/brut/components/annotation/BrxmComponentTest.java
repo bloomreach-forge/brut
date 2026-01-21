@@ -42,4 +42,42 @@ public @interface BrxmComponentTest {
      * @return test resource path
      */
     String testResourcePath() default "";
+
+    /**
+     * Node types to register before test execution.
+     *
+     * <p><strong>Auto-detection:</strong> When empty (default), node types are automatically
+     * detected by scanning {@link #beanPackages()} for classes annotated with
+     * {@code @Node(jcrType="...")}. This eliminates the need to manually specify types
+     * that are already defined in your bean classes.</p>
+     *
+     * <p><strong>Explicit override:</strong> Specify types manually when you need:</p>
+     * <ul>
+     *   <li>Type inheritance: {@code "ns:ChildType extends ns:ParentType"}</li>
+     *   <li>Types not defined in scanned bean packages</li>
+     * </ul>
+     *
+     * <p>Example with inheritance: {@code {"ns:NewsPage extends ns:AnotherType", "ns:AnotherType"}}</p>
+     *
+     * @return node type definitions to register (empty for auto-detection)
+     */
+    String[] nodeTypes() default {};
+
+    /**
+     * YAML content resource path to import before each test.
+     *
+     * <p>Example: "/news.yaml"</p>
+     *
+     * @return content resource path
+     */
+    String content() default "";
+
+    /**
+     * Target path where content is imported. Also sets site content base path.
+     *
+     * <p>Example: "/content/documents/mychannel"</p>
+     *
+     * @return content root path
+     */
+    String contentRoot() default "";
 }

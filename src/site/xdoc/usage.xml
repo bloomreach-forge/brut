@@ -95,11 +95,43 @@ public class JaxrsTest {
           ]]></source>
         </div>
 
+        <h4>Component Test with @BrxmComponentTest</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
+import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/news.yaml",
+    contentRoot = "/content/documents/mychannel"
+)
+// nodeTypes auto-detected from @Node annotations in beanPackages!
+public class ComponentTest {
+
+    private DynamicComponentTest brxm;
+
+    @Test
+    void testComponent() {
+        assertNotNull(brxm.getHstRequest());
+        assertNotNull(brxm.getHstResponse());
+        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
+    }
+}
+          ]]></source>
+        </div>
+
         <p><strong>Benefits:</strong></p>
         <ul>
           <li>66-74% less boilerplate code</li>
           <li>No inheritance required (field injection)</li>
           <li>Auto-detection of HST root and configuration</li>
+          <li>Auto-detection of node types from <code>@Node(jcrType="...")</code> annotations</li>
           <li>Native JUnit 5 support</li>
         </ul>
 
@@ -146,7 +178,7 @@ public class JaxrsTest {
         <div class="brush: java">
           <source><![CDATA[
 @BrxmPageModelTest(
-    useConfigService = true,
+    loadProjectContent = true,
     repositoryDataModules = {"cms"}
 )
 public class MyTest {

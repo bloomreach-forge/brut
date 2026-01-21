@@ -60,7 +60,7 @@ BRUT 5.1.0+ provides zero-config annotation-based testing with automatic setup a
 #### Page Model API Test
 ```java
 @BrxmPageModelTest(
-    useConfigService = true  // Uses real HCM config from your project
+    loadProjectContent = true  // Uses real HCM config from your project
 )
 public class MyPageModelTest {
     private DynamicPageModelTest brxm;
@@ -94,7 +94,7 @@ public class MyJaxrsTest {
 }
 ```
 
-> **`useConfigService = true`** loads your project's real HCM configuration (HST sitemap, channels, content types, and CND definitions) into the test repository. Without it, BRUT uses minimal stub data sufficient for basic tests but lacking production routes and content structures. Enable this option for production-parity testing where your tests exercise actual HST pipelines and content paths.
+> **`loadProjectContent = true`** loads your project's real HCM configuration (HST sitemap, channels, content types, and CND definitions) into the test repository. Without it, BRUT uses minimal stub data sufficient for basic tests but lacking production routes and content structures. Enable this option for production-parity testing where your tests exercise actual HST pipelines and content paths.
 
 ### Key Features
 
@@ -116,7 +116,7 @@ public class MyJaxrsTest {
 | HST root doesn't match artifactId | `hstRoot = "/hst:actual-name"` |
 | Custom JAX-RS resources | `springConfigs = {"/path/to/config.xml"}` |
 | Need custom CND/YAML patterns | Create Spring config with `contributedCndResourcesPatterns` |
-| Mix ConfigService with custom resources | `useConfigService = true, springConfigs = {...}` |
+| Mix ConfigService with custom resources | `loadProjectContent = true, springConfigs = {...}` |
 
 See [Quick Reference - When to Configure Manually](user-guide/quick-reference.md#3a-when-to-configure-manually) for details.
 
@@ -263,7 +263,7 @@ public class FluentApiTest {
 }
 
 // Page Model API with PageModelResponse utilities
-@BrxmPageModelTest(useConfigService = true)
+@BrxmPageModelTest(loadProjectContent = true)
 public class PageModelTest {
     private DynamicPageModelTest brxm;
 
@@ -362,7 +362,7 @@ When testing custom REST endpoints, create a Spring config to register your reso
 **Test class:**
 ```java
 @BrxmJaxrsTest(
-    useConfigService = true,
+    loadProjectContent = true,
     springConfigs = {"/com/example/test-jaxrs-resources.xml"}
 )
 class MyResourceTest {
@@ -385,7 +385,7 @@ Production-parity configuration in a single parameter:
 ```java
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    useConfigService = true  // Automatically uses HCM modules!
+    loadProjectContent = true  // Automatically uses HCM modules!
 )
 public class NewsTest {
     private DynamicJaxrsTest brxm;
@@ -406,7 +406,7 @@ Add extra modules explicitly when needed:
 
 ```java
 @BrxmPageModelTest(
-    useConfigService = true,
+    loadProjectContent = true,
     repositoryDataModules = {"cms"}
 )
 ```

@@ -55,8 +55,7 @@ import java.lang.annotation.Target;
  * @BrxmPageModelTest(
  *     beanPackages = {"org.example.model", "org.example.beans"},
  *     hstRoot = "/hst:customproject",
- *     springConfig = "/org/example/custom-spring.xml",
- *     useConfigService = true
+ *     springConfig = "/org/example/custom-spring.xml"
  * )
  * public class MyCustomTest {
  *     // ...
@@ -103,14 +102,16 @@ public @interface BrxmPageModelTest {
     String springConfig() default "";
 
     /**
-     * Enable ConfigServiceRepository bootstrap with production HCM modules.
+     * Automatically discover and load HCM content from project modules.
      *
-     * <p>When enabled, BRUT generates a Spring config that overrides the
-     * repository bean to use ConfigServiceRepository.</p>
+     * <p>Enabled by default. When enabled, BRUT scans repository-data modules
+     * and loads HST configuration and content into the test repository.</p>
      *
-     * @return true to enable ConfigServiceRepository
+     * <p>Set to false for simpler tests that don't need project content.</p>
+     *
+     * @return true to enable content discovery (default: true)
      */
-    boolean useConfigService() default false;
+    boolean loadProjectContent() default true;
 
     /**
      * HST addon module paths (rarely needed).

@@ -59,7 +59,7 @@ import java.lang.annotation.Target;
  *     beanPackages = {"org.example.model", "org.example.beans"},
  *     hstRoot = "/hst:customproject",
  *     springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"},
- *     useConfigService = true
+ *     loadProjectContent = true
  * )
  * public class MyCustomTest {
  *     // ...
@@ -118,14 +118,16 @@ public @interface BrxmJaxrsTest {
     String[] springConfigs() default {};
 
     /**
-     * Enable ConfigServiceRepository bootstrap with production HCM modules.
+     * Automatically discover and load HCM content from project modules.
      *
-     * <p>When enabled, BRUT generates a Spring config that overrides the
-     * repository bean to use ConfigServiceRepository.</p>
+     * <p>When enabled, BRUT scans repository-data modules and loads HST
+     * configuration and content into the test repository.</p>
      *
-     * @return true to enable ConfigServiceRepository
+     * <p>Set to false for simpler tests that don't need project content.</p>
+     *
+     * @return true to enable content discovery (default: false)
      */
-    boolean useConfigService() default false;
+    boolean loadProjectContent() default false;
 
     /**
      * HST addon module paths (rarely needed).

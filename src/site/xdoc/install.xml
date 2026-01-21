@@ -60,6 +60,21 @@
         </ul>
       </subsection>
 
+      <subsection name="JUnit 5 Dependency (Required for Annotation-Based Testing)">
+        <p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit 5:</p>
+        <div class="brush: xml">
+          <source><![CDATA[
+            <dependency>
+              <groupId>org.junit.jupiter</groupId>
+              <artifactId>junit-jupiter</artifactId>
+              <version>5.10.2</version>
+              <scope>test</scope>
+            </dependency>
+          ]]></source>
+        </div>
+        <p><strong>Note:</strong> Most brXM projects already include JUnit 5. Check your parent POM or dependency management section.</p>
+      </subsection>
+
       <subsection name="Component Testing Dependencies">
         <p>In either <code>site/components/pom.xml</code> in projects created on brXM v13 or later or <code>site/pom.xml</code> in projects created on earlier versions, add the following dependency:</p>
         <div class="brush: xml">

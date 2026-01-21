@@ -45,7 +45,7 @@ class ConventionBasedConfigResolver {
             resolveSpringConfigs(annotation.springConfig(), new String[0], testClass, PAGEMODEL),
             annotation.addonModules(),
             annotation.repositoryDataModules(),
-            annotation.useConfigService(),
+            annotation.loadProjectContent(),
             ProjectDiscovery.BeanPackageOrder.BEANS_FIRST,
             testClass
         );
@@ -58,7 +58,7 @@ class ConventionBasedConfigResolver {
             resolveSpringConfigs(annotation.springConfig(), annotation.springConfigs(), testClass, JAXRS),
             annotation.addonModules(),
             annotation.repositoryDataModules(),
-            annotation.useConfigService(),
+            annotation.loadProjectContent(),
             ProjectDiscovery.BeanPackageOrder.MODEL_FIRST,
             testClass
         );
@@ -69,7 +69,7 @@ class ConventionBasedConfigResolver {
                                             List<String> springConfigs,
                                             String[] addonModulesArray,
                                             String[] repositoryDataModulesArray,
-                                            boolean useConfigService,
+                                            boolean loadProjectContent,
                                             ProjectDiscovery.BeanPackageOrder beanOrder,
                                             Class<?> testClass) {
         List<String> beanPatterns = beanPackages.length > 0
@@ -82,7 +82,7 @@ class ConventionBasedConfigResolver {
                 ? Arrays.asList(repositoryDataModulesArray)
                 : List.of();
 
-        if (useConfigService) {
+        if (loadProjectContent) {
             springConfigs = applyConfigService(springConfigs, repositoryDataModules, testClass);
         }
 
@@ -185,9 +185,9 @@ class ConventionBasedConfigResolver {
         return detectedConfigs;
     }
 
-    private static List<String> detectYamlPatterns(String projectNamespace, boolean useConfigService,
+    private static List<String> detectYamlPatterns(String projectNamespace, boolean loadProjectContent,
                                                    ClassLoader classLoader) {
-        if (useConfigService) {
+        if (loadProjectContent) {
             LOG.debug("Skipping YAML auto-detection: ConfigService is enabled");
             return List.of();
         }
@@ -204,9 +204,9 @@ class ConventionBasedConfigResolver {
         return filterValidPatterns(candidatePatterns, classLoader, "YAML");
     }
 
-    private static List<String> detectCndPatterns(String projectNamespace, boolean useConfigService,
+    private static List<String> detectCndPatterns(String projectNamespace, boolean loadProjectContent,
                                                   ClassLoader classLoader) {
-        if (useConfigService) {
+        if (loadProjectContent) {
             LOG.debug("Skipping CND auto-detection: ConfigService is enabled");
             return List.of();
         }

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @BrxmJaxrsTest(
         beanPackages = {"org.example.model"},
         springConfigs = {"/org/example/annotation-jaxrs.xml", "/org/example/rest-resources.xml"},
-        useConfigService = true
+        loadProjectContent = true
 )
 public class ConfigServiceAnnotationJaxrsTest {
 

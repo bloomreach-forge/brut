@@ -159,6 +159,29 @@ public class ComponentTest {
 - Auto-detection of HST root and bean paths
 - Consistent API with PageModel and JAX-RS annotations
 
+#### 3a. Auto-Detection of Node Types from @Node Annotations
+
+Node types are automatically detected from `@Node(jcrType="...")` annotations in your bean classes:
+
+```java
+@BrxmComponentTest(
+    beanPackages = {"org.example.domain"},
+    content = "/news.yaml",
+    contentRoot = "/content/documents/mychannel"
+)
+// nodeTypes auto-detected from @Node(jcrType="ns:NewsPage") in beanPackages
+```
+
+**How it works:**
+- Scans `beanPackages` for classes annotated with `@Node(jcrType="...")`
+- Extracts JCR type names and registers them automatically
+- Zero performance cost (reuses existing bean class scanning)
+
+**When to use explicit nodeTypes:**
+- Type inheritance needed: `nodeTypes = {"ns:Child extends ns:Parent", "ns:Parent"}`
+- Types not defined in scanned bean packages
+- External types from third-party modules
+
 #### 4. One-Liner ConfigService Integration
 
 Production-parity configuration simplified to a single parameter:
@@ -166,7 +189,7 @@ Production-parity configuration simplified to a single parameter:
 ```java
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    useConfigService = true  // That's it!
+    loadProjectContent = true  // That's it!
 )
 ```
 
@@ -197,8 +220,8 @@ Smart convention-over-configuration improvements for annotation-based tests:
 - All matching files are automatically included
 
 **ConfigService-Aware Resource Detection:**
-- CND patterns auto-detected only when `useConfigService=false` (avoids conflicts)
-- YAML patterns auto-detected only when `useConfigService=false` (avoids conflicts)
+- CND patterns auto-detected only when `loadProjectContent=false` (avoids conflicts)
+- YAML patterns auto-detected only when `loadProjectContent=false` (avoids conflicts)
 - Prevents duplicate loading between ConfigService and legacy import mechanisms
 
 **Example:**
