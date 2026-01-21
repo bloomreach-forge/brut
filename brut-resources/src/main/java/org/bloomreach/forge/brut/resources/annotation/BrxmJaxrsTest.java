@@ -125,9 +125,9 @@ public @interface BrxmJaxrsTest {
      *
      * <p>Set to false for simpler tests that don't need project content.</p>
      *
-     * @return true to enable content discovery (default: false)
+     * @return true to enable content discovery (default: true)
      */
-    boolean loadProjectContent() default false;
+    boolean loadProjectContent() default true;
 
     /**
      * HST addon module paths (rarely needed).
