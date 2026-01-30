@@ -34,23 +34,28 @@
 
 ### 2. Create Your First Test
 
-**JAX-RS API Test:**
+**JAX-RS API Test (Zero-Config):**
 ```java
 package org.example;
 
 import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
 import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
+import org.example.rest.HelloResource;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {HelloResource.class}  // No Spring XML needed
+)
 public class MyApiTest {
     private DynamicJaxrsTest brxm;
 
     @Test
     void testEndpoint() {
-        brxm.getHstRequest().setRequestURI("/site/api/hello");
-        String response = brxm.invokeFilter();
+        String response = brxm.request()
+            .get("/site/api/hello/world")
+            .execute();
         assertEquals("Hello, World!", response);
     }
 }
@@ -102,117 +107,95 @@ public class MyComponentTest {
 
 ### 3. Configuration Options
 
-**All Annotations Support:**
+**JAX-RS Test (Recommended):**
 
 ```java
 @BrxmJaxrsTest(
-    // Bean packages - specify packages containing HST beans
-    beanPackages = {"org.example.model", "org.example.beans"},
+    beanPackages = {"org.example.model"},
+    resources = {HelloResource.class, NewsResource.class}  // JAX-RS classes
+)
+```
 
-    // Optional - auto-detected if not specified
+**Full Options:**
+
+```java
+@BrxmJaxrsTest(
+    // Required: Bean packages for HST content beans
+    beanPackages = {"org.example.model"},
+
+    // JAX-RS resources (replaces Spring XML)
+    resources = {HelloResource.class},
+
+    // Custom YAML patterns (auto-detected from <package>/imports/)
+    yamlPatterns = {"classpath*:custom/**/*.yaml"},
+
+    // Custom CND patterns
+    cndPatterns = {"classpath*:custom/**/*.cnd"},
+
+    // Load production HCM content
+    loadProjectContent = true,
+
+    // Override auto-detected values
     hstRoot = "/hst:myproject",
-    springConfigs = {"/org/example/custom-jaxrs.xml"},
-    addonModules = {"/org/example/addon"},
-
-    // Optional - production config
-    loadProjectContent = true  // Loads real HCM modules
+    springConfigs = {"/org/example/custom.xml"},
+    addonModules = {"/org/example/addon"}
 )
 ```
 
 ### 3a. When to Configure Manually
 
-**Use auto-detection (no explicit config) when:**
-- Your project follows standard brXM conventions
-- HST root matches Maven artifactId (`/hst:${artifactId}`)
-- Spring configs are in test class package with standard names
+**Use minimal config (recommended) when:**
+- You have JAX-RS resources to test → use `resources` parameter
+- Test YAML is in `<package>/imports/` → auto-detected
+- HST root matches Maven artifactId → auto-detected
 
-**Specify `beanPackages` explicitly when:**
-- Your beans are in multiple packages
-- Bean packages differ from test class package
-- You need beans from external modules
+**Specify `yamlPatterns` when:**
+- Test YAML is in non-standard location
+- You need additional YAML beyond auto-detected paths
 
-**Specify `springConfigs` explicitly when:**
-- You have custom JAX-RS resources to register
-- You need to provide CND/YAML patterns for content
-- Spring config names don't match auto-detection patterns
-- You're mixing `loadProjectContent = true` with custom resources
+**Specify `springConfigs` when:**
+- Resources need Spring-managed dependencies (constructor injection)
+- You need custom Spring beans in the test context
 
-**Specify `hstRoot` explicitly when:**
+**Specify `hstRoot` when:**
 - HST root doesn't match Maven artifactId
 - Testing against a different project's configuration
-- Multi-site setup with non-standard naming
 
-### 3b. Custom JAX-RS Resources in Tests
+### 3b. Advanced: Spring XML (Rare)
 
-When testing custom REST endpoints, create a Spring config to register your resources:
-
-**File:** `src/test/resources/com/example/test-jaxrs-resources.xml`
+**Most tests don't need Spring XML.** Use it only when resources require Spring-managed dependencies:
 
 ```xml
+<!-- src/test/resources/com/example/test-jaxrs.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
 
-  <!-- CND patterns for custom node types -->
-  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:hcm-config/namespaces/**/*.cnd</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <!-- YAML patterns for test content -->
-  <bean id="contributedYamlResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:com/example/imports/**/*.yaml</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <!-- Import REST JAX-RS/Jackson support -->
   <import resource="classpath:/org/hippoecm/hst/site/optional/jaxrs/SpringComponentManager-rest-jackson.xml"/>
 
-  <!-- Define your REST Resource bean -->
-  <bean id="myResource" class="com.example.rest.MyResource"/>
-
-  <!-- Wrap in ResourceProvider for CXF -->
-  <bean id="myResourceProvider" class="org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider">
-    <constructor-arg ref="myResource"/>
-  </bean>
-
-  <!-- Register custom REST resource providers -->
   <bean id="customRestPlainResourceProviders" class="org.springframework.beans.factory.config.ListFactoryBean">
     <property name="sourceList">
       <list>
-        <ref bean="myResourceProvider"/>
+        <bean class="org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider">
+          <constructor-arg>
+            <bean class="com.example.rest.MyResource">
+              <constructor-arg ref="someService"/>  <!-- Spring dependency -->
+            </bean>
+          </constructor-arg>
+        </bean>
       </list>
     </property>
   </bean>
-
 </beans>
 ```
 
-**Usage:**
 ```java
 @BrxmJaxrsTest(
-    loadProjectContent = true,
-    springConfigs = {"/com/example/test-jaxrs-resources.xml"}
+    beanPackages = {"com.example.model"},
+    springConfigs = {"/com/example/test-jaxrs.xml"}
 )
-class MyResourceTest {
-    private DynamicJaxrsTest brxm;
-
-    @Test
-    void testCustomEndpoint() {
-        String response = brxm.request()
-            .get("/site/api/my-endpoint")
-            .execute();
-        // ...
-    }
-}
 ```
 
 ### 4. Fluent APIs
@@ -250,6 +233,57 @@ private void setRequestBody(String body) {
     );
 }
 ```
+
+**Fluent Authentication:**
+```java
+// Authenticated user with roles
+@Test
+void testProtectedEndpoint() {
+    String response = brxm.request()
+        .get("/site/api/admin/users")
+        .asUser("admin", "admin", "editor")  // username, roles...
+        .execute();
+
+    assertThat(response).contains("users");
+}
+
+// Role-only (no username needed)
+@Test
+void testRoleBasedAccess() {
+    String response = brxm.request()
+        .get("/site/api/reports")
+        .withRole("manager", "viewer")  // roles only
+        .execute();
+
+    assertThat(response).contains("reports");
+}
+```
+
+| Method | Description |
+|--------|-------------|
+| `asUser(username, roles...)` | Sets remote user and assigned roles |
+| `withRole(roles...)` | Sets roles without username |
+
+**Mock Authentication (Testing Failures):**
+```java
+@Test
+void login_fails_forInvalidUser() {
+    brxm.authentication().rejectUser("baduser");
+
+    String response = brxm.request()
+        .post("/site/api/auth/login")
+        .execute();
+
+    assertThat(response).contains("401");
+}
+```
+
+| Method | Description |
+|--------|-------------|
+| `authentication().rejectUser(name)` | Reject credentials with this username |
+| `authentication().rejectPassword(pwd)` | Reject credentials with this password |
+
+See [Authentication Patterns](authentication-patterns.md) for advanced scenarios.
 
 **Request Builder (Page Model):**
 ```java
@@ -540,12 +574,15 @@ When implementing BRUT tests, follow this exact structure:
 **1. Annotation Declaration:**
 ```
 Annotation: @Brxm{Type}Test where Type = PageModel | Jaxrs | Component
-Parameters:
-  - beanPackages: String array (optional for Component tests, recommended for others)
-  - hstRoot: String (auto-detected from Maven artifactId)
-  - springConfigs: String array (auto-detected from classpath)
-  - addonModules: String array (optional)
-  - loadProjectContent: boolean (default false - use HCM modules for HST bootstrap)
+
+JAX-RS Parameters (prefer zero-config):
+  - beanPackages: String[] - packages for HST beans (required)
+  - resources: Class<?>[] - JAX-RS resource classes (recommended, replaces Spring XML)
+  - yamlPatterns: String[] - YAML patterns (auto-detected from <package>/imports/)
+  - cndPatterns: String[] - CND patterns (optional)
+  - loadProjectContent: boolean - use HCM modules (default true)
+  - hstRoot: String - auto-detected from Maven artifactId
+  - springConfigs: String[] - only for Spring-managed dependencies
 ```
 
 **2. Field Declaration:**
@@ -574,20 +611,22 @@ void descriptiveName() {
 ### Auto-Detection Rules
 
 **Bean Packages:**
-- NO auto-detection - MUST be specified explicitly
+- MUST be specified explicitly via `beanPackages`
 - Format: Package notation (e.g., "org.example.beans")
-- Converted to classpath pattern: "classpath*:org/example/beans/*.class"
+
+**JAX-RS Resources:**
+- Specify via `resources` parameter (preferred)
+- Auto-wrapped in `SingletonResourceProvider`
+- Jackson JSON support auto-included
+
+**Test YAML Patterns:**
+- Auto-detected from: `classpath*:<testPackage>/imports/**/*.yaml`
+- Also checks: `classpath*:<testPackage>/test-data/**/*.yaml`
+- Override: `yamlPatterns = {"classpath*:custom/**/*.yaml"}`
 
 **HST Root:**
-- Auto-detected from Maven artifactId
-- Pattern: `/hst:${artifactId}` from pom.xml
+- Auto-detected from Maven artifactId: `/hst:${artifactId}`
 - Override: `hstRoot = "/hst:customname"`
-
-**Spring Configs:**
-- JAX-RS: Searches for `custom-jaxrs.xml`, `annotation-jaxrs.xml`, `rest-resources.xml`, `jaxrs-config.xml`
-- PageModel: Searches for `custom-pagemodel.xml`, `annotation-pagemodel.xml`, `custom-component.xml`, `component-config.xml`
-- Location: In test class package path (converted to resource path)
-- Override: `springConfigs = {"/path/to/config.xml"}`
 
 ### Error Handling Semantics
 
@@ -635,60 +674,71 @@ Priority: Explicit > Auto-detected > Default > Error
 
 ### File Structure Requirements
 
-**JAX-RS Test:**
+**JAX-RS Test (Zero-Config):**
 ```
 src/test/java/org/example/MyApiTest.java
-src/test/resources/org/example/custom-jaxrs.xml (optional)
+src/test/resources/org/example/imports/hst-config.yaml  (auto-detected)
+```
+
+**JAX-RS Test (With Spring XML - rare):**
+```
+src/test/java/org/example/MyApiTest.java
+src/test/resources/org/example/custom-jaxrs.xml
 ```
 
 **Page Model Test:**
 ```
 src/test/java/org/example/MyPageModelTest.java
-src/test/resources/org/example/custom-pagemodel.xml (optional)
+src/test/resources/org/example/imports/hst-config.yaml  (auto-detected)
 ```
 
 **Component Test:**
 ```
 src/test/java/org/example/MyComponentTest.java
-src/test/resources/org/example/custom-component.xml (optional)
+src/test/resources/test-content.yaml
 ```
 
 ### Common Patterns
 
-**Pattern 1: Minimal Test (Auto-detection)**
+**Pattern 1: Zero-Config JAX-RS (Recommended)**
 ```java
-@BrxmJaxrsTest(beanPackages = {"org.example.model"})
-public class MinimalTest {
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {HelloResource.class}
+)
+public class ZeroConfigTest {
     private DynamicJaxrsTest brxm;
 
     @Test void test() {
-        brxm.getHstRequest().setRequestURI("/api/test");
-        assertEquals("OK", brxm.invokeFilter());
+        String response = brxm.request()
+            .get("/site/api/hello/world")
+            .execute();
+        assertEquals("Hello, World!", response);
     }
 }
 ```
 
-**Pattern 2: Explicit Configuration**
+**Pattern 2: Multiple Resources**
 ```java
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    hstRoot = "/hst:myproject",
-    springConfigs = {"/org/example/custom.xml"}
+    resources = {UserResource.class, NewsResource.class, AuthResource.class}
 )
-public class ExplicitTest {
+public class MultiResourceTest {
     private DynamicJaxrsTest brxm;
 
     @Test void test() { /* ... */ }
 }
 ```
 
-**Pattern 3: Production Config**
+**Pattern 3: Custom YAML Location**
 ```java
 @BrxmJaxrsTest(
     beanPackages = {"org.example.model"},
-    loadProjectContent = true
+    resources = {HelloResource.class},
+    yamlPatterns = {"classpath*:custom/hst-config/**/*.yaml"}
 )
-public class ProductionConfigTest {
+public class CustomYamlTest {
     private DynamicJaxrsTest brxm;
 
     @Test void test() { /* ... */ }
@@ -697,16 +747,15 @@ public class ProductionConfigTest {
 
 ### Implementation Checklist
 
-When generating BRUT tests, verify:
+When generating BRUT JAX-RS tests:
 
-- [ ] Annotation present on class
-- [ ] `beanPackages` parameter specified
-- [ ] Field of correct Dynamic*Test type declared
-- [ ] Field not initialized (handled by extension)
-- [ ] Test methods use `brxm.*` to access test infrastructure
-- [ ] No inheritance (no `extends` clause)
-- [ ] No manual setup/teardown methods needed
-- [ ] Imports include annotation and dynamic test class
+- [ ] `@BrxmJaxrsTest` annotation on class
+- [ ] `beanPackages` parameter with HST bean packages
+- [ ] `resources` parameter with JAX-RS resource classes
+- [ ] `private DynamicJaxrsTest brxm;` field (auto-injected)
+- [ ] Use `brxm.request().get("/path").execute()` for requests
+- [ ] Test YAML in `<package>/imports/` for HST mount config
+- [ ] No Spring XML needed for simple resources
 
 ### Package Structure
 

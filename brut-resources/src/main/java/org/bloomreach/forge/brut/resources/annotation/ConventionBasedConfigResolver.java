@@ -52,10 +52,31 @@ class ConventionBasedConfigResolver {
     }
 
     static TestConfig resolve(BrxmJaxrsTest annotation, Class<?> testClass) {
+        List<String> springConfigs = resolveSpringConfigs(
+            annotation.springConfig(), annotation.springConfigs(), testClass, JAXRS);
+
+        if (annotation.resources().length > 0) {
+            String resourceConfig = JaxrsResourceSpringConfig.create(
+                Arrays.asList(annotation.resources()));
+            springConfigs = prependSpringConfig(springConfigs, resourceConfig);
+        }
+
+        List<String> yamlPatterns = annotation.yamlPatterns().length > 0
+            ? Arrays.asList(annotation.yamlPatterns())
+            : detectTestPackageYamlPatterns(testClass);
+        List<String> cndPatterns = annotation.cndPatterns().length > 0
+            ? Arrays.asList(annotation.cndPatterns())
+            : List.of();
+
+        if (!yamlPatterns.isEmpty() || !cndPatterns.isEmpty()) {
+            String patternsConfig = ResourcePatternsSpringConfig.create(yamlPatterns, cndPatterns);
+            springConfigs = prependSpringConfig(springConfigs, patternsConfig);
+        }
+
         return resolveConfig(
             annotation.beanPackages(),
             annotation.hstRoot(),
-            resolveSpringConfigs(annotation.springConfig(), annotation.springConfigs(), testClass, JAXRS),
+            springConfigs,
             annotation.addonModules(),
             annotation.repositoryDataModules(),
             annotation.loadProjectContent(),
@@ -262,5 +283,25 @@ class ConventionBasedConfigResolver {
             result.addAll(configs);
         }
         return result;
+    }
+
+    private static List<String> detectTestPackageYamlPatterns(Class<?> testClass) {
+        String packagePath = testClass.getPackage().getName().replace('.', '/');
+        ClassLoader classLoader = testClass.getClassLoader();
+
+        List<String> candidatePatterns = List.of(
+            "classpath*:" + packagePath + "/imports/**/*.yaml",
+            "classpath*:" + packagePath + "/test-data/**/*.yaml"
+        );
+
+        List<String> detectedPatterns = new ArrayList<>();
+        for (String pattern : candidatePatterns) {
+            if (patternHasResources(pattern, classLoader)) {
+                detectedPatterns.add(pattern);
+                LOG.debug("Auto-detected test YAML pattern: {}", pattern);
+            }
+        }
+
+        return detectedPatterns;
     }
 }

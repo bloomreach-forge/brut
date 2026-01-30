@@ -1,8 +1,40 @@
 #  B.R.U.T.
 
+<!-- AI-METADATA
+framework: brxm-testing
+test-types: [component, pagemodel, jaxrs]
+patterns: [annotation-based, field-injection, mock-repository]
+keywords: [brxm, hst, unit-test, component, pagemodel, jaxrs, rest, bloomreach]
+min-java: 17
+min-brxm: 16.0
+-->
+
 **Bloomreach Unit Testing Library for BrXM Delivery Tier**
 
 Zero-config unit testing for BrXM HST components, JAX-RS APIs, and Page Model API. Reduces test boilerplate by 66-74% with annotation-based testing.
+
+## Quick Navigation
+
+| I want to... | Go to... |
+|--------------|----------|
+| Get started quickly | [Getting Started Guide](user-guide/getting-started.md) |
+| Test an HST component | [Component Testing](#component-testing) |
+| Test a REST endpoint | [JAX-RS Testing Guide](user-guide/jaxrs-testing.md) |
+| Test Page Model API | [Page Model API Test](#page-model-api-test) |
+| Test authenticated users | [Authentication Patterns](user-guide/authentication-patterns.md) |
+| Create test content | [Stubbing Test Data](user-guide/stubbing-test-data.md) |
+| Fix a failing test | [Troubleshooting Guide](user-guide/troubleshooting.md) |
+| See common patterns | [Common Patterns](user-guide/common-patterns.md) |
+| Understand architecture | [Architecture](user-guide/architecture.md) |
+
+## Version Compatibility
+
+| BRUT Version | brXM Version | Java | JUnit |
+|--------------|--------------|------|-------|
+| 5.1.x | 16.x | 17+ | 5.x |
+| 5.0.x | 16.x | 17+ | 5.x |
+| 4.x | 15.x | 11+ | 4.x / 5.x |
+| 3.x | 14.x | 11+ | 4.x |
 
 ## What is BRUT?
 
@@ -22,34 +54,60 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
 - ✅ **JUnit 5 Native** - Modern testing patterns
 
 **Docs:**
-- [Architecture](user-guide/architecture.md)
-- [Quick Reference](user-guide/quick-reference.md)
+- [Getting Started](user-guide/getting-started.md) - First test in 3 steps
+- [Quick Reference](user-guide/quick-reference.md) - Fast lookup
+- [Architecture](user-guide/architecture.md) - How BRUT works
 
 ## Install
 
-(Make sure the following dependencies are installed as test scoped)
-
-For component testing install the brut-components dependency in the site webapp:
+### Step 1: Add version property to parent pom.xml
 
 ```xml
-    <dependency>
-      <groupId>org.bloomreach.forge.brut</groupId>
-      <artifactId>brut-components</artifactId>
-      <version>${brut.version}</version>
-      <scope>test</scope>
-    </dependency>
+<properties>
+    <brut.version>5.1.0</brut.version>
+</properties>
 ```
 
-For headless testing install the brut-resources dependency in the site webapp:
+### Step 2: Add dependency management to parent pom.xml (recommended)
 
 ```xml
-    <dependency>
-      <groupId>org.bloomreach.forge.brut</groupId>
-      <artifactId>brut-resources</artifactId>
-      <version>${brut.version}</version>
-      <scope>test</scope>
-    </dependency>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.bloomreach.forge.brut</groupId>
+            <artifactId>brut-components</artifactId>
+            <version>${brut.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bloomreach.forge.brut</groupId>
+            <artifactId>brut-resources</artifactId>
+            <version>${brut.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 ```
+
+### Step 3: Add dependencies to site/components/pom.xml
+
+```xml
+<!-- Component Testing -->
+<dependency>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut-components</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<!-- PageModel/JAX-RS Testing -->
+<dependency>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut-resources</artifactId>
+    <scope>test</scope>
+</dependency>
+```
+
+> **Note:** JUnit 5, Mockito, and AssertJ versions are typically managed by the brXM parent pom. Only add explicit versions if not already provided by your project's dependency management.
 
 ## Quick Start
 
@@ -280,6 +338,34 @@ public class PageModelTest {
 }
 ```
 
+#### Fluent Authentication
+
+```java
+// Authenticated user with roles
+@Test
+void testProtectedEndpoint() {
+    String response = brxm.request()
+        .get("/site/api/admin/settings")
+        .asUser("john", "admin", "editor")  // username + roles
+        .execute();
+
+    assertThat(response).contains("settings");
+}
+
+// Role-only access testing
+@Test
+void testRoleBasedAccess() {
+    String response = brxm.request()
+        .get("/site/api/reports")
+        .withRole("manager")  // role without username
+        .execute();
+
+    assertThat(response).contains("reports");
+}
+```
+
+See [Authentication Patterns](user-guide/authentication-patterns.md) for advanced scenarios.
+
 #### Auto-Managed Repository Sessions
 
 ```java
@@ -504,134 +590,6 @@ This module provides testing infrastructure for HST pipelines (JAX-RS REST, Page
 
 ### Legacy Approach: Abstract Classes
 
-For existing tests or special cases, the abstract class approach is still fully supported:
+For existing tests or when you need features not yet available in the annotation-based API, the abstract class approach (`AbstractJaxrsTest`, `AbstractPageModelTest`) is still fully supported.
 
-#### Example with Page Model API
-
-```java
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class PageModelTest extends AbstractPageModelTest {
-
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @AfterAll
-    public void destroy() {
-        super.destroy();
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:org/example/beans/*.class,";
-    }
-
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Collections.singletonList("/custom-pagemodel.xml");
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return "/hst:myproject";
-    }
-
-    @Test
-    public void testComponentRendering() throws IOException {
-        getHstRequest().setRequestURI("/site/resourceapi/news");
-        getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
-        String response = invokeFilter();
-
-        JsonNode json = new ObjectMapper().readTree(response);
-        assertTrue(json.get("page").size() > 0);
-    }
-}
-```
-
-#### Example with JAX-RS REST Pipeline
-
-**JUnit 5:**
-```java
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class JaxrsTest extends AbstractJaxrsTest {
-
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        setupForNewRequest();
-        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        getHstRequest().setMethod(HttpMethod.GET);
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:org/example/model/*.class,";
-    }
-
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/custom-jaxrs.xml", "/rest-resources.xml");
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return "/hst:myproject";
-    }
-
-    @Test
-    public void testEndpoint() {
-        getHstRequest().setRequestURI("/site/api/hello/user");
-        String response = invokeFilter();
-        assertEquals("Hello, World! user", response);
-    }
-}
-```
-
-**JUnit 4 (Fully Supported):**
-```java
-public class JaxrsTest extends AbstractJaxrsTest {
-
-    @Before
-    public void setUp() {
-        super.init();
-        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        getHstRequest().setMethod(HttpMethod.GET);
-    }
-
-    // Same @Override methods and @Test as above
-}
-```
-
-### Spring Configuration
-
-Provide CND files and YAML content imports via Spring config:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
-
-  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:org/example/namespaces/**/*.cnd</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <bean id="contributedYamlResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:org/example/imports/**/*.yaml</value>
-      </list>
-    </constructor-arg>
-  </bean>
-</beans>
-```
+See [Legacy API Guide](user-guide/legacy-api.md) for examples and migration guidance.

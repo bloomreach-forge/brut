@@ -147,4 +147,61 @@ public @interface BrxmJaxrsTest {
      * @return repository-data module names
      */
     String[] repositoryDataModules() default {};
+
+    /**
+     * JAX-RS resource classes to register.
+     *
+     * <p>Eliminates the need for Spring XML configuration by automatically
+     * generating resource provider configuration at runtime.</p>
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * @BrxmJaxrsTest(
+     *     beanPackages = {"org.example.model"},
+     *     resources = {HelloResource.class, NewsResource.class}
+     * )
+     * }</pre>
+     *
+     * <p>Resources are automatically wrapped in {@code SingletonResourceProvider}.</p>
+     *
+     * @return JAX-RS resource classes
+     */
+    Class<?>[] resources() default {};
+
+    /**
+     * YAML resource patterns for loading test-specific HST configuration.
+     *
+     * <p>Use this when you have test YAML files (e.g., HST mount configuration)
+     * that are not part of ConfigService repository-data modules.</p>
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * @BrxmJaxrsTest(
+     *     beanPackages = {"org.example.model"},
+     *     resources = {HelloResource.class},
+     *     yamlPatterns = {"classpath*:org/example/imports/**\/*.yaml"}
+     * )
+     * }</pre>
+     *
+     * <p>If empty (default), no additional YAML patterns are loaded.
+     * ConfigService will still load YAML from repository-data modules when
+     * {@link #loadProjectContent()} is true.</p>
+     *
+     * @return YAML resource patterns
+     */
+    String[] yamlPatterns() default {};
+
+    /**
+     * CND resource patterns for loading test-specific node type definitions.
+     *
+     * <p>Use this when you have test CND files that are not part of
+     * ConfigService repository-data modules.</p>
+     *
+     * <p>If empty (default), no additional CND patterns are loaded.
+     * ConfigService will still load CND from repository-data modules when
+     * {@link #loadProjectContent()} is true.</p>
+     *
+     * @return CND resource patterns
+     */
+    String[] cndPatterns() default {};
 }

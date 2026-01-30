@@ -8,6 +8,7 @@ import org.hippoecm.hst.content.beans.standard.HippoBean;
 import org.hippoecm.hst.content.beans.standard.HippoFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.onehippo.cms7.essentials.components.EssentialsListComponent;
 import org.onehippo.cms7.essentials.components.info.EssentialsListComponentInfo;
@@ -278,5 +279,45 @@ public class AnnotationBasedEssentialsListComponentTest {
         assertNotNull(brxm.getHstResponse());
         assertNotNull(brxm.getComponentConfiguration());
         assertNotNull(brxm.getResolvedSiteMapItem());
+    }
+
+    // ===== NESTED CLASS TESTS =====
+
+    @Nested
+    @DisplayName("Nested: field injection from outer class")
+    class NestedClassTests {
+
+        @Test
+        @DisplayName("brxm field from outer class is accessible in nested test")
+        void nestedTest_canAccessOuterBrxmField() {
+            assertNotNull(brxm, "brxm field should be injected from outer class");
+            assertNotNull(brxm.getHstRequest());
+            assertNotNull(brxm.getHstRequestContext());
+        }
+
+        @Test
+        @DisplayName("component operations work in nested test class")
+        void nestedTest_componentOperationsWork() {
+            configureListComponent("news", "ns:NewsPage", 5, "ns:releaseDate", "asc", false);
+            component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+            IterablePagination<NewsPage> pageable = brxm.getRequestAttributeValue("pageable");
+            assertNotNull(pageable);
+            assertEquals(3, pageable.getItems().size());
+        }
+
+        @Nested
+        @DisplayName("Deeply nested class")
+        class DeeplyNestedTests {
+
+            @Test
+            @DisplayName("brxm field accessible from deeply nested test")
+            void deeplyNestedTest_canAccessBrxmField() {
+                assertNotNull(brxm, "brxm should be accessible from deeply nested class");
+                HippoBean newsFolder = brxm.getHippoBean("/content/documents/mychannel/news");
+                assertNotNull(newsFolder);
+                assertEquals("news", newsFolder.getName());
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException;
+import org.bloomreach.forge.brut.common.junit.NestedTestClassSupport;
 import org.bloomreach.forge.brut.common.junit.TestInstanceInjector;
 import org.bloomreach.forge.brut.common.logging.TestConfigurationLogger;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -43,7 +44,12 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
     public void beforeAll(ExtensionContext context) throws Exception {
         Class<?> testClass = context.getRequiredTestClass();
 
-        BrxmPageModelTest annotation = testClass.getAnnotation(BrxmPageModelTest.class);
+        // For nested classes, infrastructure is already initialized by the root class
+        if (NestedTestClassSupport.isNestedTestClass(testClass)) {
+            return;
+        }
+
+        BrxmPageModelTest annotation = NestedTestClassSupport.findAnnotation(testClass, BrxmPageModelTest.class);
         if (annotation == null) {
             throw BrutTestConfigurationException.missingAnnotation(testClass, "BrxmPageModelTest", ANNOTATION_PACKAGE);
         }
@@ -62,13 +68,12 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
                     config.getBeanPatterns(), config.getSpringConfigs(), config.getHstRoot(), e);
         }
 
-        getStore(context).put(TEST_INSTANCE_KEY, testInstance);
-        TestInstanceInjector.inject(context, testInstance, DynamicPageModelTest.class, LOG);
+        getRootStore(context).put(TEST_INSTANCE_KEY, testInstance);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
-        DynamicPageModelTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
+    public void beforeEach(ExtensionContext context) throws Exception {
+        DynamicPageModelTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
 
         if (testInstance == null) {
             throw BrutTestConfigurationException.invalidState(
@@ -78,6 +83,7 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
             );
         }
 
+        TestInstanceInjector.inject(context, testInstance, DynamicPageModelTest.class, LOG);
         testInstance.setupForNewRequest();
         testInstance.getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         testInstance.getHstRequest().setMethod(HttpMethod.GET);
@@ -85,7 +91,12 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
 
     @Override
     public void afterAll(ExtensionContext context) {
-        DynamicPageModelTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
+        // Only clean up from the root class to avoid premature cleanup for nested classes
+        if (NestedTestClassSupport.isNestedTestClass(context.getRequiredTestClass())) {
+            return;
+        }
+
+        DynamicPageModelTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
 
         if (testInstance != null) {
             LOG.info("Destroying PageModel test infrastructure for {}", context.getRequiredTestClass().getSimpleName());
@@ -94,13 +105,14 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
             } catch (Exception e) {
                 LOG.error("Failed to destroy PageModel test infrastructure", e);
             } finally {
-                getStore(context).remove(TEST_INSTANCE_KEY);
+                getRootStore(context).remove(TEST_INSTANCE_KEY);
             }
         }
     }
 
-    private ExtensionContext.Store getStore(ExtensionContext context) {
-        return context.getStore(ExtensionContext.Namespace.create(BrxmPageModelTestExtension.class, context.getRequiredTestClass()));
+    private ExtensionContext.Store getRootStore(ExtensionContext context) {
+        Class<?> rootClass = NestedTestClassSupport.getRootTestClass(context.getRequiredTestClass());
+        return context.getRoot().getStore(ExtensionContext.Namespace.create(BrxmPageModelTestExtension.class, rootClass));
     }
 
     private void logTestConfig(Class<?> testClass, TestConfig config) {

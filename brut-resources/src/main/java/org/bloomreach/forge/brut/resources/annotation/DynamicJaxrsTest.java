@@ -15,6 +15,7 @@
  */
 package org.bloomreach.forge.brut.resources.annotation;
 
+import org.bloomreach.forge.brut.common.repository.MockAuthenticationConfig;
 import org.bloomreach.forge.brut.resources.AbstractJaxrsTest;
 import org.bloomreach.forge.brut.resources.MockHstRequest;
 import org.bloomreach.forge.brut.resources.util.RequestBuilder;
@@ -82,6 +83,7 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
     }
 
     public void setupForNewRequest() {
+        MockAuthenticationConfig.reset();
         super.setupForNewRequest();
     }
 
@@ -107,5 +109,28 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
     public RepositorySession repository() {
         Repository repo = getComponentManager().getComponent(Repository.class);
         return RepositorySession.forRepository(repo);
+    }
+
+    /**
+     * Configures mock authentication behavior for testing auth failures.
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * @Test
+     * void login_fails_forInvalidUser() {
+     *     brxm.authentication().rejectUser("baduser");
+     *
+     *     String response = brxm.request()
+     *         .post("/site/api/auth/login")
+     *         .execute();
+     *
+     *     assertThat(response).contains("401");
+     * }
+     * }</pre>
+     *
+     * @return MockAuthenticationConfig for fluent configuration
+     */
+    public MockAuthenticationConfig authentication() {
+        return MockAuthenticationConfig.current();
     }
 }

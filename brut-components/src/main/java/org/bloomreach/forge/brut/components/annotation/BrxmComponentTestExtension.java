@@ -25,15 +25,10 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         Class<?> testClass = context.getRequiredTestClass();
-        Class<?> rootClass = NestedTestClassSupport.getRootTestClass(testClass);
 
-        // For nested classes, reuse parent's test instance
+        // For nested classes, infrastructure is already initialized by the root class
         if (NestedTestClassSupport.isNestedTestClass(testClass)) {
-            DynamicComponentTest parentInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
-            if (parentInstance != null) {
-                TestInstanceInjector.inject(context, parentInstance, DynamicComponentTest.class, LOG);
-                return;
-            }
+            return;
         }
 
         BrxmComponentTest annotation = NestedTestClassSupport.findAnnotation(testClass, BrxmComponentTest.class);
@@ -41,18 +36,17 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
             throw BrutTestConfigurationException.missingAnnotation(testClass, "BrxmComponentTest", ANNOTATION_PACKAGE);
         }
 
-        ComponentTestConfig config = ComponentConfigResolver.resolve(annotation, rootClass);
-        logComponentConfig(rootClass, config);
+        ComponentTestConfig config = ComponentConfigResolver.resolve(annotation, testClass);
+        logComponentConfig(testClass, config);
 
         DynamicComponentTest testInstance = new DynamicComponentTest(config);
 
         getRootStore(context).put(TEST_INSTANCE_KEY, testInstance);
         getRootStore(context).put(TEST_CONFIG_KEY, config);
-        TestInstanceInjector.inject(context, testInstance, DynamicComponentTest.class, LOG);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(ExtensionContext context) throws Exception {
         DynamicComponentTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
         if (testInstance == null) {
             throw BrutTestConfigurationException.invalidState(
@@ -65,6 +59,7 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
         ComponentTestConfig config = getRootStore(context).get(TEST_CONFIG_KEY, ComponentTestConfig.class);
 
         try {
+            TestInstanceInjector.inject(context, testInstance, DynamicComponentTest.class, LOG);
             testInstance.setup();
             applyAnnotationConfig(testInstance, config);
             TestConfigurationLogger.logSuccess(LOG, FRAMEWORK, context.getRequiredTestClass());

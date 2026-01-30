@@ -48,10 +48,9 @@ public class MockHstRequest extends org.hippoecm.hst.mock.core.component.MockHst
     }
 
     public void invalidateSession() {
-        if (session != null) {
-            session.invalidate();
-            session = null;
-        }
+        // Simply discard the session reference - don't call session.invalidate()
+        // as it may already be invalidated by application code (e.g., logout endpoint)
+        session = null;
     }
 
 }

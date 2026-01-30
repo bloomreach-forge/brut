@@ -51,6 +51,12 @@ public class AcceptAllLoginModule implements LoginModule {
             throw new LoginException("Unable to obtain credentials: " + e.getMessage());
         }
         credentials = callback.getCredentials();
+
+        // Check mock authentication configuration
+        if (!MockAuthenticationConfig.current().shouldAccept(credentials)) {
+            throw new LoginException("Authentication failed for user: " + resolveUserId(credentials));
+        }
+
         principal = new PrincipalImpl(resolveUserId(credentials));
         return true;
     }

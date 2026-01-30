@@ -24,7 +24,9 @@ import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -141,6 +143,35 @@ public class RequestBuilder {
      */
     public RequestBuilder queryParam(String name, String value) {
         queryParams.put(name, value);
+        return this;
+    }
+
+    /**
+     * Sets up the request as an authenticated user with specified roles.
+     * Sets both remoteUser and userPrincipal for maximum compatibility.
+     *
+     * @param username the authenticated username
+     * @param roles roles assigned to the user
+     * @return this builder for chaining
+     */
+    public RequestBuilder asUser(String username, String... roles) {
+        hstRequest.setRemoteUser(username);
+        hstRequest.setUserPrincipal(() -> username);
+        if (roles.length > 0) {
+            hstRequest.setUserRoleNames(new LinkedHashSet<>(Arrays.asList(roles)));
+        }
+        return this;
+    }
+
+    /**
+     * Sets up roles for the request without specifying a username.
+     * Useful for testing role-based access without full user context.
+     *
+     * @param roles roles to assign
+     * @return this builder for chaining
+     */
+    public RequestBuilder withRole(String... roles) {
+        hstRequest.setUserRoleNames(new LinkedHashSet<>(Arrays.asList(roles)));
         return this;
     }
 

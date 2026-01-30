@@ -25,14 +25,20 @@ import java.util.stream.Stream;
 /**
  * Utility for injecting test infrastructure instances into test class fields.
  * Used by JUnit 5 extensions to provide field injection of BRUT test instances.
+ *
+ * <p>Supports JUnit 5 {@code @Nested} test classes by searching enclosing classes
+ * when the target field is not found in the nested class itself.</p>
  */
 public final class TestInstanceInjector {
+
+    private static final String ENCLOSING_INSTANCE_PREFIX = "this$";
 
     private TestInstanceInjector() {
     }
 
     /**
      * Injects a test infrastructure instance into a field of the test class.
+     * For nested test classes, also searches enclosing class instances.
      *
      * @param context JUnit extension context
      * @param instance the instance to inject
@@ -44,29 +50,72 @@ public final class TestInstanceInjector {
     public static <T> void inject(ExtensionContext context, T instance, Class<T> targetType, Logger log)
             throws Exception {
         Object testObject = context.getRequiredTestInstance();
-        Class<?> testClass = testObject.getClass();
+        InjectionTarget target = findInjectionTarget(testObject, targetType);
 
-        Field[] allFields = testClass.getDeclaredFields();
-        Field targetField = null;
-        for (Field field : allFields) {
-            if (targetType.isAssignableFrom(field.getType())) {
-                targetField = field;
-                break;
-            }
+        if (target == null) {
+            throwMissingFieldException(testObject.getClass(), targetType);
         }
 
-        if (targetField == null) {
-            String[] scannedFieldInfo = Stream.of(allFields)
-                    .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
-                    .toArray(String[]::new);
-            throw BrutTestConfigurationException.missingField(testClass, targetType.getSimpleName(), scannedFieldInfo);
-        }
-
-        targetField.setAccessible(true);
-        targetField.set(testObject, instance);
+        target.field.setAccessible(true);
+        target.field.set(target.instance, instance);
 
         if (log != null) {
-            log.debug("Injected {} instance into field: {}", targetType.getSimpleName(), targetField.getName());
+            log.debug("Injected {} instance into field: {}", targetType.getSimpleName(), target.field.getName());
+        }
+    }
+
+    private static <T> InjectionTarget findInjectionTarget(Object object, Class<T> targetType) {
+        Object currentInstance = object;
+
+        while (currentInstance != null) {
+            Field targetField = findFieldOfType(currentInstance.getClass(), targetType);
+            if (targetField != null) {
+                return new InjectionTarget(currentInstance, targetField);
+            }
+            currentInstance = getEnclosingInstance(currentInstance);
+        }
+
+        return null;
+    }
+
+    private static Field findFieldOfType(Class<?> clazz, Class<?> targetType) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (targetType.isAssignableFrom(field.getType())) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    private static Object getEnclosingInstance(Object object) {
+        for (Field field : object.getClass().getDeclaredFields()) {
+            if (field.getName().startsWith(ENCLOSING_INSTANCE_PREFIX)) {
+                try {
+                    field.setAccessible(true);
+                    return field.get(object);
+                } catch (IllegalAccessException e) {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void throwMissingFieldException(Class<?> testClass, Class<?> targetType) {
+        Field[] allFields = testClass.getDeclaredFields();
+        String[] scannedFieldInfo = Stream.of(allFields)
+                .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
+                .toArray(String[]::new);
+        throw BrutTestConfigurationException.missingField(testClass, targetType.getSimpleName(), scannedFieldInfo);
+    }
+
+    private static class InjectionTarget {
+        final Object instance;
+        final Field field;
+
+        InjectionTarget(Object instance, Field field) {
+            this.instance = instance;
+            this.field = field;
         }
     }
 }

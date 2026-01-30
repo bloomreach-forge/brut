@@ -186,4 +186,61 @@ class RequestBuilderTest {
 
         assertEquals("name=value", mockRequest.getQueryString());
     }
+
+    @Test
+    @DisplayName("asUser() sets remote user, principal, and roles")
+    void testAsUserSetsRemoteUserAndRoles() {
+        builder.asUser("john", "admin", "editor");
+
+        assertEquals("john", mockRequest.getRemoteUser());
+        assertNotNull(mockRequest.getUserPrincipal());
+        assertEquals("john", mockRequest.getUserPrincipal().getName());
+        assertTrue(mockRequest.isUserInRole("admin"));
+        assertTrue(mockRequest.isUserInRole("editor"));
+    }
+
+    @Test
+    @DisplayName("asUser() with username only sets remote user and principal without roles")
+    void testAsUserWithoutRoles() {
+        builder.asUser("jane");
+
+        assertEquals("jane", mockRequest.getRemoteUser());
+        assertNotNull(mockRequest.getUserPrincipal());
+        assertEquals("jane", mockRequest.getUserPrincipal().getName());
+        assertTrue(mockRequest.getUserRoleNames().isEmpty());
+    }
+
+    @Test
+    @DisplayName("withRole() sets roles without username")
+    void testWithRoleSetsRolesOnly() {
+        builder.withRole("viewer", "commenter");
+
+        assertNull(mockRequest.getRemoteUser());
+        assertTrue(mockRequest.isUserInRole("viewer"));
+        assertTrue(mockRequest.isUserInRole("commenter"));
+    }
+
+    @Test
+    @DisplayName("asUser() chains with other methods")
+    void testAsUserChaining() {
+        builder.get("/api/protected")
+               .asUser("jane", "admin")
+               .withAccept(MediaType.APPLICATION_JSON);
+
+        assertEquals("jane", mockRequest.getRemoteUser());
+        assertEquals("jane", mockRequest.getUserPrincipal().getName());
+        assertTrue(mockRequest.isUserInRole("admin"));
+        assertEquals(MediaType.APPLICATION_JSON, mockRequest.getHeader(HttpHeaders.ACCEPT));
+    }
+
+    @Test
+    @DisplayName("withRole() chains with other methods")
+    void testWithRoleChaining() {
+        builder.get("/api/protected")
+               .withRole("admin")
+               .withHeader("X-Custom", "value");
+
+        assertTrue(mockRequest.isUserInRole("admin"));
+        assertEquals("value", mockRequest.getHeader("X-Custom"));
+    }
 }

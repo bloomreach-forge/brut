@@ -19,6 +19,7 @@ import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException;
+import org.bloomreach.forge.brut.common.junit.NestedTestClassSupport;
 import org.bloomreach.forge.brut.common.junit.TestInstanceInjector;
 import org.bloomreach.forge.brut.common.logging.TestConfigurationLogger;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -43,7 +44,12 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
     public void beforeAll(ExtensionContext context) throws Exception {
         Class<?> testClass = context.getRequiredTestClass();
 
-        BrxmJaxrsTest annotation = testClass.getAnnotation(BrxmJaxrsTest.class);
+        // For nested classes, infrastructure is already initialized by the root class
+        if (NestedTestClassSupport.isNestedTestClass(testClass)) {
+            return;
+        }
+
+        BrxmJaxrsTest annotation = NestedTestClassSupport.findAnnotation(testClass, BrxmJaxrsTest.class);
         if (annotation == null) {
             throw BrutTestConfigurationException.missingAnnotation(testClass, "BrxmJaxrsTest", ANNOTATION_PACKAGE);
         }
@@ -62,13 +68,12 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
                     config.getBeanPatterns(), config.getSpringConfigs(), config.getHstRoot(), e);
         }
 
-        getStore(context).put(TEST_INSTANCE_KEY, testInstance);
-        TestInstanceInjector.inject(context, testInstance, DynamicJaxrsTest.class, LOG);
+        getRootStore(context).put(TEST_INSTANCE_KEY, testInstance);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
-        DynamicJaxrsTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicJaxrsTest.class);
+    public void beforeEach(ExtensionContext context) throws Exception {
+        DynamicJaxrsTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicJaxrsTest.class);
 
         if (testInstance == null) {
             throw BrutTestConfigurationException.invalidState(
@@ -78,6 +83,7 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
                     );
         }
 
+        TestInstanceInjector.inject(context, testInstance, DynamicJaxrsTest.class, LOG);
         testInstance.setupForNewRequest();
         testInstance.getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         testInstance.getHstRequest().setMethod(HttpMethod.GET);
@@ -85,7 +91,12 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
 
     @Override
     public void afterAll(ExtensionContext context) {
-        DynamicJaxrsTest testInstance = getStore(context).get(TEST_INSTANCE_KEY, DynamicJaxrsTest.class);
+        // Only clean up from the root class to avoid premature cleanup for nested classes
+        if (NestedTestClassSupport.isNestedTestClass(context.getRequiredTestClass())) {
+            return;
+        }
+
+        DynamicJaxrsTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicJaxrsTest.class);
 
         if (testInstance != null) {
             LOG.info("Destroying JAX-RS test infrastructure for {}", context.getRequiredTestClass().getSimpleName());
@@ -94,13 +105,14 @@ public class BrxmJaxrsTestExtension implements BeforeAllCallback, BeforeEachCall
             } catch (Exception e) {
                 LOG.error("Failed to destroy JAX-RS test infrastructure", e);
             } finally {
-                getStore(context).remove(TEST_INSTANCE_KEY);
+                getRootStore(context).remove(TEST_INSTANCE_KEY);
             }
         }
     }
 
-    private ExtensionContext.Store getStore(ExtensionContext context) {
-        return context.getStore(ExtensionContext.Namespace.create(BrxmJaxrsTestExtension.class, context.getRequiredTestClass()));
+    private ExtensionContext.Store getRootStore(ExtensionContext context) {
+        Class<?> rootClass = NestedTestClassSupport.getRootTestClass(context.getRequiredTestClass());
+        return context.getRoot().getStore(ExtensionContext.Namespace.create(BrxmJaxrsTestExtension.class, rootClass));
     }
 
     private void logTestConfig(Class<?> testClass, TestConfig config) {
