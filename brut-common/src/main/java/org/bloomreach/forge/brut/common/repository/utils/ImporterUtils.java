@@ -24,14 +24,11 @@ import java.net.URL;
 public class ImporterUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImporterUtils.class);
+    private static final JcrContentProcessor PROCESSOR = new JcrContentProcessor();
 
     private ImporterUtils() {
         //utility class
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(ImporterUtils.class);
-
-    private static final JcrContentProcessor PROCESSOR = new JcrContentProcessor();
 
     public static void importYaml(final URL resource, final Node parentNode, String path, String intermediateNodeType) throws RepositoryException {
         try {
@@ -72,7 +69,7 @@ public class ImporterUtils {
                         result = result.addNode(segment, intermediateNodeType);
                     }
                 } catch (RepositoryException e) {
-                    LOG.error("error while trying to create the node structure", e);
+                    LOGGER.error("error while trying to create the node structure", e);
                 }
             }
         }

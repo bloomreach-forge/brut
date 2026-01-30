@@ -25,7 +25,7 @@ jobs:
       - name: Configure Maven settings
         run: |
           mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml << 'EOF'
+          cat > ~/.m2/settings.xml << EOF
           <settings>
             <servers>
               <server>
@@ -34,12 +34,23 @@ jobs:
               <server>
                 <id>bloomreach-maven2-forge</id>
               </server>
+              <server>
+                <id>bloomreach-maven2-enterprise</id>
+                <username>${BR_MAVEN_USERNAME}</username>
+                <password>${BR_MAVEN_PASSWORD}</password>
+              </server>
             </servers>
           </settings>
           EOF
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Build and test
         run: mvn -B clean verify
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

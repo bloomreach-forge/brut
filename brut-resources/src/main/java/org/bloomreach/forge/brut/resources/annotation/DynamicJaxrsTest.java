@@ -22,6 +22,7 @@ import org.bloomreach.forge.brut.resources.util.RequestBuilder;
 import org.bloomreach.forge.brut.resources.util.RepositorySession;
 
 import javax.jcr.Repository;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * Dynamic JAX-RS test implementation that bridges annotation-based API to existing AbstractJaxrsTest.
  * This adapter delegates configuration to TestConfig and exposes methods needed by the JUnit extension.
  */
-public class DynamicJaxrsTest extends AbstractJaxrsTest {
+public class DynamicJaxrsTest extends AbstractJaxrsTest implements DynamicTest {
 
     private final TestConfig config;
 
@@ -45,9 +46,7 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
     @Override
     protected List<String> contributeSpringConfigurationLocations() {
         List<String> springConfigs = config.getSpringConfigs();
-        return springConfigs != null
-                ? springConfigs
-                : Collections.emptyList();
+        return springConfigs != null ? springConfigs : Collections.emptyList();
     }
 
     @Override
@@ -59,8 +58,6 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
     protected List<String> contributeAddonModulePaths() {
         return config.getAddonModules();
     }
-
-    // Public methods for JUnit extension to call
 
     @Override
     public void init() {
@@ -82,18 +79,13 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
         return super.invokeFilter();
     }
 
+    @Override
     public void setupForNewRequest() {
         MockAuthenticationConfig.reset();
         super.setupForNewRequest();
     }
 
-    // Convenience methods for fluent test utilities
-
-    /**
-     * Creates a fluent request builder for setting up and executing requests.
-     *
-     * @return RequestBuilder for fluent request configuration
-     */
+    @Override
     public RequestBuilder request() {
         return new RequestBuilder(
                 getHstRequest(),
@@ -102,31 +94,19 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
         );
     }
 
-    /**
-     * Returns the HTTP status code from the last response.
-     * Accesses the underlying MockHttpServletResponse via reflection if needed.
-     *
-     * @return HTTP status code, or 200 if unavailable
-     */
     private int getResponseStatus() {
         if (hstResponse == null) {
             return 200;
         }
         try {
-            // MockHstResponse wraps MockHttpServletResponse which has getStatus()
-            java.lang.reflect.Method getStatus = hstResponse.getClass().getMethod("getStatus");
+            Method getStatus = hstResponse.getClass().getMethod("getStatus");
             return (int) getStatus.invoke(hstResponse);
         } catch (Exception e) {
-            // Fallback for older HST versions or different mock implementations
             return 200;
         }
     }
 
-    /**
-     * Creates an auto-managed repository session for fluent repository operations.
-     *
-     * @return RepositorySession with automatic cleanup
-     */
+    @Override
     public RepositorySession repository() {
         Repository repo = getComponentManager().getComponent(Repository.class);
         return RepositorySession.forRepository(repo);
@@ -134,20 +114,6 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest {
 
     /**
      * Configures mock authentication behavior for testing auth failures.
-     *
-     * <p>Example:</p>
-     * <pre>{@code
-     * @Test
-     * void login_fails_forInvalidUser() {
-     *     brxm.authentication().rejectUser("baduser");
-     *
-     *     String response = brxm.request()
-     *         .post("/site/api/auth/login")
-     *         .execute();
-     *
-     *     assertThat(response).contains("401");
-     * }
-     * }</pre>
      *
      * @return MockAuthenticationConfig for fluent configuration
      */

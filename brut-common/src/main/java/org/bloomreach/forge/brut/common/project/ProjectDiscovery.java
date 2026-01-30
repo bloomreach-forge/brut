@@ -367,12 +367,6 @@ public final class ProjectDiscovery {
         return "/hst:" + hstRoot;
     }
 
-    private static void addPackage(Set<String> packages, String value) {
-        if (value != null && !value.isBlank()) {
-            packages.add(value);
-        }
-    }
-
     private static void addModuleName(Set<String> names, String value) {
         if (value != null && !value.isBlank()) {
             names.add(value);

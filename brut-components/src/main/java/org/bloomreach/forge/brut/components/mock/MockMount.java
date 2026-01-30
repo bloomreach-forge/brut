@@ -19,7 +19,6 @@ public class MockMount implements ContextualizableMount {
     private String identifier = "randomIdentifier" + UUID.randomUUID().toString();
     private String name;
     private String namedPipeline;
-    private Map<String, Mount> childs = new HashMap<>();
     private String mountPath;
     private ChannelInfo channelInfo;
     private ChannelInfo previewChannelInfo;
@@ -135,14 +134,6 @@ public class MockMount implements ContextualizableMount {
 
     public void setNamedPipeline(String namedPipeline) {
         this.namedPipeline = namedPipeline;
-    }
-
-    public Map<String, Mount> getChilds() {
-        return childs;
-    }
-
-    public void setChilds(Map<String, Mount> childs) {
-        this.childs = childs;
     }
 
     @Override
