@@ -10,9 +10,8 @@
   <Security appName="Jackrabbit">
     <SecurityManager class="org.apache.jackrabbit.core.DefaultSecurityManager" workspaceName="security"/>
     <AccessManager class="org.bloomreach.forge.brut.common.repository.CustomAccessManager"/>
-    <LoginModule class="org.apache.jackrabbit.core.security.authentication.DefaultLoginModule">
+    <LoginModule class="org.bloomreach.forge.brut.common.repository.AcceptAllLoginModule">
       <param name="anonymousId" value="configuser"/>
-      <param name="adminId" value="admin"/>
     </LoginModule>
   </Security>
 

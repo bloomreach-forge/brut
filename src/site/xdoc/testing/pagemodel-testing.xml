@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Page Model Testing Guide</title>
+  </properties>
+  <body>
+
+    <section name="Basic PageModel Test">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmPageModelTest  // Zero-config for standard project layouts
+class PageModelTest {
+
+    @Test
+    void testPageModelApi(DynamicPageModelTest brxm) throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
+
+        assertNotNull(pageModel.getRootComponent());
+        assertTrue(pageModel.getComponentCount() > 0);
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="PageModelResponse API">
+      <table>
+        <tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+        <tr><td><code>getRootComponent()</code></td><td>PageComponent</td><td>Root of component tree</td></tr>
+        <tr><td><code>findComponentByName(name)</code></td><td>Optional&lt;PageComponent&gt;</td><td>Find component anywhere in tree</td></tr>
+        <tr><td><code>getChildComponents(parent)</code></td><td>List&lt;PageComponent&gt;</td><td>Direct children of component</td></tr>
+        <tr><td><code>getComponentCount()</code></td><td>int</td><td>Total components in tree</td></tr>
+        <tr><td><code>getLinks()</code></td><td>Map</td><td>Self/canonical links</td></tr>
+      </table>
+    </section>
+
+    <section name="Component Tree Traversal">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void testComponentStructure(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/")
+        .executeAsPageModel();
+
+    // Navigate component tree
+    PageComponent root = pageModel.getRootComponent();
+    List<PageComponent> children = pageModel.getChildComponents(root);
+
+    List<String> containerNames = children.stream()
+        .map(PageComponent::getName)
+        .toList();
+
+    assertThat(containerNames).contains("main");
+
+    // Navigate deeper
+    PageComponent main = pageModel.findComponentByName("main").orElseThrow();
+    List<PageComponent> mainChildren = pageModel.getChildComponents(main);
+
+    assertThat(mainChildren).isNotEmpty();
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Model Extraction">
+      <div class="brush: java">
+        <source><![CDATA[
+private static final ObjectMapper MAPPER = new ObjectMapper();
+
+@Test
+void testModelContent(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/")
+        .executeAsPageModel();
+
+    // Find component
+    PageComponent heroBanner = pageModel.findComponentByName("HeroBanner").orElseThrow();
+
+    // Get model data
+    Map<String, Object> model = heroBanner.getModel("heroBanner");
+
+    // Map to POJO
+    HeroBannerContent content = MAPPER.convertValue(model, HeroBannerContent.class);
+
+    assertThat(content.getTitle()).isNotBlank();
+    assertThat(content.getCallToAction()).isNotNull();
+}
+        ]]></source>
+      </div>
+
+      <subsection name="POJO for Model Mapping">
+        <div class="brush: java">
+          <source><![CDATA[
+public class HeroBannerContent {
+    private String title;
+    private String description;
+    private CallToAction callToAction;
+
+    // Getters and setters...
+
+    public static class CallToAction {
+        private String title;
+        private String externalLink;
+        // Getters and setters...
+    }
+}
+          ]]></source>
+        </div>
+      </subsection>
+    </section>
+
+    <section name="Authentication">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmPageModelTest(loadProjectContent = true)
+class SecurePageModelTest {
+
+    @Test
+    void premiumUser_seesExclusiveContent(DynamicPageModelTest brxm) throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/premium")
+            .asUser("subscriber", "premium-tier")
+            .executeAsPageModel();
+
+        assertThat(pageModel.findComponentByName("ExclusiveContent")).isPresent();
+    }
+
+    @Test
+    void anonymousUser_seesPromotionalContent(DynamicPageModelTest brxm) throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/")
+            .executeAsPageModel();
+
+        PageComponent heroBanner = pageModel.findComponentByName("HeroBanner").orElseThrow();
+        Map<String, Object> model = heroBanner.getModel("heroBanner");
+
+        assertThat(model.get("ctaTitle")).isEqualTo("Get Started Free");
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Annotation Options">
+      <table>
+        <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr>
+          <td><code>beanPackages</code></td>
+          <td>String[]</td>
+          <td>auto-detected</td>
+          <td>HST content bean packages</td>
+        </tr>
+        <tr>
+          <td><code>hstRoot</code></td>
+          <td>String</td>
+          <td>auto-detected</td>
+          <td>HST configuration root</td>
+        </tr>
+        <tr>
+          <td><code>springConfig</code></td>
+          <td>String</td>
+          <td>auto-detected</td>
+          <td>Spring XML config for PageModel pipeline</td>
+        </tr>
+        <tr>
+          <td><code>loadProjectContent</code></td>
+          <td>boolean</td>
+          <td>false</td>
+          <td>Load real HCM modules</td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="PageComponent API">
+      <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>getName()</code></td><td>Component name (matches HST config)</td></tr>
+        <tr><td><code>getId()</code></td><td>Unique component ID</td></tr>
+        <tr><td><code>getComponentClass()</code></td><td>Java class name</td></tr>
+        <tr><td><code>getModel(key)</code></td><td>Get model data by attribute name</td></tr>
+        <tr><td><code>getLabels()</code></td><td>CMS labels for component</td></tr>
+      </table>
+    </section>
+
+    <section name="Common Patterns">
+
+      <subsection name="Verify Page Structure">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testPageStructure(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/dashboard")
+        .executeAsPageModel();
+
+    // Check expected components exist
+    assertThat(pageModel.findComponentByName("Header")).isPresent();
+    assertThat(pageModel.findComponentByName("Footer")).isPresent();
+    assertThat(pageModel.findComponentByName("MainContent")).isPresent();
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Verify Links">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testPageLinks(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/")
+        .executeAsPageModel();
+
+    assertThat(pageModel.getLinks()).containsKey("self");
+}
+          ]]></source>
+        </div>
+      </subsection>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="../quick-reference.html">Quick Reference</a> - All annotation options</li>
+        <li><a href="../patterns/authentication.html">Authentication Patterns</a> - Testing secured pages</li>
+        <li><a href="../patterns/common-patterns.html">Common Patterns</a> - Navigation and assertions</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

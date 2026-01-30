@@ -45,16 +45,47 @@
         </div>
       </subsection>
 
-      <subsection name="Tests">
-        <p>In the demo project, there are three test classes in the <code>site/components</code> submodule:</p>
+      <subsection name="Annotation-Based Tests (Recommended)">
+        <p>BRUT 5.1.0 introduces annotation-based testing with JUnit 5 parameter injection:</p>
         <ul>
-          <li><code>EssentialsListComponentTest</code>: HST Component Test</li>
-          <li><code>JaxrsTest</code>: Plain JAX-RS RESTful API Test</li>
-          <li><code>PageModelTest</code>: Delivery Page Model API Test</li>
+          <li><code>ZeroConfigJaxrsTest</code>: Zero-config JAX-RS test with auto-detected bean packages</li>
+          <li><code>AnnotationBasedJaxrsTest</code>: JAX-RS test with explicit configuration</li>
+          <li><code>AnnotationBasedPageModelTest</code>: Page Model API test with annotations</li>
+          <li><code>AnnotationBasedComponentTest</code>: HST Component test with annotations</li>
+          <li><code>ConfigServiceAnnotationJaxrsTest</code>: ConfigServiceRepository with <code>loadProjectContent = true</code></li>
         </ul>
+        <p><strong>Example:</strong></p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {HelloResource.class}
+)
+class ZeroConfigJaxrsTest {
 
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
+            .get("/site/api/hello/world")
+            .assertBody("Hello, World! world");
+    }
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Legacy Tests">
+        <p>For reference, the demo project also includes tests using the legacy abstract class approach:</p>
+        <ul>
+          <li><code>EssentialsListComponentTest</code>: HST Component Test (extends AbstractComponentTest)</li>
+          <li><code>JaxrsTest</code>: Plain JAX-RS RESTful API Test (extends AbstractJaxrsTest)</li>
+          <li><code>PageModelTest</code>: Delivery Page Model API Test (extends AbstractPageModelTest)</li>
+        </ul>
+      </subsection>
+
+      <subsection name="Running Tests">
         <p>
-          Running the tests in the demo project:
+          Run all tests in the demo project:
         </p>
         <div>
           <source><![CDATA[

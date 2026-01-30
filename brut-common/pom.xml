@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>5.0.1</version>
+    <version>5.1.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -22,14 +22,25 @@
     </dependency>
 
     <dependency>
+      <groupId>org.onehippo.cms7.hst</groupId>
+      <artifactId>hst-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
 

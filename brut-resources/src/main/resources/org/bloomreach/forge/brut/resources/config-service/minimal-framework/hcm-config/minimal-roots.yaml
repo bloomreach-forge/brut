@@ -1,0 +1,101 @@
+definitions:
+  config:
+    /hippo:configuration:
+      jcr:primaryType: hipposys:configuration
+      /hippo:modules:
+        jcr:primaryType: hipposys:modulefolder
+        /autoexport:
+          jcr:primaryType: hipposys:module
+          /hippo:moduleconfig:
+            jcr:primaryType: hipposys:moduleconfig
+        /webfiles:
+          jcr:primaryType: hipposys:module
+          /hippo:moduleconfig:
+            jcr:primaryType: hipposys:moduleconfig
+      /hippo:queries:
+        jcr:primaryType: hipposys:queryfolder
+        /hippo:templates:
+          jcr:primaryType: hipposys:queryfolder
+      /hippo:update:
+        jcr:primaryType: hipposys:update
+        /hippo:registry:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hipposys:updaterfolder
+        /hippo:queue:
+          .meta:residual-child-node-category: content
+          jcr:primaryType: hipposys:updaterfolder
+        /hippo:history:
+          .meta:residual-child-node-category: system
+          jcr:primaryType: hipposys:updaterfolder
+      /hippo:translations:
+        jcr:primaryType: hipposys:resourcebundles
+        /hippo:templates:
+          jcr:primaryType: hipposys:resourcebundles
+          /de:
+            jcr:primaryType: hipposys:resourcebundle
+          /en:
+            jcr:primaryType: hipposys:resourcebundle
+          /fr:
+            jcr:primaryType: hipposys:resourcebundle
+          /nl:
+            jcr:primaryType: hipposys:resourcebundle
+        /hippo:types:
+          jcr:primaryType: hipposys:resourcebundles
+      /hippo:users:
+        jcr:primaryType: hipposys:userfolder
+      /hippo:derivatives:
+        jcr:primaryType: hipposys:derivativesfolder
+      /hippo:workflows:
+        jcr:primaryType: hipposys:workflowfolder
+      /hippo:groups:
+        jcr:primaryType: hipposys:groupfolder
+        /author:
+          jcr:primaryType: hipposys:group
+        /editor:
+          jcr:primaryType: hipposys:group
+        /webmaster:
+          jcr:primaryType: hipposys:group
+      /hippo:domains:
+        jcr:primaryType: hipposys:domainfolder
+      /hippo:security:
+        jcr:primaryType: hipposys:securityfolder
+      /hippo:frontend:
+        jcr:primaryType: hipposys:applicationfolder
+      /hippo:roles:
+        jcr:primaryType: hipposys:rolefolder
+    /hippo:namespaces:
+      jcr:primaryType: hipposysedit:namespacefolder
+    /content:
+      jcr:primaryType: hippostd:folder
+      /documents:
+        jcr:primaryType: hippostd:folder
+      /gallery:
+        jcr:primaryType: hippogallery:stdImageGallery
+      /assets:
+        jcr:primaryType: hippogallery:stdAssetGallery
+    /webfiles:
+      jcr:primaryType: webfiles:webfiles
+    /hst:hst:
+      jcr:primaryType: hst:hst
+      /hst:hosts:
+        jcr:primaryType: hst:virtualhosts
+      /hst:configurations:
+        jcr:primaryType: hst:configurations
+        /hst:default:
+          jcr:primaryType: hst:configuration
+          /hst:pages:
+            jcr:primaryType: hst:pages
+          /hst:components:
+            jcr:primaryType: hst:components
+          /hst:templates:
+            jcr:primaryType: hst:templates
+          /hst:sitemenus:
+            jcr:primaryType: hst:sitemenus
+          /hst:sitemap:
+            jcr:primaryType: hst:sitemap
+          /hst:sitemapitemhandlers:
+            jcr:primaryType: hst:sitemapitemhandlers
+          /hst:catalog:
+            jcr:primaryType: hst:catalog
+      /hst:sites:
+        jcr:primaryType: hst:sites

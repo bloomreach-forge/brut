@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>ConfigServiceRepository - Production Parity Testing</title>
+  </properties>
+  <body>
+
+    <section name="ConfigServiceRepository">
+      <p><code>ConfigServiceRepository</code> leverages brXM's production <code>ConfigurationConfigService</code>
+      to create HST configuration in tests, providing production-identical JCR structure without manual node construction.</p>
+
+      <p><strong>Key Benefits:</strong></p>
+      <ul>
+        <li><strong>Production Parity</strong>: Uses exact same bootstrap code as real brXM</li>
+        <li><strong>Zero Maintenance</strong>: brXM structure changes propagate automatically</li>
+        <li><strong>Explicit Control</strong>: Loads only your test HCM modules (no framework dependencies)</li>
+        <li><strong>Proven</strong>: Works with both JAX-RS and PageModel tests</li>
+      </ul>
+    </section>
+
+    <section name="Annotation-Based Usage (Recommended)">
+      <p>With BRUT 5.1.0+, ConfigServiceRepository integration is a one-liner via the <code>loadProjectContent</code> attribute:</p>
+
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {MyResource.class},
+    loadProjectContent = true  // Enables ConfigServiceRepository
+)
+class MyTest {
+
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
+            .get("/site/api/my-endpoint")
+            .assertStatus(200);
+    }
+}
+        ]]></source>
+      </div>
+
+      <p><strong>What <code>loadProjectContent = true</code> does:</strong></p>
+      <ul>
+        <li>Auto-detects your project namespace from <code>pom.xml</code> <code>groupId</code></li>
+        <li>Loads HCM modules from <code>target/test-classes/META-INF/hcm-module.yaml</code></li>
+        <li>Creates production-identical HST configuration</li>
+        <li>All without manual Spring XML configuration</li>
+      </ul>
+
+      <p>You still need the HCM module descriptor and config files (see Manual Setup below), but the annotation handles the repository wiring automatically.</p>
+    </section>
+
+    <section name="Manual Setup (Legacy)">
+      <p>For legacy abstract class tests or advanced customization, use manual Spring XML configuration:</p>
+
+      <subsection name="1. Add HCM Module Descriptor">
+        <p><strong>File:</strong> <code>src/test/resources/META-INF/hcm-module.yaml</code></p>
+        <div class="brush: yaml">
+          <source><![CDATA[
+group:
+  name: myproject-test
+project: myproject-test
+module:
+  name: test-config
+          ]]></source>
+        </div>
+        <p><strong>Important:</strong> Do NOT include <code>config:</code> or <code>after:</code> sections.
+        ModuleReader discovers config by directory convention.</p>
+      </subsection>
+
+      <subsection name="2. Add HCM Configuration">
+        <p><strong>Directory:</strong> <code>src/test/resources/hcm-config/hst/</code></p>
+        <p><strong>File:</strong> <code>demo-hst.yaml</code></p>
+        <div class="brush: yaml">
+          <source><![CDATA[
+definitions:
+  config:
+    /hst:myproject:
+      jcr:primaryType: hst:hst
+    /hst:myproject/hst:sites:
+      jcr:primaryType: hst:sites
+    /hst:myproject/hst:sites/myproject:
+      jcr:primaryType: hst:site
+      hst:content: /content/documents/myproject
+    /hst:myproject/hst:configurations:
+      jcr:primaryType: hst:configurations
+    /hst:myproject/hst:configurations/myproject:
+      jcr:primaryType: hst:configuration
+    /hst:myproject/hst:configurations/myproject/hst:sitemap:
+      jcr:primaryType: hst:sitemap
+    /hst:myproject/hst:configurations/myproject/hst:sitemap/root:
+      jcr:primaryType: hst:sitemapitem
+      hst:componentconfigurationid: hst:pages/homepage
+    /hst:myproject/hst:configurations/myproject/hst:pages:
+      jcr:primaryType: hst:pages
+    /hst:myproject/hst:configurations/myproject/hst:pages/homepage:
+      jcr:primaryType: hst:component
+    /hst:myproject/hst:hosts:
+      jcr:primaryType: hst:virtualhosts
+          ]]></source>
+        </div>
+        <p><strong>Note:</strong> BRUT uses <code>/hst:myproject</code> as HST root (not <code>/hst:hst</code>) for test isolation.</p>
+      </subsection>
+
+      <subsection name="3. Override Repository Bean">
+        <p><strong>File:</strong> <code>src/test/resources/org/example/config-service-jcr.xml</code></p>
+        <div class="brush: xml">
+          <source><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <bean id="javax.jcr.Repository"
+        class="org.bloomreach.forge.brut.resources.ConfigServiceRepository"
+        init-method="init"
+        destroy-method="close">
+    <constructor-arg ref="cndResourcesPatterns"/>
+    <constructor-arg ref="contributedCndResourcesPatterns"/>
+    <constructor-arg ref="yamlResourcesPatterns"/>
+    <constructor-arg ref="contributedYamlResourcesPatterns"/>
+    <constructor-arg value="myproject"/>  <!-- project namespace -->
+  </bean>
+
+</beans>
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="4. Use in Your Test">
+        <div class="brush: java">
+          <source><![CDATA[
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class MyIntegrationTest extends AbstractJaxrsTest {
+
+    @Override
+    protected List<String> contributeSpringConfigurationLocations() {
+        return Arrays.asList(
+            "/org/example/config-service-jcr.xml",  // ConfigServiceRepository override
+            "/org/example/custom-jaxrs.xml",
+            "/org/example/rest-resources.xml"
+        );
+    }
+
+    @Override
+    protected String contributeHstConfigurationRootPath() {
+        return "/hst:myproject";  // BRUT uses project-specific root
+    }
+
+    @Test
+    void testHstStructureCreated() throws Exception {
+        Repository repo = getComponentManager().getComponent(Repository.class);
+        Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
+
+        assertTrue(session.nodeExists("/hst:myproject"));
+        assertTrue(session.nodeExists("/hst:myproject/hst:configurations/myproject"));
+    }
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+    </section>
+
+    <section name="How It Works">
+
+      <subsection name="Architecture">
+        <p>ConfigServiceRepository uses <strong>ModuleReader</strong> for explicit module loading:</p>
+        <div class="brush: plain">
+          <source><![CDATA[
+Test Resources (target/test-classes)
+├── META-INF/hcm-module.yaml          <- Module descriptor
+└── hcm-config/                       <- Config discovered by convention
+    └── hst/*.yaml                    <- Your HST definitions
+                 |
+           ModuleReader                <- Loads module explicitly (no classpath scan)
+                 |
+    ConfigurationModelImpl.build()    <- Builds configuration model
+                 |
+      ConfigurationConfigService      <- brXM's production bootstrap service
+                 |
+          JCR Repository               <- Production-identical structure
+          ]]></source>
+        </div>
+        <p><strong>Key Insight:</strong> We use <code>ModuleReader.read(path, false)</code> to load test modules
+        explicitly by path, avoiding <code>ClasspathConfigurationModelReader</code> which scans for ALL modules
+        (including framework JARs with unmet dependencies).</p>
+      </subsection>
+
+      <subsection name="Initialization Flow">
+        <ol>
+          <li><strong>Register CNDs</strong>: Node type definitions from classpath</li>
+          <li><strong>Load Test Modules</strong>: ModuleReader finds <code>META-INF/hcm-module.yaml</code> in <code>target/test-classes</code></li>
+          <li><strong>Discover Config</strong>: ModuleReader automatically finds <code>hcm-config/**/*.yaml</code></li>
+          <li><strong>Build Model</strong>: Creates <code>ConfigurationModelImpl</code> with only test modules</li>
+          <li><strong>Apply via ConfigService</strong>: Uses reflection to call package-private ConfigService methods</li>
+          <li><strong>Create JCR Nodes</strong>: ConfigService writes production-identical structure</li>
+          <li><strong>Import YAML Content</strong>: Additional content from YAML patterns</li>
+          <li><strong>Recalculate Paths</strong>: Update hippo:paths properties</li>
+        </ol>
+      </subsection>
+
+    </section>
+
+    <section name="HCM Module Format">
+
+      <subsection name="Correct Format (ModuleReader)">
+        <div class="brush: yaml">
+          <source><![CDATA[
+# META-INF/hcm-module.yaml
+group:
+  name: test-group
+project: test-project
+module:
+  name: test-config
+  # NO 'config:' key here! ModuleReader discovers by convention.
+          ]]></source>
+        </div>
+        <p>ModuleReader automatically discovers:</p>
+        <ul>
+          <li><code>hcm-config/**/*.yaml</code> - Configuration</li>
+          <li><code>hcm-content/**/*.yaml</code> - Content</li>
+          <li><code>namespaces/**/*.cnd</code> - Node types</li>
+        </ul>
+      </subsection>
+
+      <subsection name="Common Mistakes">
+        <div class="brush: yaml">
+          <source><![CDATA[
+# WRONG - config: key is invalid for ModuleReader
+module:
+  name: test-config
+  config:              # <- ERROR: Not valid!
+    source: /hcm-config
+
+# WRONG - Missing dependencies cause errors
+group:
+  name: test-group
+  after:
+    - hippo-cms       # <- ERROR: hippo-cms doesn't exist in test env
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="HCM Config Path Format">
+        <p>HCM config uses <strong>flat paths</strong>, not nested YAML:</p>
+        <div class="brush: yaml">
+          <source><![CDATA[
+# CORRECT - Flat paths
+definitions:
+  config:
+    /hst:myproject:
+      jcr:primaryType: hst:hst
+    /hst:myproject/hst:sites:
+      jcr:primaryType: hst:sites
+    /hst:myproject/hst:sites/myproject:
+      jcr:primaryType: hst:site
+
+# WRONG - Nested structure (creates wrong paths)
+definitions:
+  config:
+    /hst:myproject:
+      jcr:primaryType: hst:hst
+      /hst:sites:                    # Wrong: creates /hst:sites not /hst:myproject/hst:sites
+        jcr:primaryType: hst:sites
+          ]]></source>
+        </div>
+      </subsection>
+
+    </section>
+
+    <section name="Comparison: SkeletonRepository vs ConfigServiceRepository">
+      <table>
+        <tr><th>Aspect</th><th>SkeletonRepository</th><th>ConfigServiceRepository</th></tr>
+        <tr><td>HST Bootstrap</td><td>Minimal hardcoded structure</td><td>Full production ConfigService</td></tr>
+        <tr><td>Maintenance</td><td>Manual updates when brXM changes</td><td>Automatic (uses production code)</td></tr>
+        <tr><td>Structure</td><td>Basic hst:hst node only</td><td>Complete HST tree</td></tr>
+        <tr><td>Setup</td><td>Zero configuration</td><td>Requires HCM module + config</td></tr>
+        <tr><td>Speed</td><td>Faster (minimal setup)</td><td>Slightly slower (full bootstrap)</td></tr>
+        <tr><td>Use Case</td><td>Simple unit tests</td><td>Integration tests needing real HST</td></tr>
+        <tr><td>Production Parity</td><td>No</td><td>Yes (exact same code path)</td></tr>
+      </table>
+    </section>
+
+    <section name="Troubleshooting">
+
+      <subsection name="ParserException: Key 'config' is not allowed">
+        <p><strong>Cause:</strong> Using ClasspathConfigurationModelReader format in hcm-module.yaml</p>
+        <p><strong>Fix:</strong> Remove <code>config:</code> section. ModuleReader discovers by convention.</p>
+      </subsection>
+
+      <subsection name="MissingDependencyException: missing dependency 'hippo-cms'">
+        <p><strong>Cause:</strong> Module declares dependency on framework module not present in test</p>
+        <p><strong>Fix:</strong> Remove <code>after:</code> section from group.</p>
+      </subsection>
+
+      <subsection name="HST nodes not created">
+        <p><strong>Cause:</strong> HCM config files missing or in wrong location</p>
+        <p><strong>Fix:</strong></p>
+        <ul>
+          <li>Verify <code>hcm-config/</code> directory exists in test resources</li>
+          <li>Check YAML syntax</li>
+          <li>Ensure paths use <code>/hst:myproject</code> (not <code>/hst:hst</code>)</li>
+        </ul>
+      </subsection>
+
+    </section>
+
+    <section name="Bootstrap Strategy Pattern">
+      <p>ConfigServiceRepository uses pluggable strategies:</p>
+      <ul>
+        <li><strong>ConfigServiceBootstrapStrategy</strong> - Uses ConfigService (preferred)
+          <ul>
+            <li>Auto-detects via <code>canHandle()</code> - checks for <code>META-INF/hcm-module.yaml</code></li>
+            <li>Loads modules explicitly with ModuleReader</li>
+          </ul>
+        </li>
+        <li><strong>ManualBootstrapStrategy</strong> - Minimal setup (fallback)
+          <ul>
+            <li>Always returns true for <code>canHandle()</code></li>
+            <li>Creates basic <code>/hst:hst</code> node only</li>
+          </ul>
+        </li>
+      </ul>
+      <p>Strategy selection is automatic based on classpath resources.</p>
+    </section>
+
+    <section name="Example Project Structure">
+      <div class="brush: plain">
+        <source><![CDATA[
+src/test/
+├── java/org/example/
+│   └── MyIntegrationTest.java
+└── resources/
+    ├── META-INF/
+    │   └── hcm-module.yaml              # Module descriptor
+    ├── hcm-config/
+    │   └── hst/
+    │       └── demo-hst.yaml            # HST configuration
+    └── org/example/
+        └── config-service-jcr.xml       # Repository override
+        ]]></source>
+      </div>
+    </section>
+
+  </body>
+</document>

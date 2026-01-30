@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>BRUT Architecture</title>
+  </properties>
+  <body>
+
+    <section name="Overview">
+      <p>BRUT boots an in-memory brXM delivery tier stack for tests. It builds a repository, loads HCM
+         configuration and content, initializes the HST model, then executes the same pipelines used in
+         production (component rendering, JAX-RS, Page Model API).</p>
+    </section>
+
+    <section name="Module Overview">
+      <table>
+        <tr><th>Module</th><th>Purpose</th></tr>
+        <tr>
+          <td><strong>brut-common</strong></td>
+          <td>In-memory repository, YAML import, JUnit 5 extensions, auto-detection utilities</td>
+        </tr>
+        <tr>
+          <td><strong>brut-resources</strong></td>
+          <td>HST container startup, HCM module loading, request pipelines, PageModel API</td>
+        </tr>
+        <tr>
+          <td><strong>brut-components</strong></td>
+          <td>Component test utilities, HST request/response mocks</td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="brut-common">
+      <ul>
+        <li>In-memory repository and YAML import utilities</li>
+        <li>Repository configuration from <code>repository.xml</code> on classpath</li>
+        <li>Test authentication via in-memory login module</li>
+      </ul>
+
+      <subsection name="Key Classes">
+        <table>
+          <tr><th>Class</th><th>Purpose</th></tr>
+          <tr><td><code>BrutTestConfigurationException</code></td><td>Unified error handling with factory methods</td></tr>
+          <tr><td><code>TestConfigurationLogger</code></td><td>Consistent configuration logging</td></tr>
+          <tr><td><code>TestInstanceInjector</code></td><td>JUnit 5 field injection</td></tr>
+          <tr><td><code>AbstractBrutRepository</code></td><td>Shared CND/namespace handling</td></tr>
+        </table>
+      </subsection>
+    </section>
+
+    <section name="brut-resources">
+      <ul>
+        <li>Loads HCM modules (config + content) via Config Service APIs</li>
+        <li>Initializes the HST container and request pipelines</li>
+      </ul>
+
+      <subsection name="Bootstrap Components">
+        <table>
+          <tr><th>Class</th><th>Purpose</th></tr>
+          <tr><td><code>ConfigServiceBootstrapStrategy</code></td><td>Orchestrates HCM-based bootstrap</td></tr>
+          <tr><td><code>RuntimeTypeStubber</code></td><td>Stubs missing namespaces/node types</td></tr>
+          <tr><td><code>JcrNodeSynchronizer</code></td><td>Syncs JCR nodes between trees</td></tr>
+          <tr><td><code>ConfigServiceReflectionBridge</code></td><td>Reflection access to ConfigService</td></tr>
+        </table>
+      </subsection>
+
+      <subsection name="Request Utilities">
+        <table>
+          <tr><th>Class</th><th>Purpose</th></tr>
+          <tr><td><code>MockHstRequest</code></td><td>Extended mock with HTTP session support</td></tr>
+          <tr><td><code>RequestBuilder</code></td><td>Fluent API for request setup</td></tr>
+          <tr><td><code>PageModelResponse</code></td><td>Navigation utility for Page Model API responses</td></tr>
+        </table>
+      </subsection>
+    </section>
+
+    <section name="brut-components">
+      <p>Component-test utilities and mocks for HST components:</p>
+      <ul>
+        <li><code>@BrxmComponentTest</code> annotation</li>
+        <li><code>DynamicComponentTest</code> test harness</li>
+        <li>Request/response mocking</li>
+        <li>Component parameter injection</li>
+      </ul>
+    </section>
+
+    <section name="Bootstrap Flow">
+      <ol>
+        <li>Register CND node types from configured patterns</li>
+        <li>Load HCM modules from descriptors or explicit module paths</li>
+        <li>Build the configuration model and apply namespaces/node types</li>
+        <li>Import content definitions into the repository</li>
+        <li>Build the HST model from the repository</li>
+      </ol>
+    </section>
+
+    <section name="Request Flow (Page Model API)">
+      <div class="brush: plain">
+        <source><![CDATA[
+Test -> DynamicPageModelTest -> HST Container -> HST Model/Cache
+  |           |                    |                |
+  |           |                    |                +--> Resolve sitemap item
+  |           |                    |                +--> Resolve channel (preview/live)
+  |           |                    |                +--> Resolve component tree
+  |           |                    |                         |
+  |           |                    |                         +--> Resolve container refs
+  |           |                    |                              (hst:workspace/hst:containers)
+  |           |                    |                         +--> Build container items
+  |           |                    |
+  |           |                    +--> Build Page Model JSON
+  |           |
+  +--> Response JSON (root + page map with $ref links)
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Request Flow (Component/JAX-RS)">
+      <div class="brush: plain">
+        <source><![CDATA[
+Test -> DynamicComponentTest/DynamicJaxrsTest -> HST Container -> HST Model/Cache
+  |                |                               |                |
+  |                |                               |                +--> Resolve mount + sitemap item
+  |                |                               |                +--> Resolve component tree
+  |                |                               |                +--> Build request context
+  |                |                               |
+  |                |                               +--> Execute pipeline (component/jaxrs)
+  |                |
+  +--> Response (rendered output or JAX-RS payload)
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="HST Configuration Resolution">
+      <subsection name="Composite Configuration">
+        <p>HST loads a composite configuration: base config overlaid by workspace nodes. This is how
+           workspace containers, sitemenus, and channel info become visible to the model.</p>
+      </subsection>
+
+      <subsection name="Container References">
+        <ul>
+          <li><code>hst:containercomponentreference</code> resolves against <code>hst:workspace/hst:containers</code></li>
+          <li>Container items are <code>hst:containeritemcomponent</code> children</li>
+          <li>If the referenced workspace path is missing, the reference is ignored</li>
+        </ul>
+      </subsection>
+
+      <subsection name="Sitemenus and Channel Info">
+        <ul>
+          <li>Sitemenus can live under both <code>hst:sitemenus</code> and <code>hst:workspace/hst:sitemenus</code></li>
+          <li>Channel info is resolved from the mount</li>
+          <li>Preview mounts use the preview configuration and its workspace overlays</li>
+        </ul>
+      </subsection>
+    </section>
+
+    <section name="Caching and Refresh">
+      <p>HST model caches are built during initialization. If configuration/content is imported after
+         the model is built, caches must be invalidated or the model rebuilt for changes to take effect.</p>
+    </section>
+
+    <section name="Customization Points">
+      <table>
+        <tr><th>What</th><th>How</th></tr>
+        <tr>
+          <td>Repository behavior/auth</td>
+          <td>Custom <code>repository.xml</code> on classpath</td>
+        </tr>
+        <tr>
+          <td>Module loading</td>
+          <td>Explicit module descriptors in tests</td>
+        </tr>
+        <tr>
+          <td>CND/YAML patterns</td>
+          <td>Spring configuration or annotation parameters</td>
+        </tr>
+      </table>
+    </section>
+
+  </body>
+</document>

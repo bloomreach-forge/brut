@@ -1,0 +1,42 @@
+//
+// Minimal Framework CNDs - Updater Support
+//
+// Provides the updater node types required for configuration definitions
+// under /hippo:configuration/hippo:update.
+//
+
+<hipposys = 'http://www.onehippo.org/jcr/hipposys/nt/1.0'>
+
+[hipposys:update] > nt:base
+  + hippo:registry (hipposys:updaterfolder)
+  + hippo:queue (hipposys:updaterfolder)
+  + hippo:history (hipposys:updaterfolder)
+
+[hipposys:updaterfolder] > nt:base
+  + * (hipposys:updaterinfo)
+
+[hipposys:updaterinfo] > nt:base
+  - hipposys:description (string)
+  - hipposys:path (string)
+  - hipposys:query (string)
+  - hipposys:language (string)
+  - hipposys:parameters (string)
+  - hipposys:script (string)
+  - hipposys:class (string)
+  - hipposys:revert (boolean)
+  - hipposys:throttle (long)
+  - hipposys:batchsize (long)
+  - hipposys:dryrun (boolean)
+  - hipposys:cancelled (boolean)
+  - hipposys:startedby (string)
+  - hipposys:cancelledby (string)
+  - hipposys:starttime (date)
+  - hipposys:finishtime (date)
+  - hipposys:updated (binary)
+  - hipposys:updatedcount (long)
+  - hipposys:failed (binary)
+  - hipposys:failedcount (long)
+  - hipposys:skipped (binary)
+  - hipposys:skippedcount (long)
+  - hipposys:logtarget (string)
+  - hipposys:loglevel (string)

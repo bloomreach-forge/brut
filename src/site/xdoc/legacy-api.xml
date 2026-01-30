@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Legacy API: Abstract Classes</title>
+  </properties>
+  <body>
+
+    <section name="Overview">
+      <p><strong>Note:</strong> This is the legacy approach using abstract base classes. For new tests,
+         we recommend the <a href="quick-reference.html">annotation-based API</a> which reduces boilerplate by 66-74%.</p>
+      <p>For existing tests or special cases, the abstract class approach is still fully supported.</p>
+    </section>
+
+    <section name="Page Model API Example">
+      <div class="brush: java">
+        <source><![CDATA[
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class PageModelTest extends AbstractPageModelTest {
+
+    @BeforeAll
+    public void init() {
+        super.init();
+    }
+
+    @AfterAll
+    public void destroy() {
+        super.destroy();
+    }
+
+    @Override
+    protected String getAnnotatedHstBeansClasses() {
+        return "classpath*:org/example/beans/*.class,";
+    }
+
+    @Override
+    protected List<String> contributeSpringConfigurationLocations() {
+        return Collections.singletonList("/custom-pagemodel.xml");
+    }
+
+    @Override
+    protected String contributeHstConfigurationRootPath() {
+        return "/hst:myproject";
+    }
+
+    @Test
+    public void testComponentRendering() throws IOException {
+        getHstRequest().setRequestURI("/site/resourceapi/news");
+        getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
+        String response = invokeFilter();
+
+        JsonNode json = new ObjectMapper().readTree(response);
+        assertTrue(json.get("page").size() > 0);
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="JAX-RS Example (JUnit 5)">
+      <div class="brush: java">
+        <source><![CDATA[
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class JaxrsTest extends AbstractJaxrsTest {
+
+    @BeforeAll
+    public void init() {
+        super.init();
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        setupForNewRequest();
+        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        getHstRequest().setMethod(HttpMethod.GET);
+    }
+
+    @Override
+    protected String getAnnotatedHstBeansClasses() {
+        return "classpath*:org/example/model/*.class,";
+    }
+
+    @Override
+    protected List<String> contributeSpringConfigurationLocations() {
+        return Arrays.asList("/custom-jaxrs.xml", "/rest-resources.xml");
+    }
+
+    @Override
+    protected String contributeHstConfigurationRootPath() {
+        return "/hst:myproject";
+    }
+
+    @Test
+    public void testEndpoint() {
+        getHstRequest().setRequestURI("/site/api/hello/user");
+        String response = invokeFilter();
+        assertEquals("Hello, World! user", response);
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="JAX-RS Example (JUnit 4)">
+      <div class="brush: java">
+        <source><![CDATA[
+public class JaxrsTest extends AbstractJaxrsTest {
+
+    @Before
+    public void setUp() {
+        super.init();
+        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        getHstRequest().setMethod(HttpMethod.GET);
+    }
+
+    // Same @Override methods and @Test as above
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Spring Configuration">
+      <p>Provide CND files and YAML content imports via Spring config:</p>
+      <div class="brush: xml">
+        <source><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <value>classpath*:org/example/namespaces/**/*.cnd</value>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="contributedYamlResourcesPatterns" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <value>classpath*:org/example/imports/**/*.yaml</value>
+      </list>
+    </constructor-arg>
+  </bean>
+</beans>
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Migration to Annotation-Based API">
+      <table>
+        <tr><th>Legacy</th><th>Annotation-Based</th></tr>
+        <tr>
+          <td><code>extends AbstractJaxrsTest</code></td>
+          <td><code>@BrxmJaxrsTest</code> + <code>DynamicJaxrsTest brxm</code></td>
+        </tr>
+        <tr>
+          <td><code>extends AbstractPageModelTest</code></td>
+          <td><code>@BrxmPageModelTest</code> + <code>DynamicPageModelTest brxm</code></td>
+        </tr>
+        <tr>
+          <td><code>getAnnotatedHstBeansClasses()</code></td>
+          <td><code>beanPackages = {...}</code></td>
+        </tr>
+        <tr>
+          <td><code>contributeSpringConfigurationLocations()</code></td>
+          <td><code>springConfigs = {...}</code></td>
+        </tr>
+        <tr>
+          <td><code>contributeHstConfigurationRootPath()</code></td>
+          <td><code>hstRoot = "..."</code> (auto-detected)</td>
+        </tr>
+        <tr>
+          <td><code>getHstRequest()</code></td>
+          <td><code>brxm.getHstRequest()</code></td>
+        </tr>
+        <tr>
+          <td><code>invokeFilter()</code></td>
+          <td><code>brxm.invokeFilter()</code> or <code>brxm.request().execute()</code></td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="quick-reference.html">Quick Reference</a> - Annotation-based patterns</li>
+        <li><a href="getting-started.html">Getting Started</a> - First test setup</li>
+        <li><a href="architecture.html">Architecture</a> - How BRUT works</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

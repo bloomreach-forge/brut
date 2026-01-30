@@ -1,0 +1,8 @@
+//
+// Minimal dxphst CNDs for test bootstrapping.
+//
+
+<dxphst = 'http://www.onehippo.org/jcr/dxphst/nt/1.0'>
+
+[dxphst:mergeable] mixin
+  - dxphst:treehash (string)

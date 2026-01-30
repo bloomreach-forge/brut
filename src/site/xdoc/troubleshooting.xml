@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Troubleshooting Guide</title>
+  </properties>
+  <body>
+
+    <section name="Common Setup Issues">
+
+      <subsection name="Missing Bean Packages">
+        <p><strong>Symptom:</strong> <code>NoClassDefFoundError</code> or beans return null properties</p>
+        <p><strong>Cause:</strong> BRUT can't find your <code>@Node</code> annotated beans</p>
+        <div class="brush: java">
+          <source><![CDATA[
+// Fix: Specify your bean packages explicitly
+@BrxmComponentTest(beanPackages = {"com.example.beans", "com.example.components"})
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="YAML Content Not Found">
+        <p><strong>Symptom:</strong> <code>NullPointerException</code> when accessing content</p>
+        <p><strong>Cause:</strong> Content path doesn't match YAML structure</p>
+        <div class="brush: java">
+          <source><![CDATA[
+// YAML has: /petbase-telecom/herobanners/test-hero
+brxm.setSiteContentBasePath("/content/documents/petbase-telecom");
+
+// Component looks for: herobanners/test-hero
+when(paramInfo.getDocument()).thenReturn("herobanners/test-hero");
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Spring Context Not Loading">
+        <p><strong>Symptom:</strong> <code>BeanCreationException</code> or missing beans</p>
+        <p><strong>Cause:</strong> Spring config path incorrect or missing imports</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(
+    springConfigs = {"/com/example/test-jaxrs-resources.xml"}  // Must start with /
+)
+          ]]></source>
+        </div>
+        <p>Verify your Spring XML has required imports:</p>
+        <div class="brush: xml">
+          <source><![CDATA[
+<import resource="classpath:/org/hippoecm/hst/site/optional/jaxrs/SpringComponentManager-rest-jackson.xml"/>
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Node Types Not Registered">
+        <p><strong>Symptom:</strong> <code>NoSuchNodeTypeException</code> when importing YAML</p>
+        <p><strong>Cause:</strong> Custom CND types not registered before import</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BeforeEach
+void setUp(DynamicComponentTest brxm) throws RepositoryException {
+    // Register node types BEFORE importing YAML
+    brxm.registerNodeType("myproject:HeroBanner");
+    brxm.registerNodeType("myproject:CallToAction");
+
+    // Then import content
+    URL resource = getClass().getResource("/test-content.yaml");
+    ImporterUtils.importYaml(resource, brxm.getRootNode(),
+            "/content/documents", "hippostd:folder");
+}
+          ]]></source>
+        </div>
+      </subsection>
+    </section>
+
+    <section name="Runtime Issues">
+
+      <subsection name="Null Request/Response">
+        <p><strong>Symptom:</strong> <code>NullPointerException</code> on <code>brxm.getHstRequest()</code></p>
+        <p><strong>Cause:</strong> Missing annotation or wrong injection pattern</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmComponentTest(beanPackages = {"com.example.beans"})  // Required!
+class MyTest {
+    // Use parameter injection (recommended)
+    @Test
+    void test(DynamicComponentTest brxm) {
+        assertThat(brxm.getHstRequest()).isNotNull();
+    }
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Content Bean Returns Null">
+        <p><strong>Symptom:</strong> <code>getContentBean(request)</code> returns null</p>
+        <p><strong>Cause:</strong> Content path not set or content not published</p>
+        <div class="brush: java">
+          <source><![CDATA[
+// 1. Set site content base path
+brxm.setSiteContentBasePath("/content/documents/myproject");
+          ]]></source>
+        </div>
+        <div class="brush: yaml">
+          <source><![CDATA[
+# 2. Ensure YAML content has publish state
+/my-document:
+  jcr:primaryType: hippo:handle
+  /my-document:
+    jcr:primaryType: myproject:Document
+    hippo:availability: [live]        # Required!
+    hippostd:state: published         # Required!
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Component Parameters Not Working">
+        <p><strong>Symptom:</strong> <code>getComponentParametersInfo()</code> returns default values</p>
+        <p><strong>Cause:</strong> Mock not set before calling <code>doBeforeRender</code></p>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testWithParameters(DynamicComponentTest brxm) {
+    // Set parameters BEFORE calling component method
+    MyComponentInfo paramInfo = mock(MyComponentInfo.class);
+    when(paramInfo.getDocument()).thenReturn("path/to/doc");
+    brxm.setComponentParameters(paramInfo);
+
+    // Now call component
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+}
+          ]]></source>
+        </div>
+      </subsection>
+    </section>
+
+    <section name="Decision Tree: Which Test Type?">
+      <table>
+        <tr><th>Testing...</th><th>Use</th></tr>
+        <tr><td>HST Component (extends CommonComponent)</td><td><code>@BrxmComponentTest</code></td></tr>
+        <tr><td>JAX-RS REST endpoint (@Path annotated)</td><td><code>@BrxmJaxrsTest</code></td></tr>
+        <tr><td>Page Model API response</td><td><code>@BrxmPageModelTest</code></td></tr>
+        <tr><td>POJO/utility class</td><td>Plain JUnit (no BRUT needed)</td></tr>
+        <tr><td>Integration with real HST config</td><td>Add <code>loadProjectContent = true</code></td></tr>
+      </table>
+    </section>
+
+    <section name="Error Message Quick Reference">
+      <table>
+        <tr><th>Error</th><th>Likely Cause</th><th>Solution</th></tr>
+        <tr>
+          <td><code>NoSuchNodeTypeException</code></td>
+          <td>CND not registered</td>
+          <td>Call <code>registerNodeType()</code> or add CND pattern</td>
+        </tr>
+        <tr>
+          <td><code>PathNotFoundException</code></td>
+          <td>Content path wrong</td>
+          <td>Verify YAML structure matches path</td>
+        </tr>
+        <tr>
+          <td><code>BeanCreationException</code></td>
+          <td>Spring config error</td>
+          <td>Check XML syntax and import paths</td>
+        </tr>
+        <tr>
+          <td><code>NullPointerException</code> on request</td>
+          <td>No <code>@BrxmComponentTest</code></td>
+          <td>Add annotation to test class</td>
+        </tr>
+        <tr>
+          <td><code>NoClassDefFoundError</code></td>
+          <td>Missing bean package</td>
+          <td>Add to <code>beanPackages</code> parameter</td>
+        </tr>
+        <tr>
+          <td><code>UnsupportedOperationException</code></td>
+          <td>Method not mocked</td>
+          <td>Mock the component parameter interface</td>
+        </tr>
+        <tr>
+          <td><code>InvalidItemStateException</code></td>
+          <td>Session not saved</td>
+          <td>Call <code>brxm.recalculateRepositoryPaths()</code> after import</td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="Debug Logging Setup">
+      <p>Create <code>src/test/resources/logback-test.xml</code>:</p>
+      <div class="brush: xml">
+        <source><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- BRUT logging -->
+    <logger name="org.bloomreach.forge.brut" level="DEBUG"/>
+
+    <!-- HST logging -->
+    <logger name="org.hippoecm.hst" level="DEBUG"/>
+
+    <!-- JCR repository -->
+    <logger name="org.apache.jackrabbit" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
+        ]]></source>
+      </div>
+
+      <p>Run with debug output:</p>
+      <div class="brush: bash">
+        <source><![CDATA[
+mvn test -Dtest=MyTest -Dorg.slf4j.simpleLogger.defaultLogLevel=debug
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Specific Scenarios">
+
+      <subsection name="Testing Without Production Config">
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmComponentTest(
+    beanPackages = {"com.example.beans"}
+    // No loadProjectContent - uses minimal stub
+)
+class IsolatedComponentTest {
+    // Test with YAML imports only
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Testing With Production Config">
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmPageModelTest(
+    loadProjectContent = true,
+    repositoryDataModules = {"application", "site"}
+)
+class IntegrationTest {
+    // Has access to real HST config
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Resetting Between Tests">
+        <div class="brush: java">
+          <source><![CDATA[
+@BeforeEach
+void setUp(DynamicComponentTest brxm) {
+    // Reset for new request (clears attributes, parameters, session)
+    brxm.setupForNewRequest();
+
+    // Re-initialize component
+    component = new MyComponent();
+    component.init(null, brxm.getComponentConfiguration());
+}
+          ]]></source>
+        </div>
+      </subsection>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="getting-started.html">Getting Started</a> - Initial setup</li>
+        <li><a href="patterns/common-patterns.html">Common Patterns</a> - Working examples</li>
+        <li><a href="quick-reference.html">Quick Reference</a> - Fast lookup</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

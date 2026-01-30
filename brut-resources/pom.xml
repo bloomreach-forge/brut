@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.bloomreach.forge.brut</groupId>
         <artifactId>brut</artifactId>
-        <version>5.0.1</version>
+        <version>5.1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,6 +17,16 @@
     <artifactId>brut-resources</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.onehippo.cms</groupId>
+            <artifactId>hippo-configuration-management-model</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.onehippo.cms7</groupId>
+            <artifactId>hippo-repository-engine</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.onehippo.cms7</groupId>
@@ -254,7 +264,8 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
+            <!-- compile scope needed for annotation API (overrides parent test scope) -->
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

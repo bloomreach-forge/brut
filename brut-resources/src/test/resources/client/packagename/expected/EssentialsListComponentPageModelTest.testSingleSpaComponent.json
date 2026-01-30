@@ -20,10 +20,10 @@
     }
   },
   "root": {
-    "$ref": "/page/uid0"
+    "$ref": "/page/uid"
   },
   "page": {
-    "uid0": {
+    "uid": {
       "id": "r3",
       "links": {
         "self": {

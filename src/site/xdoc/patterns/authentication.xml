@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Authentication Testing Patterns</title>
+  </properties>
+  <body>
+
+    <section name="Fluent Authentication API (Recommended)">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+class SecureApiTest {
+
+    @Test
+    void authenticatedUser_canAccessProtectedEndpoint(DynamicJaxrsTest brxm) {
+        String response = brxm.request()
+            .get("/site/api/protected")
+            .asUser("john", "admin", "editor")  // username + roles
+            .execute();
+
+        assertThat(response).contains("Welcome, john");
+    }
+
+    @Test
+    void adminRole_canAccessDashboard(DynamicJaxrsTest brxm) {
+        String response = brxm.request()
+            .get("/site/api/dashboard")
+            .withRole("admin")  // role-only (no username)
+            .execute();
+
+        assertThat(response).contains("dashboard");
+    }
+}
+        ]]></source>
+      </div>
+
+      <subsection name="Method Reference">
+        <table>
+          <tr><th>Method</th><th>Description</th></tr>
+          <tr><td><code>asUser(username, roles...)</code></td><td>Sets remote user and roles</td></tr>
+          <tr><td><code>withRole(roles...)</code></td><td>Sets roles without username</td></tr>
+        </table>
+      </subsection>
+
+      <subsection name="When to Use Each">
+        <p><strong>Use <code>asUser()</code> when:</strong></p>
+        <ul>
+          <li>Your code checks <code>request.getRemoteUser()</code> or principal name</li>
+          <li>You need to identify the specific user in tests</li>
+          <li>Testing personalized content or user-specific features</li>
+        </ul>
+        <p><strong>Use <code>withRole()</code> when:</strong></p>
+        <ul>
+          <li>Your code only checks roles via <code>request.isUserInRole()</code></li>
+          <li>Testing role-based access control without user identity</li>
+        </ul>
+      </subsection>
+    </section>
+
+    <section name="Testing Auth Failures">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {AuthResource.class}
+)
+class AuthResourceTest {
+
+    @Test
+    void login_fails_forInvalidUser(DynamicJaxrsTest brxm) {
+        brxm.authentication().rejectUser("unknown");
+
+        String response = brxm.request()
+            .post("/site/api/auth/login")
+            .withBody("{\"username\":\"unknown\",\"password\":\"any\"}")
+            .execute();
+
+        assertThat(response).contains("401");
+    }
+
+    @Test
+    void login_fails_forWrongPassword(DynamicJaxrsTest brxm) {
+        brxm.authentication().rejectPassword("wrongpassword");
+
+        String response = brxm.request()
+            .post("/site/api/auth/login")
+            .withBody("{\"username\":\"john\",\"password\":\"wrongpassword\"}")
+            .execute();
+
+        assertThat(response).contains("Invalid credentials");
+    }
+
+    @Test
+    void login_fails_forLockedAccount(DynamicJaxrsTest brxm) {
+        brxm.authentication()
+            .rejectUser("locked")
+            .rejectUser("disabled");
+
+        // Both users will fail authentication
+    }
+}
+        ]]></source>
+      </div>
+
+      <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>rejectUser(username)</code></td><td>Reject credentials with this username</td></tr>
+        <tr><td><code>rejectPassword(password)</code></td><td>Reject credentials with this password</td></tr>
+      </table>
+      <p>Methods are chainable and automatically reset between tests.</p>
+    </section>
+
+    <section name="PageModel API Authentication">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmPageModelTest(loadProjectContent = true)
+class SecurePageModelTest {
+
+    @Test
+    void premiumUser_seesExclusiveContent(DynamicPageModelTest brxm) throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/premium")
+            .asUser("subscriber", "premium-tier")
+            .executeAsPageModel();
+
+        assertThat(pageModel.findComponentByName("ExclusiveContent")).isPresent();
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Principal-Based Authentication">
+      <p>For manual principal setup in component tests:</p>
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmComponentTest(beanPackages = {"com.example.beans"})
+class LoginComponentTest {
+
+    private void setLoggedInUser(String username, DynamicComponentTest brxm) {
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(username);
+        brxm.getHstRequest().setUserPrincipal(principal);
+    }
+
+    @Test
+    void doBeforeRender_whenNotLoggedIn_setsLoggedInFalse(DynamicComponentTest brxm) {
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        Boolean loggedIn = brxm.getRequestAttributeValue("loggedin");
+        assertThat(loggedIn).isFalse();
+    }
+
+    @Test
+    void doBeforeRender_whenLoggedIn_setsLoggedInTrue(DynamicComponentTest brxm) {
+        setLoggedInUser("testuser", brxm);
+
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        Boolean loggedIn = brxm.getRequestAttributeValue("loggedin");
+        assertThat(loggedIn).isTrue();
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Session-Based Authentication">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void doBeforeRender_withUserProfile_createsUserFromProfile(DynamicComponentTest brxm) {
+    setLoggedInUser("john", brxm);
+
+    UserProfile userProfile = new UserProfile();
+    userProfile.setFirstname("John");
+    userProfile.setLastname("Doe");
+    userProfile.setGroups(Arrays.asList("everybody", "premium-tier"));
+
+    HttpSession session = mock(HttpSession.class);
+    when(session.getAttribute("user")).thenReturn(null);
+    when(session.getAttribute("userProfile")).thenReturn(userProfile);
+    brxm.getHstRequest().setSession(session);
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    UserModel userModel = brxm.getRequestAttributeValue("user");
+    assertThat(userModel.getFirstname()).isEqualTo("John");
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Role/Tier Helper Methods">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmPageModelTest
+class DashboardPageModelApiTest {
+
+    private void authenticateUser(String username, String firstname,
+                                   String lastname, List<String> groups,
+                                   DynamicPageModelTest brxm) {
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(username);
+        brxm.getHstRequest().setUserPrincipal(principal);
+
+        User user = new User(firstname, lastname, groups);
+        HttpSession session = mock(HttpSession.class);
+        when(session.getAttribute("user")).thenReturn(user);
+        brxm.getHstRequest().setSession(session);
+    }
+
+    // Role-specific convenience methods
+    private void authenticateAsFreeUser(DynamicPageModelTest brxm) {
+        authenticateUser("freeuser", "Free", "User",
+            Arrays.asList("everybody", "petbase-free"), brxm);
+    }
+
+    private void authenticateAsEssentialUser(DynamicPageModelTest brxm) {
+        authenticateUser("essentialuser", "Essential", "User",
+            Arrays.asList("everybody", "petbase-essential"), brxm);
+    }
+
+    @Test
+    void essentialTier_userHasLocationMap(DynamicPageModelTest brxm) throws Exception {
+        authenticateAsEssentialUser(brxm);
+
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/dashboard")
+            .executeAsPageModel();
+
+        PageComponent locationMap = pageModel.findComponentByName("LocationMap").orElseThrow();
+        assertThat(locationMap.getComponentClass())
+            .isEqualTo("com.example.components.LocationMapComponent");
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Test Coverage Checklist">
+      <ul>
+        <li>Unauthenticated state - No principal, no session</li>
+        <li>Principal only - Principal set, no session user</li>
+        <li>Session user - Full user object in session</li>
+        <li>User profile - External profile (e.g., from SSO/SAML)</li>
+        <li>Each subscription tier - Free, basic, premium, etc.</li>
+        <li>Role-based access - Admin, editor, viewer permissions</li>
+        <li>Login parameters - <code>?login=true</code>, <code>?error=true</code></li>
+        <li>Session expiry - Invalidated or expired sessions</li>
+        <li>Invalid credentials - Wrong username/password</li>
+        <li>Locked accounts - Disabled or suspended users</li>
+      </ul>
+    </section>
+
+    <section name="Test Naming Convention">
+      <div class="brush: java">
+        <source><![CDATA[
+// Good: Clear authentication context
+@Test void unauthenticated_dashboardRedirectsToLogin()
+@Test void freeTier_userSeesUpgradeBanner()
+@Test void essentialTier_userHasLocationTracking()
+@Test void adventureTier_userHasAllFeatures()
+
+// Avoid: Ambiguous about auth state
+@Test void testDashboard()
+@Test void dashboardWorks()
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="common-patterns.html">Common Patterns</a> - General testing patterns</li>
+        <li><a href="../testing/jaxrs-testing.html">JAX-RS Testing</a> - REST endpoints with auth</li>
+        <li><a href="../troubleshooting.html">Troubleshooting</a> - Auth testing issues</li>
+      </ul>
+    </section>
+
+  </body>
+</document>
