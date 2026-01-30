@@ -57,12 +57,28 @@
     <div class="well sidebar-nav">
     
     <ul class="nav nav-list">
-            <li>  <a href="index.html" title="Home">  <span class="none"></span>  Home</a>  </li>
-        <li class="active">  <a href="#"><span class="none"></span>Demo Project</a>
-  </li>
+            <li class="nav-header">Getting Started</li>
+              <li>  <a href="index.html" title="Home">  <span class="none"></span>  Home</a>  </li>
         <li>  <a href="install.html" title="Installation">  <span class="none"></span>  Installation</a>  </li>
-        <li>  <a href="usage.html" title="Usage">  <span class="none"></span>  Usage</a>  </li>
+        <li>  <a href="getting-started.html" title="Quick Start">  <span class="none"></span>  Quick Start</a>  </li>
+                  <li class="nav-header">Testing Guides</li>
+              <li>  <a href="testing/jaxrs-testing.html" title="JAX-RS Testing">  <span class="none"></span>  JAX-RS Testing</a>  </li>
+        <li>  <a href="testing/pagemodel-testing.html" title="Page Model Testing">  <span class="none"></span>  Page Model Testing</a>  </li>
+        <li>  <a href="testing/component-testing.html" title="Component Testing">  <span class="none"></span>  Component Testing</a>  </li>
+        <li>  <a href="testing/stubbing-data.html" title="Test Data (YAML)">  <span class="none"></span>  Test Data (YAML)</a>  </li>
+                  <li class="nav-header">Patterns</li>
+              <li>  <a href="patterns/authentication.html" title="Authentication">  <span class="none"></span>  Authentication</a>  </li>
+        <li>  <a href="patterns/common-patterns.html" title="Common Patterns">  <span class="none"></span>  Common Patterns</a>  </li>
+                  <li class="nav-header">Reference</li>
+              <li>  <a href="quick-reference.html" title="Quick Reference">  <span class="none"></span>  Quick Reference</a>  </li>
+        <li>  <a href="config-service-repository.html" title="ConfigService Repository">  <span class="none"></span>  ConfigService Repository</a>  </li>
+        <li>  <a href="architecture.html" title="Architecture">  <span class="none"></span>  Architecture</a>  </li>
+        <li>  <a href="troubleshooting.html" title="Troubleshooting">  <span class="none"></span>  Troubleshooting</a>  </li>
+        <li>  <a href="legacy-api.html" title="Legacy API">  <span class="none"></span>  Legacy API</a>  </li>
         <li>  <a href="apidocs/index.html" title="JavaDocs">  <span class="none"></span>  JavaDocs</a>  </li>
+                  <li class="nav-header">Project</li>
+              <li class="active">  <a href="#"><span class="none"></span>Demo Project</a>
+  </li>
         <li>  <a href="release-notes.html" title="Release Notes">  <span class="none"></span>  Release Notes</a>  </li>
         </ul>
     
@@ -111,23 +127,66 @@
         </div>
       </section>
 
-      <section><a id="Tests"></a>
-<h2>Tests</h2>
+      <section><a id="Annotation-Based_Tests_.28Recommended.29"></a>
+<h2>Annotation-Based Tests (Recommended)</h2>
         
-<p>In the demo project, there are three test classes in the <code>site/components</code> submodule:</p>
+<p>BRUT 5.1.0 introduces annotation-based testing with JUnit 5 parameter injection:</p>
         
 <ul>
           
-<li><code>EssentialsListComponentTest</code>: HST Component Test</li>
+<li><code>ZeroConfigJaxrsTest</code>: Zero-config JAX-RS test with auto-detected bean packages</li>
           
-<li><code>JaxrsTest</code>: Plain JAX-RS RESTful API Test</li>
+<li><code>AnnotationBasedJaxrsTest</code>: JAX-RS test with explicit configuration</li>
           
-<li><code>PageModelTest</code>: Delivery Page Model API Test</li>
+<li><code>AnnotationBasedPageModelTest</code>: Page Model API test with annotations</li>
+          
+<li><code>AnnotationBasedComponentTest</code>: HST Component test with annotations</li>
+          
+<li><code>ConfigServiceAnnotationJaxrsTest</code>: ConfigServiceRepository with <code>loadProjectContent = true</code></li>
         </ul>
+        
+<p><strong>Example:</strong></p>
+        
+<div class="brush: java">
+          
+<pre><code>
+@BrxmJaxrsTest(
+    beanPackages = {&quot;org.example.model&quot;},
+    resources = {HelloResource.class}
+)
+class ZeroConfigJaxrsTest {
 
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
+            .get(&quot;/site/api/hello/world&quot;)
+            .assertBody(&quot;Hello, World! world&quot;);
+    }
+}
+          </code></pre>
+        </div>
+      </section>
+
+      <section><a id="Legacy_Tests"></a>
+<h2>Legacy Tests</h2>
+        
+<p>For reference, the demo project also includes tests using the legacy abstract class approach:</p>
+        
+<ul>
+          
+<li><code>EssentialsListComponentTest</code>: HST Component Test (extends AbstractComponentTest)</li>
+          
+<li><code>JaxrsTest</code>: Plain JAX-RS RESTful API Test (extends AbstractJaxrsTest)</li>
+          
+<li><code>PageModelTest</code>: Delivery Page Model API Test (extends AbstractPageModelTest)</li>
+        </ul>
+      </section>
+
+      <section><a id="Running_Tests"></a>
+<h2>Running Tests</h2>
         
 <p>
-          Running the tests in the demo project:
+          Run all tests in the demo project:
         </p>
         
 <div>

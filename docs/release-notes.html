@@ -57,11 +57,27 @@
     <div class="well sidebar-nav">
     
     <ul class="nav nav-list">
-            <li>  <a href="index.html" title="Home">  <span class="none"></span>  Home</a>  </li>
-        <li>  <a href="demoproject.html" title="Demo Project">  <span class="none"></span>  Demo Project</a>  </li>
+            <li class="nav-header">Getting Started</li>
+              <li>  <a href="index.html" title="Home">  <span class="none"></span>  Home</a>  </li>
         <li>  <a href="install.html" title="Installation">  <span class="none"></span>  Installation</a>  </li>
-        <li>  <a href="usage.html" title="Usage">  <span class="none"></span>  Usage</a>  </li>
+        <li>  <a href="getting-started.html" title="Quick Start">  <span class="none"></span>  Quick Start</a>  </li>
+                  <li class="nav-header">Testing Guides</li>
+              <li>  <a href="testing/jaxrs-testing.html" title="JAX-RS Testing">  <span class="none"></span>  JAX-RS Testing</a>  </li>
+        <li>  <a href="testing/pagemodel-testing.html" title="Page Model Testing">  <span class="none"></span>  Page Model Testing</a>  </li>
+        <li>  <a href="testing/component-testing.html" title="Component Testing">  <span class="none"></span>  Component Testing</a>  </li>
+        <li>  <a href="testing/stubbing-data.html" title="Test Data (YAML)">  <span class="none"></span>  Test Data (YAML)</a>  </li>
+                  <li class="nav-header">Patterns</li>
+              <li>  <a href="patterns/authentication.html" title="Authentication">  <span class="none"></span>  Authentication</a>  </li>
+        <li>  <a href="patterns/common-patterns.html" title="Common Patterns">  <span class="none"></span>  Common Patterns</a>  </li>
+                  <li class="nav-header">Reference</li>
+              <li>  <a href="quick-reference.html" title="Quick Reference">  <span class="none"></span>  Quick Reference</a>  </li>
+        <li>  <a href="config-service-repository.html" title="ConfigService Repository">  <span class="none"></span>  ConfigService Repository</a>  </li>
+        <li>  <a href="architecture.html" title="Architecture">  <span class="none"></span>  Architecture</a>  </li>
+        <li>  <a href="troubleshooting.html" title="Troubleshooting">  <span class="none"></span>  Troubleshooting</a>  </li>
+        <li>  <a href="legacy-api.html" title="Legacy API">  <span class="none"></span>  Legacy API</a>  </li>
         <li>  <a href="apidocs/index.html" title="JavaDocs">  <span class="none"></span>  JavaDocs</a>  </li>
+                  <li class="nav-header">Project</li>
+              <li>  <a href="demoproject.html" title="Demo Project">  <span class="none"></span>  Demo Project</a>  </li>
         <li class="active">  <a href="#"><span class="none"></span>Release Notes</a>
   </li>
         </ul>
@@ -97,9 +113,23 @@
           
 <tr class="b">
             
-<td>5.x</td>
+<td>5.1.0</td>
             
-<td>16.x</td>
+<td>16.6.5</td>
+          </tr>
+          
+<tr class="a">
+            
+<td>5.0.1</td>
+            
+<td>16.6.5</td>
+          </tr>
+          
+<tr class="b">
+            
+<td>5.0.0</td>
+            
+<td>16.0.0</td>
           </tr>
           
 <tr class="a">
@@ -141,7 +171,56 @@
 
       <section><a id="Release_Notes_1"></a>
 <h2>Release Notes</h2>
-        <section><section><a id="a5.0.0"></a>
+        <section><section><a id="a5.1.0"></a>
+<h4>5.1.0</h4>
+        
+<p><strong>Quick Start Guides:</strong>
+          <a href="user-guide/getting-started.html">Getting Started</a> |
+          <a href="user-guide/quick-reference.html">Quick Reference</a> |
+          <a href="user-guide/common-patterns.html">Common Patterns</a> |
+          <a href="user-guide/troubleshooting.html">Troubleshooting</a>
+        </p>
+        
+<ul>
+          
+<li><a href="https://issues.onehippo.com/browse/FORGE-577" class="externalLink">FORGE-577</a> Annotation-based testing with zero-config setup</li>
+          
+<li>JUnit 5 parameter injection: Test harness via <code>@Test</code> method parameters (recommended)</li>
+          
+<li>Production-parity testing with ConfigServiceRepository</li>
+          
+<li>New annotations: <code>@BrxmPageModelTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmComponentTest</code></li>
+          
+<li>Auto-detection of node types from <code>@Node(jcrType=&quot;...&quot;)</code> annotations in bean packages</li>
+          
+<li>One-liner ConfigService integration via <code>loadProjectContent = true</code></li>
+          
+<li>Fluent request builder API with typed JSON responses</li>
+          
+<li>HTTP Session support in MockHstRequest</li>
+          
+<li>Enhanced error messages with actionable fix suggestions</li>
+          
+<li>66-74% boilerplate reduction compared to legacy abstract classes</li>
+        </ul>
+
+        </section><section><a id="a5.0.1"></a>
+<h4>5.0.1</h4>
+        
+<ul>
+          
+<li>Multi-test support with proper per-test isolation</li>
+          
+<li>Thread-safe initialization with ReentrantLock synchronization</li>
+          
+<li>RequestContextProvider support for JAX-RS resources</li>
+          
+<li>JUnit 4 <code>@Before</code> pattern fully supported</li>
+          
+<li>Improved null-safety and error handling</li>
+        </ul>
+
+        </section><section><a id="a5.0.0"></a>
 <h4>5.0.0</h4>
         
 <ul>

@@ -57,12 +57,28 @@
     <div class="well sidebar-nav">
     
     <ul class="nav nav-list">
-            <li class="active">  <a href="#"><span class="none"></span>Home</a>
+            <li class="nav-header">Getting Started</li>
+              <li class="active">  <a href="#"><span class="none"></span>Home</a>
   </li>
-        <li>  <a href="demoproject.html" title="Demo Project">  <span class="none"></span>  Demo Project</a>  </li>
         <li>  <a href="install.html" title="Installation">  <span class="none"></span>  Installation</a>  </li>
-        <li>  <a href="usage.html" title="Usage">  <span class="none"></span>  Usage</a>  </li>
+        <li>  <a href="getting-started.html" title="Quick Start">  <span class="none"></span>  Quick Start</a>  </li>
+                  <li class="nav-header">Testing Guides</li>
+              <li>  <a href="testing/jaxrs-testing.html" title="JAX-RS Testing">  <span class="none"></span>  JAX-RS Testing</a>  </li>
+        <li>  <a href="testing/pagemodel-testing.html" title="Page Model Testing">  <span class="none"></span>  Page Model Testing</a>  </li>
+        <li>  <a href="testing/component-testing.html" title="Component Testing">  <span class="none"></span>  Component Testing</a>  </li>
+        <li>  <a href="testing/stubbing-data.html" title="Test Data (YAML)">  <span class="none"></span>  Test Data (YAML)</a>  </li>
+                  <li class="nav-header">Patterns</li>
+              <li>  <a href="patterns/authentication.html" title="Authentication">  <span class="none"></span>  Authentication</a>  </li>
+        <li>  <a href="patterns/common-patterns.html" title="Common Patterns">  <span class="none"></span>  Common Patterns</a>  </li>
+                  <li class="nav-header">Reference</li>
+              <li>  <a href="quick-reference.html" title="Quick Reference">  <span class="none"></span>  Quick Reference</a>  </li>
+        <li>  <a href="config-service-repository.html" title="ConfigService Repository">  <span class="none"></span>  ConfigService Repository</a>  </li>
+        <li>  <a href="architecture.html" title="Architecture">  <span class="none"></span>  Architecture</a>  </li>
+        <li>  <a href="troubleshooting.html" title="Troubleshooting">  <span class="none"></span>  Troubleshooting</a>  </li>
+        <li>  <a href="legacy-api.html" title="Legacy API">  <span class="none"></span>  Legacy API</a>  </li>
         <li>  <a href="apidocs/index.html" title="JavaDocs">  <span class="none"></span>  JavaDocs</a>  </li>
+                  <li class="nav-header">Project</li>
+              <li>  <a href="demoproject.html" title="Demo Project">  <span class="none"></span>  Demo Project</a>  </li>
         <li>  <a href="release-notes.html" title="Release Notes">  <span class="none"></span>  Release Notes</a>  </li>
         </ul>
     
@@ -80,39 +96,194 @@
     
   
 
+    <section><a id="Introduction"></a>
+<h1>Introduction</h1>
+      
+<p><strong>BRUT 5.1.0</strong> introduces annotation-based testing for brXM delivery tier with 66-74% less boilerplate
+      than legacy abstract classes. Write tests with simple annotations and let BRUT handle the infrastructure.</p>
+
+      <section><a id="Quick_Example"></a>
+<h2>Quick Example</h2>
+        
+<div class="brush: java">
+          
+<pre><code>
+@BrxmJaxrsTest(resources = {HelloResource.class})
+class MyApiTest {
+
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
+            .get(&quot;/site/api/hello/world&quot;)
+            .assertBody(&quot;Hello, World!&quot;);
+    }
+}
+          </code></pre>
+        </div>
+        
+<p><strong>That's it!</strong> No abstract classes, no 30+ lines of configuration, no lifecycle management.</p>
+      </section>
+
+      <section><a id="Key_Features"></a>
+<h2>Key Features</h2>
+        
+<ul>
+          
+<li><strong>Zero-Config Auto-Detection</strong> - Bean packages discovered from project structure</li>
+          
+<li><strong>JUnit 5 Parameter Injection</strong> - Test harness injected via <code>@Test</code> method parameters</li>
+          
+<li><strong>Fluent Request API</strong> - Chainable request building with typed responses</li>
+          
+<li><strong>ConfigService Integration</strong> - Production-parity testing with one-liner setup</li>
+          
+<li><strong>Three Test Types</strong> - Components, JAX-RS APIs, and Page Model</li>
+        </ul>
+      </section>
+    </section>
+
     <section><a id="Module_Overview"></a>
 <h1>Module Overview</h1>
-      <section><a id="BRUT_Common_.28brut-common.29"></a>
-<h2>BRUT Common (brut-common)</h2>
+      
+<table class="table table-striped">
         
-<ul>
+<tr class="a">
+<th>Module</th>
+<th>Purpose</th>
+<th>Use For</th></tr>
+        
+<tr class="b">
           
-<li>This module contains the repository that other modules depend on. This module was initially a fork of the project <a href="https://github.com/openweb-nl/in-memory-jcr" class="externalLink">InMemoryJcrRepository</a> by OpenWeb.</li>
+<td><strong>brut-common</strong></td>
           
-<li>The repository itself can be used standalone. It supports YAML import as main mechanism for bootstrapping content to it.</li>
+<td>In-memory JCR repository, YAML import, JUnit 5 extensions</td>
           
-<li>Note that you could also provide your own repository.xml (see com.bloomreach.ps.brut.common.repository.BrxmTestingRepository.getRepositoryConfigFileLocation)</li>
+<td>Shared infrastructure</td>
+        </tr>
+        
+<tr class="a">
           
-<li>If you are importing yaml that references images, make sure you choose the zip export option. Unzip the export in the classpath.</li>
-        </ul>
-      </section>
+<td><strong>brut-components</strong></td>
+          
+<td>HST Component testing with <code>@BrxmComponentTest</code></td>
+          
+<td><a href="testing/component-testing.html">Component Tests</a></td>
+        </tr>
+        
+<tr class="b">
+          
+<td><strong>brut-resources</strong></td>
+          
+<td>JAX-RS and Page Model testing</td>
+          
+<td><a href="testing/jaxrs-testing.html">JAX-RS</a> / <a href="testing/pagemodel-testing.html">Page Model</a></td>
+        </tr>
+      </table>
+    </section>
 
-      <section><a id="BRUT_Components_.28brut-components.29"></a>
-<h2>BRUT Components (brut-components)</h2>
+    <section><a id="Getting_Started"></a>
+<h1>Getting Started</h1>
+      
+<ol style="list-style-type: decimal;">
         
-<ul>
-          
-<li>This module is for testing HST components. This is a fork of the project called <a href="https://github.com/openweb-nl/hippo-unit-tester" class="externalLink">Hippo Unit Tester</a> by OpenWeb.</li>
-          
-<li>An <a href="https://github.com/bloomreach-forge/brut/blob/master/demo/site/components/src/test/java/org/example/EssentialsListComponentTest.java" class="externalLink">example</a> usage of this module.</li>
-        </ul>
-      </section>
+<li><a href="install.html">Install Dependencies</a> - Add BRUT to your project</li>
+        
+<li><a href="getting-started.html">Quick Start</a> - Write your first test</li>
+        
+<li><a href="quick-reference.html">Quick Reference</a> - Annotation options and API reference</li>
+      </ol>
+    </section>
 
-      <section><a id="BRUT_Resources_.28brut-resources.29"></a>
-<h2>BRUT Resources (brut-resources)</h2>
+    <section><a id="Testing_Guides"></a>
+<h1>Testing Guides</h1>
+      
+<table class="table table-striped">
         
-<p>This module itself depends on the repository in the brut-common module. It has abstract test classes that start up an HST Container from scratch to test different HST pipelines.</p>
-      </section>
+<tr class="a">
+<th>Guide</th>
+<th>Description</th></tr>
+        
+<tr class="b">
+          
+<td><a href="testing/jaxrs-testing.html">JAX-RS Testing</a></td>
+          
+<td>Test REST endpoints with fluent request builder</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="testing/pagemodel-testing.html">Page Model Testing</a></td>
+          
+<td>Test Page Model API with JSON response parsing</td>
+        </tr>
+        
+<tr class="b">
+          
+<td><a href="testing/component-testing.html">Component Testing</a></td>
+          
+<td>Test HST components in isolation</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="testing/stubbing-data.html">Test Data (YAML)</a></td>
+          
+<td>Create focused test content</td>
+        </tr>
+      </table>
+    </section>
+
+    <section><a id="Patterns_and_Reference"></a>
+<h1>Patterns and Reference</h1>
+      
+<table class="table table-striped">
+        
+<tr class="a">
+<th>Resource</th>
+<th>Description</th></tr>
+        
+<tr class="b">
+          
+<td><a href="patterns/authentication.html">Authentication Patterns</a></td>
+          
+<td>Test authenticated users and roles</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="patterns/common-patterns.html">Common Patterns</a></td>
+          
+<td>Mocking, assertions, naming conventions</td>
+        </tr>
+        
+<tr class="b">
+          
+<td><a href="config-service-repository.html">ConfigService Repository</a></td>
+          
+<td>Production-parity HST configuration</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="architecture.html">Architecture</a></td>
+          
+<td>How BRUT works</td>
+        </tr>
+        
+<tr class="b">
+          
+<td><a href="troubleshooting.html">Troubleshooting</a></td>
+          
+<td>Common issues and fixes</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="legacy-api.html">Legacy API</a></td>
+          
+<td>Abstract class approach (still supported)</td>
+        </tr>
+      </table>
     </section>
 
   

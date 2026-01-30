@@ -9,7 +9,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                       <meta http-equiv="Content-Language" content="" />
-      <title>B.R.U.T. - BloomReach Unit Testing for Delivery Tier – B.R.U.T: BloomReach Unit Testing for brXM Delivery Tier</title>
+      <title>Usage Overview – B.R.U.T: BloomReach Unit Testing for brXM Delivery Tier</title>
   <link rel="stylesheet" href="./css/forge-maven-skin-syntaxhighlighter-3.2.1.min.css"/>
   <link rel="stylesheet" href="./css/forge-maven-skin-3.2.1.min.css"/>
   <link rel="stylesheet" href="./css/site.css" />
@@ -57,12 +57,27 @@
     <div class="well sidebar-nav">
     
     <ul class="nav nav-list">
-            <li>  <a href="index.html" title="Home">  <span class="none"></span>  Home</a>  </li>
-        <li>  <a href="demoproject.html" title="Demo Project">  <span class="none"></span>  Demo Project</a>  </li>
+            <li class="nav-header">Getting Started</li>
+              <li>  <a href="index.html" title="Home">  <span class="none"></span>  Home</a>  </li>
         <li>  <a href="install.html" title="Installation">  <span class="none"></span>  Installation</a>  </li>
-        <li class="active">  <a href="#"><span class="none"></span>Usage</a>
-  </li>
+        <li>  <a href="getting-started.html" title="Quick Start">  <span class="none"></span>  Quick Start</a>  </li>
+                  <li class="nav-header">Testing Guides</li>
+              <li>  <a href="testing/jaxrs-testing.html" title="JAX-RS Testing">  <span class="none"></span>  JAX-RS Testing</a>  </li>
+        <li>  <a href="testing/pagemodel-testing.html" title="Page Model Testing">  <span class="none"></span>  Page Model Testing</a>  </li>
+        <li>  <a href="testing/component-testing.html" title="Component Testing">  <span class="none"></span>  Component Testing</a>  </li>
+        <li>  <a href="testing/stubbing-data.html" title="Test Data (YAML)">  <span class="none"></span>  Test Data (YAML)</a>  </li>
+                  <li class="nav-header">Patterns</li>
+              <li>  <a href="patterns/authentication.html" title="Authentication">  <span class="none"></span>  Authentication</a>  </li>
+        <li>  <a href="patterns/common-patterns.html" title="Common Patterns">  <span class="none"></span>  Common Patterns</a>  </li>
+                  <li class="nav-header">Reference</li>
+              <li>  <a href="quick-reference.html" title="Quick Reference">  <span class="none"></span>  Quick Reference</a>  </li>
+        <li>  <a href="config-service-repository.html" title="ConfigService Repository">  <span class="none"></span>  ConfigService Repository</a>  </li>
+        <li>  <a href="architecture.html" title="Architecture">  <span class="none"></span>  Architecture</a>  </li>
+        <li>  <a href="troubleshooting.html" title="Troubleshooting">  <span class="none"></span>  Troubleshooting</a>  </li>
+        <li>  <a href="legacy-api.html" title="Legacy API">  <span class="none"></span>  Legacy API</a>  </li>
         <li>  <a href="apidocs/index.html" title="JavaDocs">  <span class="none"></span>  JavaDocs</a>  </li>
+                  <li class="nav-header">Project</li>
+              <li>  <a href="demoproject.html" title="Demo Project">  <span class="none"></span>  Demo Project</a>  </li>
         <li>  <a href="release-notes.html" title="Release Notes">  <span class="none"></span>  Release Notes</a>  </li>
         </ul>
     
@@ -80,267 +95,164 @@
     
   
 
-    <section><a id="Usage"></a>
-<h1>Usage</h1>
+    <section><a id="Usage_Overview"></a>
+<h1>Usage Overview</h1>
+      
+<p>BRUT provides three test types for brXM delivery tier testing. Choose based on what you're testing:</p>
 
-      <section><a id="Importing_Nodes.3A"></a>
-<h2>Importing Nodes:</h2>
+      
+<table class="table table-striped">
         
-<p>You can import nodes using the <a href="apidocs/org/bloomreach/forge/brut/common/repository/utils/ImporterUtils.html">ImporterUtils</a> from the <code>brut-common</code> module.</p>
+<tr class="a">
+<th>Testing...</th>
+<th>Use</th>
+<th>Guide</th></tr>
         
-<div class="brush: java">
+<tr class="b">
           
+<td>JAX-RS REST endpoints</td>
+          
+<td><code>@BrxmJaxrsTest</code></td>
+          
+<td><a href="testing/jaxrs-testing.html">JAX-RS Testing</a></td>
+        </tr>
+        
+<tr class="a">
+          
+<td>Page Model API responses</td>
+          
+<td><code>@BrxmPageModelTest</code></td>
+          
+<td><a href="testing/pagemodel-testing.html">Page Model Testing</a></td>
+        </tr>
+        
+<tr class="b">
+          
+<td>HST Components</td>
+          
+<td><code>@BrxmComponentTest</code></td>
+          
+<td><a href="testing/component-testing.html">Component Testing</a></td>
+        </tr>
+      </table>
+    </section>
+
+    <section><a id="Quick_Example"></a>
+<h1>Quick Example</h1>
+      
+<div class="brush: java">
+        
+<pre><code>
+@BrxmJaxrsTest(resources = {HelloResource.class})
+class MyApiTest {
+
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        String response = brxm.request()
+            .get(&quot;/site/api/hello/world&quot;)
+            .execute();
+
+        assertEquals(&quot;Hello, World!&quot;, response);
+    }
+}
+        </code></pre>
+      </div>
+    </section>
+
+    <section><a id="Key_Features"></a>
+<h1>Key Features</h1>
+      
+<ul>
+        
+<li><strong>Parameter Injection</strong> - No IDE warnings, standard JUnit 5 pattern</li>
+        
+<li><strong>Zero-Config</strong> - Auto-detection of bean packages, HST root, Spring configs</li>
+        
+<li><strong>Fluent Request API</strong> - <code>brxm.request().get(&quot;/api&quot;).execute()</code></li>
+        
+<li><strong>Typed JSON Responses</strong> - <code>executeAs(User.class)</code>, <code>executeWithStatus()</code></li>
+        
+<li><strong>No Inheritance</strong> - Uses JUnit 5 extensions, not abstract base classes</li>
+      </ul>
+    </section>
+
+    <section><a id="Importing_Nodes"></a>
+<h1>Importing Nodes</h1>
+      
+<p>You can import nodes using the <a href="apidocs/org/bloomreach/forge/brut/common/repository/utils/ImporterUtils.html">ImporterUtils</a> from the <code>brut-common</code> module.</p>
+      
+<div class="brush: java">
+        
 <pre><code>
 import java.net.URL;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 
 URL resource = getClass().getResource(&quot;/news.yaml&quot;);
 ImporterUtils.importYaml(resource, rootNode, &quot;/content/documents/mychannel&quot;, &quot;hippostd:folder&quot;);
-            </code></pre>
-        </div>
-      </section>
+        </code></pre>
+      </div>
+      
+<p>See <a href="testing/stubbing-data.html">Stubbing Test Data</a> for YAML structure and patterns.</p>
+    </section>
 
-      <section><a id="Example_Spring_Configuration.3A"></a>
-<h2>Example Spring Configuration:</h2>
+    <section><a id="Documentation"></a>
+<h1>Documentation</h1>
+      
+<table class="table table-striped">
         
-<div class="brush: xml">
-          
-<pre><code>
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-  &lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd&quot;&gt;
-
-  &lt;bean id=&quot;contributedCndResourcesPatterns&quot; class=&quot;java.util.ArrayList&quot;&gt;
-    &lt;constructor-arg&gt;
-      &lt;list&gt;
-        &lt;value&gt;classpath*:org/example/namespaces/**/*.cnd&lt;/value&gt;
-      &lt;/list&gt;
-    &lt;/constructor-arg&gt;
-  &lt;/bean&gt;
-
-  &lt;bean id=&quot;contributedYamlResourcesPatterns&quot; class=&quot;java.util.ArrayList&quot;&gt;
-    &lt;constructor-arg&gt;
-      &lt;list&gt;
-        &lt;value&gt;classpath*:org/packagename/imports/**/*.yaml&lt;/value&gt;
-      &lt;/list&gt;
-    &lt;/constructor-arg&gt;
-  &lt;/bean&gt;
-
-&lt;/beans&gt;
-            </code></pre>
-        </div>
-      </section>
-
-      <section><a id="Example_with_JaxrsRestPlainPipeline_.28under_test_directory.29.3A"></a>
-<h2>Example with JaxrsRestPlainPipeline (under test directory):</h2>
+<tr class="a">
+<th>Topic</th>
+<th>Description</th></tr>
         
-<div class="brush: java">
+<tr class="b">
           
-<pre><code>
-package org.example;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.Repository;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-
-import org.example.model.ListItemPagination;
-import org.example.model.NewsItemRep;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import com.bloomreach.ps.brut.resources.AbstractJaxrsTest;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-/**
- * A user (client) of the testing library providing his/her own config/content
- */
-
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class JaxrsTest extends AbstractJaxrsTest {
-
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        setupForNewRequest();
-    }
-
-    private void setupForNewRequest() {
-        setupHstRequest();
-        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        getHstRequest().setMethod(HttpMethod.GET);
-        setupServletContext();
-        unregisterHstModel();
-        registerHstModel();
-        setupHstResponse();
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return &quot;classpath*:org/example/model/*.class,&quot;;
-    }
-
-    @Override
-    protected List&lt;String&gt; contributeSpringConfigurationLocations() {
-        return Arrays.asList(&quot;/org/example/custom-jaxrs.xml&quot;, &quot;/org/example/rest-resources.xml&quot;);
-    }
-
-    @Override
-    protected List&lt;String&gt; contributeAddonModulePaths() {
-        return null;
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return &quot;/hst:myproject&quot;;
-    }
-
-    @Test
-    @DisplayName(&quot;Test invoking the user endpoint&quot;)
-    public void testUserEndpoint() {
-        String user = &quot;baris&quot;;
-        getHstRequest().setRequestURI(&quot;/site/api/hello/&quot; + user);
-        String response = invokeFilter();
-        assertEquals(&quot;Hello, World! &quot; + user, response);
-    }
-
-    @Test
-    @DisplayName(&quot;Test HST config changes are not visible if HST model is not reloaded after a node update via JCR API&quot;)
-    public void testMountParamsUpdated() throws Exception {
-        String key = &quot;paramName&quot;;
-        String value = &quot;paramValue&quot;;
-        getHstRequest().setRequestURI(&quot;/site/api/hello/mount/&quot; + key);
-        String response = invokeFilter();
-        setParamsOnMount(new String[]{key}, new String[]{value});
-        assertEquals(&quot;&quot;, response,
-                &quot;Expected nothing to change since the HST model was not explicitly reloaded&quot;);
-
-        invalidateHstModel();
-        String response2 = invokeFilter();
-        assertEquals(value, response2, &quot;Expected param value to be updated since HST model was loaded&quot;);
-    }
-
-    @Test
-    @DisplayName(&quot;Test running HST query in news endpoint&quot;)
-    public void testNewsEndpoint() throws Exception {
-        getHstRequest().setRequestURI(&quot;/site/api/news&quot;);
-        String response = invokeFilter();
-        ListItemPagination&lt;NewsItemRep&gt; pageable = new ObjectMapper().readValue(response, new TypeReference&lt;ListItemPagination&lt;NewsItemRep&gt;&gt;() {
-        });
-        assertEquals(3, pageable.getItems().size(), &quot;Pageable didn't have enough results&quot;);
-    }
-
-    private void setParamsOnMount(String[] paramNames, String[] paramValues) throws Exception {
-        Repository repository = getComponentManager().getComponent(Repository.class);
-        Session session = repository.login(new SimpleCredentials(&quot;admin&quot;, &quot;admin&quot;.toCharArray()));
-        String rootMountPath = &quot;/hst:myproject/hst:hosts/dev-localhost/localhost/hst:root&quot;;
-        Node rootMount = session.getNode(rootMountPath);
-        rootMount.setProperty(&quot;hst:parameternames&quot;, paramNames);
-        rootMount.setProperty(&quot;hst:parametervalues&quot;, paramValues);
-        session.save();
-        session.logout();
-    }
-
-}
-          </code></pre>
-        </div>
-      </section>
-
-      <section><a id="Example_with_Delivery_Page_Model_API_.28under_test_directory.29.3A"></a>
-<h2>Example with Delivery Page Model API (under test directory):</h2>
+<td><a href="getting-started.html">Getting Started</a></td>
+          
+<td>First test setup and prerequisites</td>
+        </tr>
         
-<div class="brush: java">
+<tr class="a">
           
-<pre><code>
-package org.example;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * A user (client) of the testing library providing his/her own config/content
- */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class PageModelTest extends AbstractPageModelTest {
-
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @AfterAll
-    public void destroy() {
-        super.destroy();
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return &quot;classpath*:org/example/beans/*.class,&quot;;
-    }
-
-    @Override
-    protected List&lt;String&gt; contributeSpringConfigurationLocations() {
-        return Collections.singletonList(&quot;/org/example/custom-pagemodel.xml&quot;);
-    }
-
-    @Override
-    protected List&lt;String&gt; contributeAddonModulePaths() {
-        return null;
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return &quot;/hst:myproject&quot;;
-    }
-
-    @Test
-    @DisplayName(&quot;Component rendering url response&quot;)
-    public void test() throws IOException {
-        getHstRequest().setRequestURI(&quot;/site/resourceapi/news&quot;);
-        getHstRequest().setQueryString(&quot;_hn:type=component-rendering&amp;_hn:ref=r5_r1_r1&quot;);
-        String response = invokeFilter();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
-        assertTrue(jsonNode.get(&quot;page&quot;).size() &gt; 0);
-        assertEquals(jsonNode.get(&quot;page&quot;).get(&quot;models&quot;).get(&quot;pageable&quot;).get(&quot;pageSize&quot;).intValue(), 10);
-    }
-}
-
-          </code></pre>
-        </div>
-      </section>
-
+<td><a href="quick-reference.html">Quick Reference</a></td>
+          
+<td>All annotation options and API reference</td>
+        </tr>
+        
+<tr class="b">
+          
+<td><a href="patterns/authentication.html">Authentication</a></td>
+          
+<td>Testing authenticated users and roles</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="patterns/common-patterns.html">Common Patterns</a></td>
+          
+<td>Mocking, assertions, naming conventions</td>
+        </tr>
+        
+<tr class="b">
+          
+<td><a href="config-service-repository.html">ConfigService Repository</a></td>
+          
+<td>Production-parity testing with HCM modules</td>
+        </tr>
+        
+<tr class="a">
+          
+<td><a href="troubleshooting.html">Troubleshooting</a></td>
+          
+<td>Common issues and fixes</td>
+        </tr>
+        
+<tr class="b">
+          
+<td><a href="legacy-api.html">Legacy API</a></td>
+          
+<td>Abstract class approach (still supported)</td>
+        </tr>
+      </table>
     </section>
 
   
