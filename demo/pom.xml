@@ -80,6 +80,11 @@
       <url>https://maven.bloomreach.com/maven2/</url>
     </repository>
     <repository>
+      <id>bloomreach-maven2-enterprise</id>
+      <name>Bloomreach Maven 2 Enterprise</name>
+      <url>https://maven.bloomreach.com/maven2-enterprise/</url>
+    </repository>
+    <repository>
       <id>bloomreach-maven2-forge</id>
       <name>Bloomreach Maven 2 Forge Repository</name>
       <url>https://maven.bloomreach.com/maven2-forge/</url>
