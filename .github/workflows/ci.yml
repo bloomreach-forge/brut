@@ -51,15 +51,13 @@ jobs:
 
       - name: Verify versions are aligned
         run: |
-          ROOT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          DEMO_VERSION=$(mvn -f demo help:evaluate -Dexpression=project.version -q -DforceStdout)
+          ROOT_VERSION=$(awk -F'[<>]' '/<parent>/,/<\/parent>/{next} /<version>/{print $3; exit}' pom.xml)
+          DEMO_VERSION=$(awk -F'[<>]' '/<parent>/,/<\/parent>/{next} /<version>/{print $3; exit}' demo/pom.xml)
+          echo "Root: $ROOT_VERSION, Demo: $DEMO_VERSION"
           if [ "$ROOT_VERSION" != "$DEMO_VERSION" ]; then
             echo "ERROR: Root version '$ROOT_VERSION' does not match demo version '$DEMO_VERSION'"
             exit 1
           fi
-        env:
-          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
-          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Build and test
         run: mvn -B clean verify
