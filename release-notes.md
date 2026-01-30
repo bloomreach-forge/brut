@@ -36,6 +36,12 @@
 
 This release introduces a completely new annotation-based testing API with convention-over-configuration design, plus production-parity HST configuration via brXM's `ConfigurationConfigService`.
 
+**Quick Start Guides:**
+- [Getting Started](user-guide/getting-started.md) - First test in 3 steps
+- [Quick Reference](user-guide/quick-reference.md) - Annotation options at a glance
+- [Common Patterns](user-guide/common-patterns.md) - Recipes for all test types
+- [Troubleshooting](user-guide/troubleshooting.md) - Common issues and fixes
+
 #### Annotation-Based Testing (New)
 
 Three new annotations provide zero-boilerplate testing with automatic field injection - no inheritance required:

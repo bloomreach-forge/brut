@@ -57,6 +57,9 @@ jobs:
             echo "ERROR: Root version '$ROOT_VERSION' does not match demo version '$DEMO_VERSION'"
             exit 1
           fi
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Build and test
         run: mvn -B clean verify

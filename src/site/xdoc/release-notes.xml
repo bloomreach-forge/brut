@@ -67,6 +67,12 @@
 
       <subsection name="Release Notes">
         <h4>5.1.0</h4>
+        <p><strong>Quick Start Guides:</strong>
+          <a href="user-guide/getting-started.html">Getting Started</a> |
+          <a href="user-guide/quick-reference.html">Quick Reference</a> |
+          <a href="user-guide/common-patterns.html">Common Patterns</a> |
+          <a href="user-guide/troubleshooting.html">Troubleshooting</a>
+        </p>
         <ul>
           <li><a href="https://issues.onehippo.com/browse/FORGE-577">FORGE-577</a> Annotation-based testing with zero-config setup</li>
           <li>JUnit 5 parameter injection: Test harness via <code>@Test</code> method parameters (recommended)</li>
