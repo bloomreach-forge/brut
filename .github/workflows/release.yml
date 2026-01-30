@@ -64,7 +64,7 @@ jobs:
           fi
 
       - name: Build and test
-        run: mvn -B clean verify
+        run: mvn -B clean install
         env:
           BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
