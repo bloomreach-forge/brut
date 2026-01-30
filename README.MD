@@ -595,3 +595,39 @@ This module provides testing infrastructure for HST pipelines (JAX-RS REST, Page
 For existing tests or when you need features not yet available in the annotation-based API, the abstract class approach (`AbstractJaxrsTest`, `AbstractPageModelTest`) is still fully supported.
 
 See [Legacy API Guide](user-guide/legacy-api.md) for examples and migration guidance.
+
+## Releasing
+
+This project uses [git-flow](https://bloomreach-forge.github.io/using-git-flow.html) for releases with automated deployment.
+
+### Steps
+
+1. **Start release and set version**
+   ```bash
+   git flow release start x.y.z
+   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z"
+   mvn -f demo versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z"
+   git commit -a -m "<ISSUE_ID> releasing x.y.z: set version"
+   ```
+
+2. **Finish release** (creates tag, merges to master/develop)
+   ```bash
+   git flow release finish x.y.z
+   ```
+
+3. **Set next snapshot and push** (you're now on develop)
+   ```bash
+   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z+1-SNAPSHOT"
+   mvn -f demo versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z+1-SNAPSHOT"
+   git commit -a -m "<ISSUE_ID> releasing x.y.z: set next development version"
+   git push origin develop master --follow-tags
+   ```
+
+> Replace `<ISSUE_ID>` with your JIRA ticket (e.g., `FORGE-123`).
+
+The CI workflow automatically:
+- Verifies both root and demo pom versions match the tag
+- Builds and tests BRUT and demo
+- Deploys to the Forge Maven repository
+- Creates a GitHub Release with auto-generated notes
+- Regenerates and publishes documentation to master

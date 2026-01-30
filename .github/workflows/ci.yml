@@ -7,6 +7,10 @@ on:
   push:
     branches: [develop, main, master]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,7 +24,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven
 
       - name: Configure Maven settings
         run: |
@@ -46,18 +49,24 @@ jobs:
           BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
+      - name: Verify versions are aligned
+        run: |
+          ROOT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          DEMO_VERSION=$(mvn -f demo help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [ "$ROOT_VERSION" != "$DEMO_VERSION" ]; then
+            echo "ERROR: Root version '$ROOT_VERSION' does not match demo version '$DEMO_VERSION'"
+            exit 1
+          fi
+
       - name: Build and test
         run: mvn -B clean verify
         env:
           BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results
-          path: |
-            **/target/surefire-reports/*.xml
-            **/target/failsafe-reports/*.xml
-          retention-days: 7
+      - name: Build and test demo
+        run: mvn -B -f demo clean verify
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
+
