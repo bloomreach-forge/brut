@@ -139,9 +139,7 @@ public class MyPageModelTest {
 
 #### JAX-RS REST API Test
 ```java
-@BrxmJaxrsTest(
-    springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"}
-)
+@BrxmJaxrsTest(resources = {HelloResource.class})
 public class MyJaxrsTest {
     private DynamicJaxrsTest brxm;
 
@@ -222,10 +220,7 @@ public class JaxrsTest extends AbstractJaxrsTest {
 
 **After (Annotation-Based):**
 ```java
-@BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
-    springConfigs = {"/custom-jaxrs.xml", "/rest-resources.xml"}
-)
+@BrxmJaxrsTest(resources = {HelloResource.class})
 public class JaxrsTest {
     private DynamicJaxrsTest brxm;
 
@@ -238,7 +233,7 @@ public class JaxrsTest {
 }
 ```
 
-**Result:** 47 lines → 16 lines (66% reduction)
+**Result:** 47 lines → 12 lines (74% reduction)
 
 ### Component Testing
 
@@ -306,7 +301,7 @@ BRUT 5.1.0+ provides fluent APIs for common test operations:
 #### Fluent Request Builder
 
 ```java
-@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+@BrxmJaxrsTest(resources = {NewsResource.class})
 public class FluentApiTest {
     private DynamicJaxrsTest brxm;
 
@@ -405,54 +400,10 @@ void testWithSession() {
 
 ### Custom JAX-RS Resources
 
-When testing custom REST endpoints, create a Spring config to register your resources:
+**Simple approach** - Reference your resource class directly:
 
-**File:** `src/test/resources/com/example/test-jaxrs-resources.xml`
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
-
-  <!-- CND patterns for custom node types (when not using ConfigService) -->
-  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:hcm-config/namespaces/**/*.cnd</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <!-- Import REST JAX-RS/Jackson support -->
-  <import resource="classpath:/org/hippoecm/hst/site/optional/jaxrs/SpringComponentManager-rest-jackson.xml"/>
-
-  <!-- Define your REST Resource bean -->
-  <bean id="myResource" class="com.example.rest.MyResource"/>
-
-  <!-- Wrap in ResourceProvider for CXF -->
-  <bean id="myResourceProvider" class="org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider">
-    <constructor-arg ref="myResource"/>
-  </bean>
-
-  <!-- Register custom REST resource providers -->
-  <bean id="customRestPlainResourceProviders" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <ref bean="myResourceProvider"/>
-      </list>
-    </property>
-  </bean>
-</beans>
-```
-
-**Test class:**
 ```java
-@BrxmJaxrsTest(
-    loadProjectContent = true,
-    springConfigs = {"/com/example/test-jaxrs-resources.xml"}
-)
+@BrxmJaxrsTest(resources = {MyResource.class})
 class MyResourceTest {
     private DynamicJaxrsTest brxm;
 
@@ -466,14 +417,16 @@ class MyResourceTest {
 }
 ```
 
+**Advanced** - For complex setups requiring Spring configuration, use `springConfigs`. See [JAX-RS Testing Guide](user-guide/jaxrs-testing.md) for details.
+
 ### One-Liner ConfigService Integration
 
-Production-parity configuration in a single parameter:
+Load your project's real HCM configuration (HST sitemap, channels, content types):
 
 ```java
 @BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
-    loadProjectContent = true  // Automatically uses HCM modules!
+    resources = {NewsResource.class},
+    loadProjectContent = true  // Loads HCM modules from your project
 )
 public class NewsTest {
     private DynamicJaxrsTest brxm;
