@@ -15,6 +15,32 @@ BRUT supports two approaches for test data:
 
 For component unit tests, **stubbed data is strongly preferred**.
 
+## The `content` and `contentRoot` Parameters
+
+These two `@BrxmComponentTest` parameters work together to load test data:
+
+| Parameter | Purpose | Example |
+|-----------|---------|---------|
+| `content` | **Source**: Classpath path to YAML file | `/test-content.yaml` |
+| `contentRoot` | **Target**: JCR path where content is imported | `/content/documents/mysite` |
+
+```java
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/articles-test-data.yaml",        // Load from classpath
+    contentRoot = "/content/documents/mysite"    // Import to this JCR path
+)
+```
+
+**What happens:**
+1. BRUT reads `content` from classpath (e.g., `src/test/resources/articles-test-data.yaml`)
+2. YAML is imported at `contentRoot` path in the mock repository
+3. `contentRoot` also becomes the `siteContentBasePath` for HST queries
+
+**Path Resolution:**
+- `/articles-test-data.yaml` → `src/test/resources/articles-test-data.yaml`
+- `/org/example/test-data.yaml` → `src/test/resources/org/example/test-data.yaml`
+
 ## Why Stub Data?
 
 ### Test Isolation

@@ -1,18 +1,20 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
 import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
+import org.bloomreach.forge.brut.resources.util.Response;
+import org.example.model.ListItemPagination;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.jcr.Repository;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Annotation-based JAX-RS test using ConfigServiceRepository.
- * Demonstrates fluent repository utilities for HST structure verification.
+ * Demonstrates loadProjectContent=true for production-parity HST configuration.
  */
 @BrxmJaxrsTest(
         beanPackages = {"org.example.model"},
@@ -21,37 +23,47 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 )
 public class ConfigServiceAnnotationJaxrsTest {
 
-    private DynamicJaxrsTest brxm;
-
     @Test
-    @DisplayName("ConfigServiceRepository is active")
-    void testConfigServiceRepositoryActive() {
+    @DisplayName("loadProjectContent=true activates ConfigServiceRepository")
+    void loadProjectContent_activatesConfigServiceRepository(DynamicJaxrsTest brxm) {
         Repository repository = brxm.getComponentManager().getComponent(Repository.class);
         assertNotNull(repository);
         assertTrue(repository.getClass().getName().contains("ConfigServiceRepository"));
+    }
 
-        // Using fluent RepositorySession (reduces 18 lines to 1 fluent chain)
+    @Test
+    @DisplayName("Fluent RepositorySession for HST structure verification")
+    void fluentRepository_verifyHstStructure(DynamicJaxrsTest brxm) {
+        // brxm.repository() provides auto-closing session with fluent assertions
         try (var repo = brxm.repository()) {
-            // Verify HST configuration structure
             repo.assertNodeExists("/hst:myproject")
                 .assertNodeExists("/hst:myproject/hst:configurations")
                 .assertNodeExists("/hst:myproject/hst:hosts")
                 .assertNodeExists("/hst:myproject/hst:sites")
-                // Verify project configuration
                 .assertNodeExists("/hst:myproject/hst:configurations/myproject")
                 .assertNodeExists("/hst:myproject/hst:configurations/myproject/hst:sitemap")
-                // Verify core repository structure
                 .assertNodeExists("/hippo:configuration");
         }
     }
 
     @Test
-    @DisplayName("JAX-RS endpoint works with ConfigService setup")
-    void testJaxrsEndpoint() {
-        // Using fluent RequestBuilder (reduces 4 lines to 1 fluent chain)
-        String user = "config-service-user";
+    @DisplayName("JAX-RS endpoint works with production HST config")
+    void jaxrsEndpoint_worksWithProductionConfig(DynamicJaxrsTest brxm) {
         brxm.request()
-                .get("/site/api/hello/" + user)
-                .assertBody("Hello, World! " + user);
+            .get("/site/api/hello/config-service-user")
+            .assertBody("Hello, World! config-service-user");
+    }
+
+    @Test
+    @DisplayName("Complex endpoint with executeWithStatus()")
+    void complexEndpoint_executeWithStatus(DynamicJaxrsTest brxm) throws JsonProcessingException {
+        Response<ListItemPagination> response = brxm.request()
+            .get("/site/api/news")
+            .executeWithStatus(ListItemPagination.class);
+
+        assertEquals(200, response.status());
+        assertTrue(response.isSuccessful());
+        assertFalse(response.isClientError());
+        assertEquals(3, response.body().getItems().size());
     }
 }

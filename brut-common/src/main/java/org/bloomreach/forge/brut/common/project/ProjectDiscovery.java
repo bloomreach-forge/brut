@@ -1,5 +1,8 @@
 package org.bloomreach.forge.brut.common.project;
 
+import org.bloomreach.forge.brut.common.project.strategy.BeanPackageStrategyChain;
+import org.bloomreach.forge.brut.common.project.strategy.DiscoveryContext;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -100,53 +103,46 @@ public final class ProjectDiscovery {
     public static List<String> resolveBeanPackages(Class<?> testClass,
                                                    BeanPackageOrder order,
                                                    boolean includeDomain) {
-        String testPackage = testClass != null && testClass.getPackage() != null
-            ? testClass.getPackage().getName()
-            : null;
         Path start = Paths.get(System.getProperty("user.dir"));
-        return resolveBeanPackages(start, testPackage, order, includeDomain);
+        return resolveBeanPackages(start, testClass, order, includeDomain);
     }
 
     public static List<String> resolveBeanPackages(Path start,
                                                    String testPackage,
                                                    BeanPackageOrder order,
                                                    boolean includeDomain) {
-        Set<String> packages = new LinkedHashSet<>();
-        ProjectSettings settings = loadProjectSettings(start).orElse(null);
+        return resolveBeanPackagesWithContext(start, testPackage, order, includeDomain);
+    }
 
-        String projectPackage = settings != null ? settings.getSelectedProjectPackage() : null;
-        String selectedBeansPackage = settings != null ? settings.getSelectedBeansPackage() : null;
+    public static List<String> resolveBeanPackages(Path start,
+                                                   Class<?> testClass,
+                                                   BeanPackageOrder order,
+                                                   boolean includeDomain) {
+        String testPackage = testClass != null && testClass.getPackage() != null
+            ? testClass.getPackage().getName()
+            : null;
+        return resolveBeanPackagesWithContext(start, testPackage, order, includeDomain);
+    }
 
-        String modelPackage = projectPackage != null ? projectPackage + ".model" : null;
-        String beansPackageFallback = projectPackage != null ? projectPackage + ".beans" : null;
-        String domainPackage = projectPackage != null ? projectPackage + ".domain" : null;
+    private static List<String> resolveBeanPackagesWithContext(Path start,
+                                                               String testPackage,
+                                                               BeanPackageOrder order,
+                                                               boolean includeDomain) {
+        Optional<Path> projectRoot = findProjectRoot(start);
+        ProjectSettings settings = projectRoot.isPresent()
+            ? loadProjectSettings(projectRoot.get()).orElse(null)
+            : null;
 
-        if (order == BeanPackageOrder.MODEL_FIRST) {
-            addPackage(packages, modelPackage);
-            addPackage(packages, selectedBeansPackage != null ? selectedBeansPackage : beansPackageFallback);
-        } else {
-            addPackage(packages, selectedBeansPackage != null ? selectedBeansPackage : beansPackageFallback);
-            addPackage(packages, modelPackage);
-        }
+        DiscoveryContext context = DiscoveryContext.builder()
+            .startPath(start)
+            .projectRoot(projectRoot.orElse(null))
+            .testPackage(testPackage)
+            .order(order)
+            .includeDomain(includeDomain)
+            .projectSettings(settings)
+            .build();
 
-        if (includeDomain) {
-            addPackage(packages, domainPackage);
-        }
-
-        if (packages.isEmpty() && testPackage != null) {
-            if (order == BeanPackageOrder.MODEL_FIRST) {
-                addPackage(packages, testPackage + ".model");
-                addPackage(packages, testPackage + ".beans");
-            } else {
-                addPackage(packages, testPackage + ".beans");
-                addPackage(packages, testPackage + ".model");
-            }
-            if (includeDomain) {
-                addPackage(packages, testPackage + ".domain");
-            }
-        }
-
-        return new ArrayList<>(packages);
+        return BeanPackageStrategyChain.createDefault().resolve(context);
     }
 
     public static List<String> toClasspathPatterns(List<String> packages, boolean recursive, boolean trailingComma) {

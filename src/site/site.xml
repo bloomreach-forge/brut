@@ -36,15 +36,32 @@
   <publishDate format="d MMM yyyy" />
 
   <body>
-    <menu>
-      <item name="Home" href="index.html" />
-      <item name="Demo Project" href="demoproject.html" />
-      <item name="Installation" href="install.html" />
-      <item name="Usage" href="usage.html" />
-      <item name="Quick Reference" href="quick-reference.html" />
-      <item name="ConfigService Repository" href="config-service-repository.html" />
-      <item name="JavaDocs" href="apidocs/index.html" />
-      <item name="Release Notes" href="release-notes.html" />
+    <menu name="Getting Started">
+      <item name="Home" href="index.html"/>
+      <item name="Installation" href="install.html"/>
+      <item name="Quick Start" href="getting-started.html"/>
+    </menu>
+    <menu name="Testing Guides">
+      <item name="JAX-RS Testing" href="testing/jaxrs-testing.html"/>
+      <item name="Page Model Testing" href="testing/pagemodel-testing.html"/>
+      <item name="Component Testing" href="testing/component-testing.html"/>
+      <item name="Test Data (YAML)" href="testing/stubbing-data.html"/>
+    </menu>
+    <menu name="Patterns">
+      <item name="Authentication" href="patterns/authentication.html"/>
+      <item name="Common Patterns" href="patterns/common-patterns.html"/>
+    </menu>
+    <menu name="Reference">
+      <item name="Quick Reference" href="quick-reference.html"/>
+      <item name="ConfigService Repository" href="config-service-repository.html"/>
+      <item name="Architecture" href="architecture.html"/>
+      <item name="Troubleshooting" href="troubleshooting.html"/>
+      <item name="Legacy API" href="legacy-api.html"/>
+      <item name="JavaDocs" href="apidocs/index.html"/>
+    </menu>
+    <menu name="Project">
+      <item name="Demo Project" href="demoproject.html"/>
+      <item name="Release Notes" href="release-notes.html"/>
     </menu>
   </body>
 </project>

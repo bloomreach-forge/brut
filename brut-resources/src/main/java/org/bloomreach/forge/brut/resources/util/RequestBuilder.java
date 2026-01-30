@@ -16,14 +16,18 @@
 package org.bloomreach.forge.brut.resources.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bloomreach.forge.brut.resources.MockHstRequest;
 import org.bloomreach.forge.brut.resources.pagemodel.PageModelResponse;
-import org.hippoecm.hst.mock.core.request.MockHstRequestContext;
 
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import org.springframework.mock.web.DelegatingServletInputStream;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -48,6 +52,7 @@ public class RequestBuilder {
 
     private final MockHstRequest hstRequest;
     private final RequestExecutor executor;
+    private final StatusSupplier statusSupplier;
     private final Map<String, String> queryParams = new LinkedHashMap<>();
 
     /**
@@ -58,9 +63,28 @@ public class RequestBuilder {
         String invokeFilter();
     }
 
+    /**
+     * Internal interface for retrieving response status code.
+     */
+    @FunctionalInterface
+    public interface StatusSupplier {
+        int getStatus();
+    }
+
+    /**
+     * Creates a RequestBuilder without status support (legacy).
+     */
     public RequestBuilder(MockHstRequest hstRequest, RequestExecutor executor) {
+        this(hstRequest, executor, () -> 200);
+    }
+
+    /**
+     * Creates a RequestBuilder with status support.
+     */
+    public RequestBuilder(MockHstRequest hstRequest, RequestExecutor executor, StatusSupplier statusSupplier) {
         this.hstRequest = hstRequest;
         this.executor = executor;
+        this.statusSupplier = statusSupplier != null ? statusSupplier : () -> 200;
     }
 
     /**
@@ -132,6 +156,61 @@ public class RequestBuilder {
     public RequestBuilder withHeader(String name, String value) {
         hstRequest.setHeader(name, value);
         return this;
+    }
+
+    /**
+     * Sets the request body as a string. Does NOT set Content-Type header automatically.
+     * Use {@link #withJsonBody(String)} for JSON payloads which sets the Content-Type.
+     *
+     * @param body request body content
+     * @return this builder for chaining
+     */
+    public RequestBuilder withBody(String body) {
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        hstRequest.setInputStream(new DelegatingServletInputStream(new ByteArrayInputStream(bytes)));
+        return this;
+    }
+
+    /**
+     * Sets the request body as JSON string and sets Content-Type to application/json.
+     *
+     * <p>Example usage:
+     * <pre>
+     * brxm.request()
+     *     .post("/site/api/users")
+     *     .withJsonBody("{\"name\": \"John\"}")
+     *     .execute();
+     * </pre>
+     *
+     * @param json JSON string body
+     * @return this builder for chaining
+     */
+    public RequestBuilder withJsonBody(String json) {
+        withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+        return withBody(json);
+    }
+
+    /**
+     * Serializes the object to JSON and sets it as the request body.
+     * Also sets Content-Type to application/json.
+     *
+     * <p>Example usage:
+     * <pre>
+     * User user = new User("John", 30);
+     * brxm.request()
+     *     .post("/site/api/users")
+     *     .withJsonBody(user)
+     *     .executeAs(User.class);
+     * </pre>
+     *
+     * @param object object to serialize as JSON body
+     * @return this builder for chaining
+     * @throws JsonProcessingException if serialization fails
+     */
+    public RequestBuilder withJsonBody(Object object) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(object);
+        return withJsonBody(json);
     }
 
     /**
@@ -207,6 +286,79 @@ public class RequestBuilder {
     public PageModelResponse executeAsPageModel() throws JsonProcessingException {
         String json = execute();
         return PageModelResponse.parse(json);
+    }
+
+    /**
+     * Executes the request and deserializes the JSON response to the specified type.
+     * Uses Jackson ObjectMapper with lenient settings (unknown properties ignored).
+     *
+     * <p>Example usage:
+     * <pre>
+     * User user = brxm.request()
+     *     .get("/site/api/user/123")
+     *     .executeAs(User.class);
+     * </pre>
+     *
+     * @param <T> the target type
+     * @param responseType the class to deserialize to
+     * @return deserialized response object
+     * @throws JsonProcessingException if JSON parsing fails
+     */
+    public <T> T executeAs(Class<T> responseType) throws JsonProcessingException {
+        String json = execute();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper.readValue(json, responseType);
+    }
+
+    /**
+     * Executes the request and returns the response with status code.
+     * The response body is returned as a raw string.
+     *
+     * <p>Example usage:
+     * <pre>
+     * Response&lt;String&gt; response = brxm.request()
+     *     .get("/site/api/health")
+     *     .executeWithStatus();
+     *
+     * assertThat(response.status()).isEqualTo(200);
+     * </pre>
+     *
+     * @return Response containing status code and raw body
+     */
+    public Response<String> executeWithStatus() {
+        String body = execute();
+        int status = statusSupplier.getStatus();
+        return Response.of(status, body);
+    }
+
+    /**
+     * Executes the request and returns the response with status code and typed body.
+     * Uses Jackson ObjectMapper with lenient settings (unknown properties ignored).
+     *
+     * <p>Example usage:
+     * <pre>
+     * Response&lt;User&gt; response = brxm.request()
+     *     .post("/site/api/users")
+     *     .withJsonBody(newUser)
+     *     .executeWithStatus(User.class);
+     *
+     * assertThat(response.status()).isEqualTo(201);
+     * assertThat(response.body().getName()).isEqualTo("John");
+     * </pre>
+     *
+     * @param <T> the target type
+     * @param responseType the class to deserialize to
+     * @return Response containing status code and deserialized body
+     * @throws JsonProcessingException if JSON parsing fails
+     */
+    public <T> Response<T> executeWithStatus(Class<T> responseType) throws JsonProcessingException {
+        String rawBody = execute();
+        int status = statusSupplier.getStatus();
+        ObjectMapper mapper = new ObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        T body = mapper.readValue(rawBody, responseType);
+        return Response.of(status, rawBody, body);
     }
 
     /**

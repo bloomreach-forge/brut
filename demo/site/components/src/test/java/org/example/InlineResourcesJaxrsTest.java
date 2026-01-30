@@ -28,27 +28,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 )
 public class InlineResourcesJaxrsTest {
 
-    private DynamicJaxrsTest brxm;
-
     @Test
     @DisplayName("resources parameter registers JAX-RS endpoint without rest-resources.xml")
-    void resourcesParameter_registersEndpoint() {
-        String response = brxm.request()
+    void resourcesParameter_registersEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
             .get("/site/api/hello/world")
-            .execute();
-
-        assertEquals("Hello, World! world", response);
+            .assertBody("Hello, World! world");
     }
 
     @Test
-    @DisplayName("Multiple requests work correctly")
-    void multipleRequests_work() {
+    @DisplayName("Multiple requests work correctly with beforeEach reset")
+    void multipleRequests_work(DynamicJaxrsTest brxm) {
+        // First request
         brxm.request()
             .get("/site/api/hello/alice")
             .assertBody("Hello, World! alice");
 
+        // Second request - state is reset between requests
         brxm.request()
             .get("/site/api/hello/bob")
             .assertBody("Hello, World! bob");
+    }
+
+    @Test
+    @DisplayName("withAccept() sets Accept header for content negotiation")
+    void withAccept_setsContentNegotiation(DynamicJaxrsTest brxm) {
+        String response = brxm.request()
+            .get("/site/api/hello/json-user")
+            .withAccept("application/json")
+            .execute();
+
+        assertEquals("Hello, World! json-user", response);
     }
 }

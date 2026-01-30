@@ -18,433 +18,108 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
   <properties>
-    <title>B.R.U.T. - BloomReach Unit Testing for Delivery Tier</title>
+    <title>Usage Overview</title>
   </properties>
   <body>
 
-    <section name="Usage">
+    <section name="Usage Overview">
+      <p>BRUT provides three test types for brXM delivery tier testing. Choose based on what you're testing:</p>
 
-      <subsection name="Annotation-Based Testing (Recommended)">
-        <p>BRUT 5.1.0+ provides a modern annotation-based testing API that eliminates boilerplate and makes testing easier.</p>
+      <table>
+        <tr><th>Testing...</th><th>Use</th><th>Guide</th></tr>
+        <tr>
+          <td>JAX-RS REST endpoints</td>
+          <td><code>@BrxmJaxrsTest</code></td>
+          <td><a href="testing/jaxrs-testing.html">JAX-RS Testing</a></td>
+        </tr>
+        <tr>
+          <td>Page Model API responses</td>
+          <td><code>@BrxmPageModelTest</code></td>
+          <td><a href="testing/pagemodel-testing.html">Page Model Testing</a></td>
+        </tr>
+        <tr>
+          <td>HST Components</td>
+          <td><code>@BrxmComponentTest</code></td>
+          <td><a href="testing/component-testing.html">Component Testing</a></td>
+        </tr>
+      </table>
+    </section>
 
-        <h4>Page Model API Test with @BrxmPageModelTest</h4>
-        <div class="brush: java">
-          <source><![CDATA[
-package org.example;
-
-import java.io.IOException;
-import org.bloomreach.forge.brut.resources.annotation.BrxmPageModelTest;
-import org.bloomreach.forge.brut.resources.annotation.DynamicPageModelTest;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-@BrxmPageModelTest(
-    beanPackages = {"org.example.beans"}
-)
-public class PageModelTest {
-
-    private DynamicPageModelTest brxm;
-
-    @Test
-    @DisplayName("Component rendering url response")
-    void testComponentRendering() throws IOException {
-        brxm.getHstRequest().setRequestURI("/site/resourceapi/news");
-        brxm.getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
-        String response = brxm.invokeFilter();
-
-        JsonNode json = new ObjectMapper().readTree(response);
-        assertTrue(json.get("page").size() > 0);
-    }
-}
-          ]]></source>
-        </div>
-
-        <h4>JAX-RS REST API Test with @BrxmJaxrsTest</h4>
-        <div class="brush: java">
-          <source><![CDATA[
-package org.example;
-
-import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
-import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-@BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
-    springConfigs = {"/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml"}
-)
-public class JaxrsTest {
-
-    private DynamicJaxrsTest brxm;
+    <section name="Quick Example">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(resources = {HelloResource.class})
+class MyApiTest {
 
     @Test
-    @DisplayName("Test invoking the user endpoint")
-    void testUserEndpoint() {
-        String user = "baris";
-        brxm.getHstRequest().setRequestURI("/site/api/hello/" + user);
-        String response = brxm.invokeFilter();
-        assertEquals("Hello, World! " + user, response);
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        String response = brxm.request()
+            .get("/site/api/hello/world")
+            .execute();
+
+        assertEquals("Hello, World!", response);
     }
 }
-          ]]></source>
-        </div>
+        ]]></source>
+      </div>
+    </section>
 
-        <h4>Component Test with @BrxmComponentTest</h4>
-        <div class="brush: java">
-          <source><![CDATA[
-package org.example;
+    <section name="Key Features">
+      <ul>
+        <li><strong>Parameter Injection</strong> - No IDE warnings, standard JUnit 5 pattern</li>
+        <li><strong>Zero-Config</strong> - Auto-detection of bean packages, HST root, Spring configs</li>
+        <li><strong>Fluent Request API</strong> - <code>brxm.request().get("/api").execute()</code></li>
+        <li><strong>Typed JSON Responses</strong> - <code>executeAs(User.class)</code>, <code>executeWithStatus()</code></li>
+        <li><strong>No Inheritance</strong> - Uses JUnit 5 extensions, not abstract base classes</li>
+      </ul>
+    </section>
 
-import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
-import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@BrxmComponentTest(
-    beanPackages = {"org.example.beans"},
-    content = "/news.yaml",
-    contentRoot = "/content/documents/mychannel"
-)
-// nodeTypes auto-detected from @Node annotations in beanPackages!
-public class ComponentTest {
-
-    private DynamicComponentTest brxm;
-
-    @Test
-    void testComponent() {
-        assertNotNull(brxm.getHstRequest());
-        assertNotNull(brxm.getHstResponse());
-        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
-    }
-}
-          ]]></source>
-        </div>
-
-        <p><strong>Benefits:</strong></p>
-        <ul>
-          <li>66-74% less boilerplate code</li>
-          <li>No inheritance required (field injection)</li>
-          <li>Auto-detection of HST root and configuration</li>
-          <li>Auto-detection of node types from <code>@Node(jcrType="...")</code> annotations</li>
-          <li>Native JUnit 5 support</li>
-        </ul>
-
-        <p><strong>See also:</strong> <a href="quick-reference.html">Quick Reference Guide</a></p>
-      </subsection>
-
-      <subsection name="Production-Parity Configuration">
-        <p>BRUT 5.1.0+ includes ConfigServiceRepository for loading real brXM configuration (HCM modules) in tests:</p>
-        <div class="brush: xml">
-          <source><![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
-
-  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:org/example/namespaces/**/*.cnd</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <bean id="repository" class="org.bloomreach.forge.brut.common.repository.config.ConfigServiceRepository">
-    <constructor-arg>
-      <bean class="org.bloomreach.forge.brut.common.repository.config.ModuleReader">
-        <constructor-arg>
-          <list>
-            <value>hcm-config</value>
-            <value>hcm-content</value>
-          </list>
-        </constructor-arg>
-      </bean>
-    </constructor-arg>
-  </bean>
-
-</beans>
-          ]]></source>
-        </div>
-        <p><strong>Benefits:</strong> Same config format as production, no duplicate YAML files, explicit module loading.</p>
-        <p>By default BRUT loads standard repository-data modules (application, site, development, site-development,
-          webfiles). Add extra modules explicitly when needed:</p>
-        <div class="brush: java">
-          <source><![CDATA[
-@BrxmPageModelTest(
-    loadProjectContent = true,
-    repositoryDataModules = {"cms"}
-)
-public class MyTest {
-    // ...
-}
-          ]]></source>
-        </div>
-        <p>When CMS or addon config is present but not needed for delivery-tier tests, BRUT can prune unreachable
-          definitions under <code>/hippo:configuration/hippo:frontend</code>,
-          <code>/hippo:configuration/hippo:modules</code>, and <code>/hippo:configuration/hippo:translations</code>.
-          By default BRUT only allows config roots under <code>/hst:</code>, <code>/content</code>,
-          <code>/webfiles</code>, and <code>/hippo:namespaces</code>.
-          Override with <code>-Dbrut.configservice.allowedConfigRoots=/hst:,/hippo:configuration/hippo:modules</code> or
-          use <code>-Dbrut.configservice.allowedConfigRoots=*</code> to disable filtering.
-          Unreachable roots outside the allowed list are also pruned by default unless
-          <code>brut.configservice.pruneConfigRoots</code> is explicitly set.
-          Override roots with <code>-Dbrut.configservice.pruneConfigRoots=/hippo:configuration/hippo:frontend,/hippo:configuration/hippo:modules</code>,
-          use <code>-Dbrut.configservice.pruneConfigRoots=*</code> to prune any unreachable root, or disable pruning with
-          <code>-Dbrut.configservice.pruneFrontendConfig=false</code>.</p>
-      </subsection>
-
-      <subsection name="Importing Nodes:">
-        <p>You can import nodes using the <a href="apidocs/org/bloomreach/forge/brut/common/repository/utils/ImporterUtils.html">ImporterUtils</a> from the <code>brut-common</code> module.</p>
-        <div class="brush: java">
-          <source><![CDATA[
+    <section name="Importing Nodes">
+      <p>You can import nodes using the <a href="apidocs/org/bloomreach/forge/brut/common/repository/utils/ImporterUtils.html">ImporterUtils</a> from the <code>brut-common</code> module.</p>
+      <div class="brush: java">
+        <source><![CDATA[
 import java.net.URL;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 
 URL resource = getClass().getResource("/news.yaml");
 ImporterUtils.importYaml(resource, rootNode, "/content/documents/mychannel", "hippostd:folder");
-            ]]></source>
-        </div>
-      </subsection>
+        ]]></source>
+      </div>
+      <p>See <a href="testing/stubbing-data.html">Stubbing Test Data</a> for YAML structure and patterns.</p>
+    </section>
 
-      <subsection name="Example Spring Configuration:">
-        <div class="brush: xml">
-          <source><![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
-  <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
-
-  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:org/example/namespaces/**/*.cnd</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-  <bean id="contributedYamlResourcesPatterns" class="java.util.ArrayList">
-    <constructor-arg>
-      <list>
-        <value>classpath*:org/packagename/imports/**/*.yaml</value>
-      </list>
-    </constructor-arg>
-  </bean>
-
-</beans>
-            ]]></source>
-        </div>
-      </subsection>
-
-      <subsection name="Legacy Approach: JaxrsRestPlainPipeline (Abstract Class)">
-        <div class="brush: java">
-          <source><![CDATA[
-package org.example;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.jcr.Node;
-import javax.jcr.Repository;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
-import jakarta.ws.rs.HttpMethod;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-
-import org.example.model.ListItemPagination;
-import org.example.model.NewsItemRep;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import com.bloomreach.ps.brut.resources.AbstractJaxrsTest;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-/**
- * A user (client) of the testing library providing his/her own config/content
- */
-
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class JaxrsTest extends AbstractJaxrsTest {
-
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @BeforeEach
-    public void beforeEach() {
-        setupForNewRequest();
-    }
-
-    private void setupForNewRequest() {
-        setupHstRequest();
-        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        getHstRequest().setMethod(HttpMethod.GET);
-        setupServletContext();
-        unregisterHstModel();
-        registerHstModel();
-        setupHstResponse();
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:org/example/model/*.class,";
-    }
-
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/org/example/custom-jaxrs.xml", "/org/example/rest-resources.xml");
-    }
-
-    @Override
-    protected List<String> contributeAddonModulePaths() {
-        return null;
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return "/hst:myproject";
-    }
-
-    @Test
-    @DisplayName("Test invoking the user endpoint")
-    public void testUserEndpoint() {
-        String user = "baris";
-        getHstRequest().setRequestURI("/site/api/hello/" + user);
-        String response = invokeFilter();
-        assertEquals("Hello, World! " + user, response);
-    }
-
-    @Test
-    @DisplayName("Test HST config changes are not visible if HST model is not reloaded after a node update via JCR API")
-    public void testMountParamsUpdated() throws Exception {
-        String key = "paramName";
-        String value = "paramValue";
-        getHstRequest().setRequestURI("/site/api/hello/mount/" + key);
-        String response = invokeFilter();
-        setParamsOnMount(new String[]{key}, new String[]{value});
-        assertEquals("", response,
-                "Expected nothing to change since the HST model was not explicitly reloaded");
-
-        invalidateHstModel();
-        String response2 = invokeFilter();
-        assertEquals(value, response2, "Expected param value to be updated since HST model was loaded");
-    }
-
-    @Test
-    @DisplayName("Test running HST query in news endpoint")
-    public void testNewsEndpoint() throws Exception {
-        getHstRequest().setRequestURI("/site/api/news");
-        String response = invokeFilter();
-        ListItemPagination<NewsItemRep> pageable = new ObjectMapper().readValue(response, new TypeReference<ListItemPagination<NewsItemRep>>() {
-        });
-        assertEquals(3, pageable.getItems().size(), "Pageable didn't have enough results");
-    }
-
-    private void setParamsOnMount(String[] paramNames, String[] paramValues) throws Exception {
-        Repository repository = getComponentManager().getComponent(Repository.class);
-        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
-        String rootMountPath = "/hst:myproject/hst:hosts/dev-localhost/localhost/hst:root";
-        Node rootMount = session.getNode(rootMountPath);
-        rootMount.setProperty("hst:parameternames", paramNames);
-        rootMount.setProperty("hst:parametervalues", paramValues);
-        session.save();
-        session.logout();
-    }
-
-}
-          ]]></source>
-        </div>
-      </subsection>
-
-      <subsection name="Legacy Approach: Page Model API (Abstract Class)">
-        <div class="brush: java">
-          <source><![CDATA[
-package org.example;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import com.bloomreach.ps.brut.resources.AbstractPageModelTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * A user (client) of the testing library providing his/her own config/content
- */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class PageModelTest extends AbstractPageModelTest {
-
-    @BeforeAll
-    public void init() {
-        super.init();
-    }
-
-    @AfterAll
-    public void destroy() {
-        super.destroy();
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:org/example/beans/*.class,";
-    }
-
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Collections.singletonList("/org/example/custom-pagemodel.xml");
-    }
-
-    @Override
-    protected List<String> contributeAddonModulePaths() {
-        return null;
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return "/hst:myproject";
-    }
-
-    @Test
-    @DisplayName("Component rendering url response")
-    public void test() throws IOException {
-        getHstRequest().setRequestURI("/site/resourceapi/news");
-        getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
-        String response = invokeFilter();
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readValue(response, JsonNode.class);
-        assertTrue(jsonNode.get("page").size() > 0);
-        assertEquals(jsonNode.get("page").get("models").get("pageable").get("pageSize").intValue(), 10);
-    }
-}
-
-          ]]></source>
-        </div>
-      </subsection>
-
+    <section name="Documentation">
+      <table>
+        <tr><th>Topic</th><th>Description</th></tr>
+        <tr>
+          <td><a href="getting-started.html">Getting Started</a></td>
+          <td>First test setup and prerequisites</td>
+        </tr>
+        <tr>
+          <td><a href="quick-reference.html">Quick Reference</a></td>
+          <td>All annotation options and API reference</td>
+        </tr>
+        <tr>
+          <td><a href="patterns/authentication.html">Authentication</a></td>
+          <td>Testing authenticated users and roles</td>
+        </tr>
+        <tr>
+          <td><a href="patterns/common-patterns.html">Common Patterns</a></td>
+          <td>Mocking, assertions, naming conventions</td>
+        </tr>
+        <tr>
+          <td><a href="config-service-repository.html">ConfigService Repository</a></td>
+          <td>Production-parity testing with HCM modules</td>
+        </tr>
+        <tr>
+          <td><a href="troubleshooting.html">Troubleshooting</a></td>
+          <td>Common issues and fixes</td>
+        </tr>
+        <tr>
+          <td><a href="legacy-api.html">Legacy API</a></td>
+          <td>Abstract class approach (still supported)</td>
+        </tr>
+      </table>
     </section>
 
   </body>

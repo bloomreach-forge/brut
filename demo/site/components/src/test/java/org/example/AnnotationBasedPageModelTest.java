@@ -21,12 +21,11 @@ import static org.junit.jupiter.api.Assertions.*;
 )
 public class AnnotationBasedPageModelTest {
 
-    private DynamicPageModelTest brxm;
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     @DisplayName("PageModel API - Jackson JsonNode approach")
-    void testPageModelWithJackson() throws Exception {
+    void testPageModelWithJackson(DynamicPageModelTest brxm) throws Exception {
         // Approach 1: Direct Jackson JsonNode (flexible, low-level)
         String response = brxm.request()
                 .get("/site/resourceapi/news")
@@ -50,7 +49,7 @@ public class AnnotationBasedPageModelTest {
 
     @Test
     @DisplayName("PageModel API - executeAsPageModel() approach (recommended)")
-    void testPageModelWithExecuteAsPageModel() throws Exception {
+    void testPageModelWithExecuteAsPageModel(DynamicPageModelTest brxm) throws Exception {
         // Approach 2: Use executeAsPageModel() for type-safe PageModelResponse
         PageModelResponse pageModel = brxm.request()
                 .get("/site/resourceapi/news")
@@ -76,7 +75,7 @@ public class AnnotationBasedPageModelTest {
 
     @Test
     @DisplayName("PageModel API - Component navigation")
-    void testComponentNavigation() throws Exception {
+    void testComponentNavigation(DynamicPageModelTest brxm) throws Exception {
         PageModelResponse pageModel = brxm.request()
                 .get("/site/resourceapi/news")
                 .pageModelComponentRendering("r5_r1_r1")
@@ -90,7 +89,7 @@ public class AnnotationBasedPageModelTest {
 
     @Test
     @DisplayName("Multiple test methods work correctly")
-    void testMultipleRequests() throws Exception {
+    void testMultipleRequests(DynamicPageModelTest brxm) throws Exception {
         // First request - using fluent API
         PageModelResponse response1 = brxm.request()
                 .get("/site/resourceapi/news")

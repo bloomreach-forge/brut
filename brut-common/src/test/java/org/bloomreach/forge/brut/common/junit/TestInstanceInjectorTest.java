@@ -1,6 +1,5 @@
 package org.bloomreach.forge.brut.common.junit;
 
-import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,8 +43,8 @@ class TestInstanceInjectorTest {
     }
 
     @Test
-    @DisplayName("inject: throws exception when no matching field found")
-    void inject_throwsWhenNoMatchingField() {
+    @DisplayName("inject: silently skips when no matching field found (parameter injection may be used)")
+    void inject_skipsWhenNoMatchingField() throws Exception {
         class TestClass {
             String unrelatedField;
         }
@@ -53,12 +52,13 @@ class TestInstanceInjectorTest {
         ExtensionContext context = mockContextFor(testObject);
         MockInfrastructure instance = new MockInfrastructure();
 
-        BrutTestConfigurationException exception = assertThrows(
-                BrutTestConfigurationException.class,
+        // Should not throw - silently skips when no field found (parameter injection alternative)
+        assertDoesNotThrow(
                 () -> TestInstanceInjector.inject(context, instance, TestInfrastructure.class, LOG)
         );
 
-        assertTrue(exception.getMessage().contains("TestInfrastructure"));
+        // Verify unrelated field was not affected
+        assertNull(testObject.unrelatedField);
     }
 
     @Test

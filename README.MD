@@ -1,5 +1,7 @@
 #  B.R.U.T.
 
+[![CI](https://github.com/bloomreach-forge/brut/actions/workflows/ci.yml/badge.svg)](https://github.com/bloomreach-forge/brut/actions/workflows/ci.yml)
+
 <!-- AI-METADATA
 framework: brxm-testing
 test-types: [component, pagemodel, jaxrs]

@@ -22,26 +22,118 @@
   </properties>
   <body>
 
+    <section name="Introduction">
+      <p><strong>BRUT 5.1.0</strong> introduces annotation-based testing for brXM delivery tier with 66-74% less boilerplate
+      than legacy abstract classes. Write tests with simple annotations and let BRUT handle the infrastructure.</p>
+
+      <subsection name="Quick Example">
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(resources = {HelloResource.class})
+class MyApiTest {
+
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
+            .get("/site/api/hello/world")
+            .assertBody("Hello, World!");
+    }
+}
+          ]]></source>
+        </div>
+        <p><strong>That's it!</strong> No abstract classes, no 30+ lines of configuration, no lifecycle management.</p>
+      </subsection>
+
+      <subsection name="Key Features">
+        <ul>
+          <li><strong>Zero-Config Auto-Detection</strong> - Bean packages discovered from project structure</li>
+          <li><strong>JUnit 5 Parameter Injection</strong> - Test harness injected via <code>@Test</code> method parameters</li>
+          <li><strong>Fluent Request API</strong> - Chainable request building with typed responses</li>
+          <li><strong>ConfigService Integration</strong> - Production-parity testing with one-liner setup</li>
+          <li><strong>Three Test Types</strong> - Components, JAX-RS APIs, and Page Model</li>
+        </ul>
+      </subsection>
+    </section>
+
     <section name="Module Overview">
-      <subsection name="BRUT Common (brut-common)">
-        <ul>
-          <li>This module contains the repository that other modules depend on. This module was initially a fork of the project <a href="https://github.com/openweb-nl/in-memory-jcr">InMemoryJcrRepository</a> by OpenWeb.</li>
-          <li>The repository itself can be used standalone. It supports YAML import as main mechanism for bootstrapping content to it.</li>
-          <li>Note that you could also provide your own repository.xml (see com.bloomreach.ps.brut.common.repository.BrxmTestingRepository.getRepositoryConfigFileLocation)</li>
-          <li>If you are importing yaml that references images, make sure you choose the zip export option. Unzip the export in the classpath.</li>
-        </ul>
-      </subsection>
+      <table>
+        <tr><th>Module</th><th>Purpose</th><th>Use For</th></tr>
+        <tr>
+          <td><strong>brut-common</strong></td>
+          <td>In-memory JCR repository, YAML import, JUnit 5 extensions</td>
+          <td>Shared infrastructure</td>
+        </tr>
+        <tr>
+          <td><strong>brut-components</strong></td>
+          <td>HST Component testing with <code>@BrxmComponentTest</code></td>
+          <td><a href="testing/component-testing.html">Component Tests</a></td>
+        </tr>
+        <tr>
+          <td><strong>brut-resources</strong></td>
+          <td>JAX-RS and Page Model testing</td>
+          <td><a href="testing/jaxrs-testing.html">JAX-RS</a> / <a href="testing/pagemodel-testing.html">Page Model</a></td>
+        </tr>
+      </table>
+    </section>
 
-      <subsection name="BRUT Components (brut-components)">
-        <ul>
-          <li>This module is for testing HST components. This is a fork of the project called <a href="https://github.com/openweb-nl/hippo-unit-tester">Hippo Unit Tester</a> by OpenWeb.</li>
-          <li>An <a href="https://github.com/bloomreach-forge/brut/blob/master/demo/site/components/src/test/java/org/example/EssentialsListComponentTest.java">example</a> usage of this module.</li>
-        </ul>
-      </subsection>
+    <section name="Getting Started">
+      <ol>
+        <li><a href="install.html">Install Dependencies</a> - Add BRUT to your project</li>
+        <li><a href="getting-started.html">Quick Start</a> - Write your first test</li>
+        <li><a href="quick-reference.html">Quick Reference</a> - Annotation options and API reference</li>
+      </ol>
+    </section>
 
-      <subsection name="BRUT Resources (brut-resources)">
-        <p>This module itself depends on the repository in the brut-common module. It has abstract test classes that start up an HST Container from scratch to test different HST pipelines.</p>
-      </subsection>
+    <section name="Testing Guides">
+      <table>
+        <tr><th>Guide</th><th>Description</th></tr>
+        <tr>
+          <td><a href="testing/jaxrs-testing.html">JAX-RS Testing</a></td>
+          <td>Test REST endpoints with fluent request builder</td>
+        </tr>
+        <tr>
+          <td><a href="testing/pagemodel-testing.html">Page Model Testing</a></td>
+          <td>Test Page Model API with JSON response parsing</td>
+        </tr>
+        <tr>
+          <td><a href="testing/component-testing.html">Component Testing</a></td>
+          <td>Test HST components in isolation</td>
+        </tr>
+        <tr>
+          <td><a href="testing/stubbing-data.html">Test Data (YAML)</a></td>
+          <td>Create focused test content</td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="Patterns and Reference">
+      <table>
+        <tr><th>Resource</th><th>Description</th></tr>
+        <tr>
+          <td><a href="patterns/authentication.html">Authentication Patterns</a></td>
+          <td>Test authenticated users and roles</td>
+        </tr>
+        <tr>
+          <td><a href="patterns/common-patterns.html">Common Patterns</a></td>
+          <td>Mocking, assertions, naming conventions</td>
+        </tr>
+        <tr>
+          <td><a href="config-service-repository.html">ConfigService Repository</a></td>
+          <td>Production-parity HST configuration</td>
+        </tr>
+        <tr>
+          <td><a href="architecture.html">Architecture</a></td>
+          <td>How BRUT works</td>
+        </tr>
+        <tr>
+          <td><a href="troubleshooting.html">Troubleshooting</a></td>
+          <td>Common issues and fixes</td>
+        </tr>
+        <tr>
+          <td><a href="legacy-api.html">Legacy API</a></td>
+          <td>Abstract class approach (still supported)</td>
+        </tr>
+      </table>
     </section>
 
   </body>

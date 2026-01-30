@@ -26,6 +26,8 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * JUnit 5 extension that manages lifecycle for @BrxmPageModelTest annotated tests.
  * Handles initialization, request setup, and cleanup automatically.
  */
-public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback {
+public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterAllCallback, ParameterResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(BrxmPageModelTestExtension.class);
     private static final String TEST_INSTANCE_KEY = "brxm.test.instance";
@@ -113,6 +115,16 @@ public class BrxmPageModelTestExtension implements BeforeAllCallback, BeforeEach
     private ExtensionContext.Store getRootStore(ExtensionContext context) {
         Class<?> rootClass = NestedTestClassSupport.getRootTestClass(context.getRequiredTestClass());
         return context.getRoot().getStore(ExtensionContext.Namespace.create(BrxmPageModelTestExtension.class, rootClass));
+    }
+
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return parameterContext.getParameter().getType() == DynamicPageModelTest.class;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return getRootStore(extensionContext).get(TEST_INSTANCE_KEY, DynamicPageModelTest.class);
     }
 
     private void logTestConfig(Class<?> testClass, TestConfig config) {

@@ -15,12 +15,10 @@
  */
 package org.bloomreach.forge.brut.common.junit;
 
-import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
-import java.util.stream.Stream;
 
 /**
  * Utility for injecting test infrastructure instances into test class fields.
@@ -28,6 +26,9 @@ import java.util.stream.Stream;
  *
  * <p>Supports JUnit 5 {@code @Nested} test classes by searching enclosing classes
  * when the target field is not found in the nested class itself.</p>
+ *
+ * <p>Field injection is optional - if no field is found, injection is skipped.
+ * Tests can alternatively use parameter injection via JUnit 5 {@code ParameterResolver}.</p>
  */
 public final class TestInstanceInjector {
 
@@ -37,8 +38,11 @@ public final class TestInstanceInjector {
     }
 
     /**
-     * Injects a test infrastructure instance into a field of the test class.
+     * Injects a test infrastructure instance into a field of the test class if a matching field exists.
      * For nested test classes, also searches enclosing class instances.
+     *
+     * <p>If no matching field is found, injection is skipped (no error). Tests can use
+     * parameter injection via ParameterResolver as an alternative.</p>
      *
      * @param context JUnit extension context
      * @param instance the instance to inject
@@ -53,7 +57,11 @@ public final class TestInstanceInjector {
         InjectionTarget target = findInjectionTarget(testObject, targetType);
 
         if (target == null) {
-            throwMissingFieldException(testObject.getClass(), targetType);
+            if (log != null) {
+                log.debug("No field of type {} found in {}; skipping field injection (parameter injection may be used)",
+                        targetType.getSimpleName(), testObject.getClass().getSimpleName());
+            }
+            return;
         }
 
         target.field.setAccessible(true);
@@ -99,14 +107,6 @@ public final class TestInstanceInjector {
             }
         }
         return null;
-    }
-
-    private static void throwMissingFieldException(Class<?> testClass, Class<?> targetType) {
-        Field[] allFields = testClass.getDeclaredFields();
-        String[] scannedFieldInfo = Stream.of(allFields)
-                .map(f -> f.getName() + " (" + f.getType().getSimpleName() + ")")
-                .toArray(String[]::new);
-        throw BrutTestConfigurationException.missingField(testClass, targetType.getSimpleName(), scannedFieldInfo);
     }
 
     private static class InjectionTarget {

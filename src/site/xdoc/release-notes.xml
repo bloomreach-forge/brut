@@ -69,12 +69,13 @@
         <h4>5.1.0</h4>
         <ul>
           <li><a href="https://issues.onehippo.com/browse/FORGE-577">FORGE-577</a> Annotation-based testing with zero-config setup</li>
+          <li>JUnit 5 parameter injection: Test harness via <code>@Test</code> method parameters (recommended)</li>
           <li>Production-parity testing with ConfigServiceRepository</li>
           <li>New annotations: <code>@BrxmPageModelTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmComponentTest</code></li>
           <li>Auto-detection of node types from <code>@Node(jcrType="...")</code> annotations in bean packages</li>
           <li>One-liner ConfigService integration via <code>loadProjectContent = true</code></li>
+          <li>Fluent request builder API with typed JSON responses</li>
           <li>HTTP Session support in MockHstRequest</li>
-          <li>Fluent request builder API</li>
           <li>Enhanced error messages with actionable fix suggestions</li>
           <li>66-74% boilerplate reduction compared to legacy abstract classes</li>
         </ul>

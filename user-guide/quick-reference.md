@@ -34,7 +34,7 @@
 
 ### 2. Create Your First Test
 
-**JAX-RS API Test (Zero-Config):**
+**JAX-RS API Test (Parameter Injection - Recommended):**
 ```java
 package org.example;
 
@@ -44,15 +44,11 @@ import org.example.rest.HelloResource;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
-    resources = {HelloResource.class}  // No Spring XML needed
-)
+@BrxmJaxrsTest(resources = {HelloResource.class})  // beanPackages auto-detected!
 public class MyApiTest {
-    private DynamicJaxrsTest brxm;
 
     @Test
-    void testEndpoint() {
+    void testEndpoint(DynamicJaxrsTest brxm) {  // Parameter injection - no IDE warnings!
         String response = brxm.request()
             .get("/site/api/hello/world")
             .execute();
@@ -70,12 +66,11 @@ import org.bloomreach.forge.brut.resources.annotation.DynamicPageModelTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmPageModelTest(beanPackages = {"org.example.beans"})
+@BrxmPageModelTest  // Zero-config for standard project layouts
 public class MyPageModelTest {
-    private DynamicPageModelTest brxm;
 
     @Test
-    void testComponent() {
+    void testComponent(DynamicPageModelTest brxm) {
         brxm.getHstRequest().setRequestURI("/site/resourceapi/news");
         String response = brxm.invokeFilter();
         assertTrue(response.contains("page"));
@@ -92,12 +87,11 @@ import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmComponentTest(beanPackages = {"org.example.beans"})
+@BrxmComponentTest  // beanPackages, nodeTypes auto-detected
 public class MyComponentTest {
-    private DynamicComponentTest brxm;
 
     @Test
-    void testComponent() {
+    void testComponent(DynamicComponentTest brxm) {
         assertNotNull(brxm.getHstRequest());
         assertNotNull(brxm.getHstResponse());
         assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
@@ -107,20 +101,18 @@ public class MyComponentTest {
 
 ### 3. Configuration Options
 
-**JAX-RS Test (Recommended):**
+**JAX-RS Test (Minimal):**
 
 ```java
-@BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
-    resources = {HelloResource.class, NewsResource.class}  // JAX-RS classes
-)
+@BrxmJaxrsTest(resources = {HelloResource.class, NewsResource.class})
+// beanPackages auto-detected from project-settings.xml or pom.xml
 ```
 
-**Full Options:**
+**Full Options (all optional except where noted):**
 
 ```java
 @BrxmJaxrsTest(
-    // Required: Bean packages for HST content beans
+    // Optional: Override auto-detected bean packages
     beanPackages = {"org.example.model"},
 
     // JAX-RS resources (replaces Spring XML)
@@ -144,10 +136,14 @@ public class MyComponentTest {
 
 ### 3a. When to Configure Manually
 
-**Use minimal config (recommended) when:**
-- You have JAX-RS resources to test → use `resources` parameter
+**Use zero-config (recommended) when:**
+- Project has `project-settings.xml` → beanPackages auto-detected
 - Test YAML is in `<package>/imports/` → auto-detected
 - HST root matches Maven artifactId → auto-detected
+
+**Specify `beanPackages` when:**
+- Project lacks `project-settings.xml` and auto-detection fails
+- You need packages different from what auto-detection finds
 
 **Specify `yamlPatterns` when:**
 - Test YAML is in non-standard location
@@ -208,29 +204,55 @@ void testWithFluentApi() {
         .get("/site/api/news")              // Sets URI and GET method
         .withHeader("X-Custom", "value")    // Add custom header
         .queryParam("category", "tech")     // Add query parameter
-        .execute();                         // Execute and get response
+        .execute();                         // Execute and get response as String
 
     assertTrue(response.contains("news"));
 }
 
-// POST with body
+// Typed response - JSON deserialization in one line
 @Test
-void testPostRequest() {
-    setRequestBody("{\"name\": \"test\"}");  // See helper below
-    brxm.getHstRequest().setRequestURI("/site/api/items");
-    brxm.getHstRequest().setMethod(HttpMethod.POST);
-    brxm.getHstRequest().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+void testTypedResponse() {
+    User user = brxm.request()
+        .get("/site/api/user/123")
+        .executeAs(User.class);             // Execute and deserialize JSON
 
-    String response = brxm.invokeFilter();
-    // ...
+    assertEquals("John", user.getName());
 }
 
-// Helper for setting request body
-private void setRequestBody(String body) {
-    byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-    brxm.getHstRequest().setInputStream(
-        new DelegatingServletInputStream(new ByteArrayInputStream(bytes))
-    );
+// POST with JSON body - fluent API
+@Test
+void testPostRequest() {
+    User created = brxm.request()
+        .post("/site/api/users")
+        .withJsonBody("{\"name\": \"John\"}")  // Sets body + Content-Type
+        .executeAs(User.class);
+
+    assertEquals("John", created.getName());
+}
+
+// POST with object serialization
+@Test
+void testPostWithObject() {
+    User input = new User("Jane", 25);
+    User created = brxm.request()
+        .post("/site/api/users")
+        .withJsonBody(input)                   // Auto-serializes to JSON
+        .executeAs(User.class);
+
+    assertEquals("Jane", created.getName());
+}
+
+// Response with status code
+@Test
+void testResponseWithStatus() {
+    Response<User> response = brxm.request()
+        .post("/site/api/users")
+        .withJsonBody(new User("John", 30))
+        .executeWithStatus(User.class);        // Get status + typed body
+
+    assertEquals(201, response.status());
+    assertTrue(response.isSuccessful());
+    assertEquals("John", response.body().getName());
 }
 ```
 
@@ -574,23 +596,83 @@ When implementing BRUT tests, follow this exact structure:
 **1. Annotation Declaration:**
 ```
 Annotation: @Brxm{Type}Test where Type = PageModel | Jaxrs | Component
-
-JAX-RS Parameters (prefer zero-config):
-  - beanPackages: String[] - packages for HST beans (required)
-  - resources: Class<?>[] - JAX-RS resource classes (recommended, replaces Spring XML)
-  - yamlPatterns: String[] - YAML patterns (auto-detected from <package>/imports/)
-  - cndPatterns: String[] - CND patterns (optional)
-  - loadProjectContent: boolean - use HCM modules (default true)
-  - hstRoot: String - auto-detected from Maven artifactId
-  - springConfigs: String[] - only for Spring-managed dependencies
 ```
 
-**2. Field Declaration:**
+### Annotation Parameter Reference
+
+**@BrxmJaxrsTest Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `beanPackages` | String[] | auto-detected | HST content bean packages (from project-settings.xml or classpath scan) |
+| `resources` | Class<?>[] | `{}` | JAX-RS resource classes (recommended - eliminates Spring XML) |
+| `hstRoot` | String | auto-detected | HST configuration root (from Maven artifactId: `/hst:${artifactId}`) |
+| `springConfigs` | String[] | auto-detected | Spring XML configs (only for Spring-managed dependencies) |
+| `yamlPatterns` | String[] | auto-detected | YAML patterns (from `<testPackage>/imports/**/*.yaml`) |
+| `cndPatterns` | String[] | `{}` | CND node type definition patterns |
+| `loadProjectContent` | boolean | `true` | Load real HCM modules via ConfigServiceRepository |
+
+**@BrxmPageModelTest Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `beanPackages` | String[] | auto-detected | HST content bean packages |
+| `hstRoot` | String | auto-detected | HST configuration root |
+| `springConfig` | String | auto-detected | Spring XML config for PageModel pipeline |
+| `loadProjectContent` | boolean | `false` | Load real HCM modules via ConfigServiceRepository |
+
+**@BrxmComponentTest Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `beanPackages` | String[] | auto-detected | HST content bean packages |
+| `nodeTypes` | String[] | auto-detected | Node types to register (from `@Node` annotations in beanPackages) |
+| `content` | String | `""` | **YAML resource path** - classpath path to YAML file with test content |
+| `contentRoot` | String | `""` | **Import target path** - JCR path where content is imported + sets site base |
+| `testResourcePath` | String | `""` | Legacy: YAML path (use `content` instead) |
+
+**content and contentRoot Explained:**
+
+These parameters work together to import test data into the mock repository:
+
+```java
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/petbase-test-content.yaml",      // Source: classpath resource
+    contentRoot = "/content/documents/mysite"    // Target: where to import
+)
 ```
-Type: Dynamic{Type}Test where Type = PageModel | Jaxrs | Component
-Visibility: Any (private, protected, public, package-private)
-Name: Any valid identifier (convention: "brxm")
-Initialization: Automatic by JUnit extension
+
+- **`content`**: Path to YAML file on classpath (e.g., `/news.yaml`, `/org/example/test-data.yaml`)
+- **`contentRoot`**: JCR path where YAML content is imported. Also sets `siteContentBasePath` for HST queries.
+
+**Example YAML structure:**
+```yaml
+# /petbase-test-content.yaml - imported at /content/documents/mysite
+definitions:
+  content:
+    /articles:                           # Creates /content/documents/mysite/articles
+      jcr:primaryType: hippostd:folder
+      /my-article:
+        jcr:primaryType: hippo:handle
+        /my-article:
+          jcr:primaryType: myproject:Article
+          hippo:availability: [live]
+```
+
+See [Stubbing Test Data](stubbing-test-data.md) for complete YAML structure guide.
+
+**2. Injection (Choose One):**
+
+**Parameter Injection (Recommended - No IDE Warnings):**
+```java
+@Test
+void testMethod(DynamicJaxrsTest brxm) {
+    // brxm is injected automatically
+}
+```
+
+**Field Injection (For @BeforeEach or Nested Classes):**
+```java
+@SuppressWarnings("unused")  // Injected by extension
+private DynamicJaxrsTest brxm;
 ```
 
 **3. Test Method Pattern:**
@@ -611,7 +693,11 @@ void descriptiveName() {
 ### Auto-Detection Rules
 
 **Bean Packages:**
-- MUST be specified explicitly via `beanPackages`
+- **Auto-detected** from `project-settings.xml` if present (uses `selectedProjectPackage` and `selectedBeansPackage`)
+- **Auto-detected** by scanning classpath for `@Node`-annotated classes in common package patterns
+- **Auto-detected** from `pom.xml` groupId as fallback
+- **Fallback**: derives from test class package (e.g., `testpkg.beans`, `testpkg.model`)
+- Can always be explicitly specified via `beanPackages` to override auto-detection
 - Format: Package notation (e.g., "org.example.beans")
 
 **JAX-RS Resources:**
@@ -707,9 +793,8 @@ src/test/resources/test-content.yaml
     resources = {HelloResource.class}
 )
 public class ZeroConfigTest {
-    private DynamicJaxrsTest brxm;
 
-    @Test void test() {
+    @Test void test(DynamicJaxrsTest brxm) {
         String response = brxm.request()
             .get("/site/api/hello/world")
             .execute();
@@ -725,9 +810,8 @@ public class ZeroConfigTest {
     resources = {UserResource.class, NewsResource.class, AuthResource.class}
 )
 public class MultiResourceTest {
-    private DynamicJaxrsTest brxm;
 
-    @Test void test() { /* ... */ }
+    @Test void test(DynamicJaxrsTest brxm) { /* ... */ }
 }
 ```
 
@@ -739,9 +823,8 @@ public class MultiResourceTest {
     yamlPatterns = {"classpath*:custom/hst-config/**/*.yaml"}
 )
 public class CustomYamlTest {
-    private DynamicJaxrsTest brxm;
 
-    @Test void test() { /* ... */ }
+    @Test void test(DynamicJaxrsTest brxm) { /* ... */ }
 }
 ```
 
@@ -750,9 +833,10 @@ public class CustomYamlTest {
 When generating BRUT JAX-RS tests:
 
 - [ ] `@BrxmJaxrsTest` annotation on class
-- [ ] `beanPackages` parameter with HST bean packages
+- [ ] `beanPackages` parameter (optional - auto-detected from `project-settings.xml`)
 - [ ] `resources` parameter with JAX-RS resource classes
-- [ ] `private DynamicJaxrsTest brxm;` field (auto-injected)
+- [ ] **Parameter injection** (recommended): `void test(DynamicJaxrsTest brxm)`
+- [ ] **Or field injection** (for @BeforeEach): `private DynamicJaxrsTest brxm;`
 - [ ] Use `brxm.request().get("/path").execute()` for requests
 - [ ] Test YAML in `<package>/imports/` for HST mount config
 - [ ] No Spring XML needed for simple resources
@@ -791,13 +875,13 @@ brut-components:
 ## Troubleshooting
 
 **Issue:** NullPointerException on `brxm` field
-**Fix:** Declare field: `private DynamicPageModelTest brxm;`
+**Fix:** Use parameter injection instead: `void test(DynamicPageModelTest brxm)`
 
 **Issue:** "Missing @BrxmPageModelTest annotation"
 **Fix:** Add annotation to test class
 
 **Issue:** "Bean packages: NONE" warning
-**Fix:** Add `beanPackages = {"org.example.beans"}` to annotation
+**Fix:** Auto-detection failed. Verify `project-settings.xml` exists, or add explicit `beanPackages = {"org.example.beans"}`
 
 **Issue:** Spring config not found
 **Fix:** Verify file exists at path, use absolute path starting with `/`

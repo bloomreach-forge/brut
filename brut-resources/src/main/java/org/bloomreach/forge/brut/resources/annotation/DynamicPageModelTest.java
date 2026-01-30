@@ -96,8 +96,29 @@ public class DynamicPageModelTest extends AbstractPageModelTest {
     public RequestBuilder request() {
         return new RequestBuilder(
                 getHstRequest(),
-                this::invokeFilter
+                this::invokeFilter,
+                this::getResponseStatus
         );
+    }
+
+    /**
+     * Returns the HTTP status code from the last response.
+     * Accesses the underlying MockHttpServletResponse via reflection if needed.
+     *
+     * @return HTTP status code, or 200 if unavailable
+     */
+    private int getResponseStatus() {
+        if (hstResponse == null) {
+            return 200;
+        }
+        try {
+            // MockHstResponse wraps MockHttpServletResponse which has getStatus()
+            java.lang.reflect.Method getStatus = hstResponse.getClass().getMethod("getStatus");
+            return (int) getStatus.invoke(hstResponse);
+        } catch (Exception e) {
+            // Fallback for older HST versions or different mock implementations
+            return 200;
+        }
     }
 
     /**

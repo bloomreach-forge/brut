@@ -1,7 +1,10 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
 import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
+import org.bloomreach.forge.brut.resources.util.Response;
+import org.example.model.ListItemPagination;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,30 +23,53 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 )
 public class AnnotationBasedJaxrsTest {
 
-    private DynamicJaxrsTest brxm;
-
     @Test
-    @DisplayName("JAX-RS endpoint with minimal configuration")
-    void testJaxrsEndpoint() {
-        // Using fluent RequestBuilder (reduces 4 lines to 1 fluent chain)
-        String user = "test-user";
+    @DisplayName("Fluent API: assertBody() for simple response validation")
+    void testAssertBody(DynamicJaxrsTest brxm) {
+        // assertBody() - concise validation in one chain
         brxm.request()
-                .get("/site/api/hello/" + user)
-                .assertBody("Hello, World! " + user);
+            .get("/site/api/hello/test-user")
+            .assertBody("Hello, World! test-user");
     }
 
     @Test
-    @DisplayName("Second test method works correctly")
-    void testSecondRequest() {
-        // Verifies beforeEach setup works across multiple test methods
-        brxm.getHstRequest().setRequestURI("/site/api/hello/another-user");
-        String response = brxm.invokeFilter();
+    @DisplayName("Fluent API: execute() returns response as string")
+    void testExecute(DynamicJaxrsTest brxm) {
+        // execute() - when you need the raw response
+        String response = brxm.request()
+            .get("/site/api/hello/another-user")
+            .execute();
+
         assertEquals("Hello, World! another-user", response);
     }
 
     @Test
+    @DisplayName("Fluent API: executeAs() for type-safe JSON responses")
+    void testExecuteAs(DynamicJaxrsTest brxm) throws JsonProcessingException {
+        // executeAs() - JSON deserialization built-in
+        ListItemPagination<?> result = brxm.request()
+            .get("/site/api/news")
+            .executeAs(ListItemPagination.class);
+
+        assertEquals(3, result.getItems().size());
+    }
+
+    @Test
+    @DisplayName("Fluent API: executeWithStatus() for status code access")
+    void testExecuteWithStatus(DynamicJaxrsTest brxm) throws JsonProcessingException {
+        // executeWithStatus() - when you need HTTP status + body
+        Response<ListItemPagination> response = brxm.request()
+            .get("/site/api/news")
+            .executeWithStatus(ListItemPagination.class);
+
+        assertEquals(200, response.status());
+        assertTrue(response.isSuccessful());
+        assertEquals(3, response.body().getItems().size());
+    }
+
+    @Test
     @DisplayName("Request infrastructure is properly set up")
-    void testRequestSetup() throws Exception {
+    void testRequestSetup(DynamicJaxrsTest brxm) {
         // Verify HST request is set up correctly
         assertNotNull(brxm.getHstRequest());
         assertNotNull(brxm.getHstRequest().getHeader("Host"));

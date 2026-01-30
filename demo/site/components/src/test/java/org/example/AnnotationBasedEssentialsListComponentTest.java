@@ -25,6 +25,9 @@ import static org.mockito.Mockito.when;
 /**
  * Comprehensive annotation-based component test demonstrating @BrxmComponentTest framework.
  * Mirrors EssentialsListComponentTest functionality with cleaner annotation-driven setup.
+ *
+ * <p>This test uses field injection (rather than parameter injection) because it needs
+ * access to the test instance in @BeforeEach and nested classes.</p>
  */
 @BrxmComponentTest(
         beanPackages = {"org.example.domain"},
@@ -33,6 +36,7 @@ import static org.mockito.Mockito.when;
 )
 public class AnnotationBasedEssentialsListComponentTest {
 
+    @SuppressWarnings("unused") // Injected by BrxmComponentTestExtension
     private DynamicComponentTest brxm;
     private EssentialsListComponent component;
 

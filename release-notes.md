@@ -32,9 +32,78 @@
 
 ### 5.1.0
 
-**Production Parity Testing with ConfigServiceRepository**
+**Annotation-Based Testing & Production Parity**
 
-This release introduces production-parity HST configuration in tests by leveraging brXM's `ConfigurationConfigService`.
+This release introduces a completely new annotation-based testing API with convention-over-configuration design, plus production-parity HST configuration via brXM's `ConfigurationConfigService`.
+
+#### Annotation-Based Testing (New)
+
+Three new annotations provide zero-boilerplate testing with automatic field injection - no inheritance required:
+
+| Annotation | Use Case | Injected Field |
+|------------|----------|----------------|
+| `@BrxmComponentTest` | HST component testing | `DynamicComponentTest` |
+| `@BrxmPageModelTest` | Page Model API testing | `DynamicPageModelTest` |
+| `@BrxmJaxrsTest` | JAX-RS endpoint testing | `DynamicJaxrsTest` |
+
+**Minimal Example (Parameter Injection - Recommended):**
+```java
+@BrxmComponentTest  // Zero config for standard project layouts!
+public class MyComponentTest {
+
+    @Test
+    void testComponent(DynamicComponentTest brxm) {  // Parameter injection - no IDE warnings!
+        assertNotNull(brxm.getHstRequest());
+        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
+    }
+}
+```
+
+**Alternative: Field Injection** (use when you need the instance in `@BeforeEach` or nested classes):
+```java
+@BrxmComponentTest
+public class MyComponentTest {
+    @SuppressWarnings("unused")  // Injected by extension
+    private DynamicComponentTest brxm;
+
+    @BeforeEach
+    void setup() {
+        brxm.setSiteContentBasePath("/content/documents/mysite");
+    }
+}
+```
+
+**Key Features:**
+- **Auto-detection of bean packages** - Discovers packages from `project-settings.xml`, classpath scanning, or `pom.xml`
+- **Auto-detection of node types** - Scans `@Node(jcrType="...")` annotations automatically
+- **Auto-detection of HST root** - Derives from project name or Maven artifactId
+- **Auto-detection of test resources** - Finds YAML/CND files in conventional locations
+- **Parameter injection** (recommended) - Standard JUnit 5 pattern with no IDE warnings
+- **Field injection** (alternative) - For `@BeforeEach`/`@Nested` scenarios
+- **Nested test support** - Full JUnit 5 `@Nested` class support with field inheritance
+
+**Bean Package Auto-Detection Strategy Chain:**
+
+| Priority | Strategy | Source |
+|----------|----------|--------|
+| 10 | ProjectSettingsStrategy | `project-settings.xml` (`selectedProjectPackage`, `selectedBeansPackage`) |
+| 20 | ClasspathNodeAnnotationStrategy | Scans classpath for `@Node`-annotated classes |
+| 30 | PomGroupIdStrategy | Derives from `pom.xml` groupId |
+| 40 | TestClassHeuristicStrategy | Appends `.beans`/`.model`/`.domain` to test package |
+
+**Explicit Configuration (when needed):**
+```java
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},      // Override auto-detection
+    resources = {HelloResource.class},          // JAX-RS resources
+    loadProjectContent = true                   // Use production HCM modules
+)
+```
+
+**New Classes:**
+- `brut-components`: `BrxmComponentTest`, `DynamicComponentTest`, `BrxmComponentTestExtension`
+- `brut-resources`: `BrxmPageModelTest`, `BrxmJaxrsTest`, `DynamicPageModelTest`, `DynamicJaxrsTest`
+- `brut-common` (strategy package): `BeanPackageStrategy`, `DiscoveryContext`, `BeanPackageStrategyChain`, `ProjectSettingsStrategy`, `ClasspathNodeAnnotationStrategy`, `PomGroupIdStrategy`, `TestClassHeuristicStrategy`
 
 #### Code Quality: Clean Architecture Refactoring
 
@@ -136,60 +205,13 @@ brxm.getHstRequest().invalidateSession();
 - Prevents session state from leaking between tests
 - Works with JAX-RS and PageModel tests
 
-#### 3. @BrxmComponentTest Annotation
-
-Complete annotation trilogy - component testing with same zero-config approach:
-
-```java
-@BrxmComponentTest(beanPackages = {"org.example.beans"})
-public class ComponentTest {
-    private DynamicComponentTest brxm;
-
-    @Test
-    void testComponent() throws Exception {
-        assertNotNull(brxm.getHstRequest());
-        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
-    }
-}
-```
-
-**Benefits:**
-- Zero boilerplate component testing
-- Field injection (no inheritance required)
-- Auto-detection of HST root and bean paths
-- Consistent API with PageModel and JAX-RS annotations
-
-#### 3a. Auto-Detection of Node Types from @Node Annotations
-
-Node types are automatically detected from `@Node(jcrType="...")` annotations in your bean classes:
-
-```java
-@BrxmComponentTest(
-    beanPackages = {"org.example.domain"},
-    content = "/news.yaml",
-    contentRoot = "/content/documents/mychannel"
-)
-// nodeTypes auto-detected from @Node(jcrType="ns:NewsPage") in beanPackages
-```
-
-**How it works:**
-- Scans `beanPackages` for classes annotated with `@Node(jcrType="...")`
-- Extracts JCR type names and registers them automatically
-- Zero performance cost (reuses existing bean class scanning)
-
-**When to use explicit nodeTypes:**
-- Type inheritance needed: `nodeTypes = {"ns:Child extends ns:Parent", "ns:Parent"}`
-- Types not defined in scanned bean packages
-- External types from third-party modules
-
-#### 4. One-Liner ConfigService Integration
+#### 3. One-Liner ConfigService Integration
 
 Production-parity configuration simplified to a single parameter:
 
 ```java
 @BrxmJaxrsTest(
-    beanPackages = {"org.example.model"},
-    loadProjectContent = true  // That's it!
+    loadProjectContent = true  // That's it - beanPackages auto-detected!
 )
 ```
 
@@ -209,7 +231,7 @@ Automatically uses ConfigServiceRepository with HCM modules - no manual Spring X
 **Minimal Framework CNDs:**
 The embedded minimal framework uses permissive node type definitions to prioritize test execution over strict validation. This is acceptable for unit testing scenarios and documented in the CND headers.
 
-#### 5. Enhanced Auto-Detection
+#### 4. Enhanced Auto-Detection
 
 Smart convention-over-configuration improvements for annotation-based tests:
 
@@ -244,22 +266,68 @@ public class MyTest {
 - Intelligent conflict prevention with ConfigService
 - Explicit annotation values always override auto-detection
 
-#### 6. Fluent Test Utilities
+#### 5. Fluent Test Utilities
 
 Chainable APIs for common test operations:
 
+**Typed JSON Responses with `executeAs()`:**
+```java
+// Two lines become one - JSON deserialization built into the fluent API
+User user = brxm.request()
+    .get("/site/api/user/123")
+    .executeAs(User.class);
+
+assertEquals("John", user.getName());
+```
+
+**Request Body with `withJsonBody()`:**
+```java
+// POST with JSON body - sets Content-Type automatically
+User created = brxm.request()
+    .post("/site/api/users")
+    .withJsonBody("{\"name\": \"John\"}")
+    .executeAs(User.class);
+
+// Or serialize an object directly
+User input = new User("Jane", 25);
+brxm.request()
+    .post("/site/api/users")
+    .withJsonBody(input)  // Auto-serializes to JSON
+    .execute();
+```
+
+**Response Status Codes with `executeWithStatus()`:**
+```java
+// Get both status code and typed body
+Response<User> response = brxm.request()
+    .post("/site/api/users")
+    .withJsonBody(newUser)
+    .executeWithStatus(User.class);
+
+assertThat(response.status()).isEqualTo(201);
+assertThat(response.isSuccessful()).isTrue();
+assertThat(response.body().getName()).isEqualTo("John");
+
+// Error response handling
+Response<ErrorDto> error = brxm.request()
+    .get("/site/api/missing")
+    .executeWithStatus(ErrorDto.class);
+
+assertThat(error.status()).isEqualTo(404);
+assertThat(error.isClientError()).isTrue();
+```
+
 **Fluent Request Builder:**
 ```java
-@BrxmJaxrsTest(beanPackages = {"org.example.model"})
+@BrxmJaxrsTest
 public class FluentApiTest {
     private DynamicJaxrsTest brxm;
 
     @Test
     void testFluentRequest() {
         String response = brxm.request()
-            .uri("/site/api/news")
-            .method(HttpMethod.POST)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .get("/site/api/news")
+            .withHeader("X-Custom", "value")
             .queryParam("category", "tech")
             .execute();
 
@@ -281,12 +349,16 @@ void testRepositoryAccess() {
 ```
 
 **Benefits:**
+- `executeAs(Class)` - JSON response deserialization in one line
+- `executeWithStatus(Class)` - Get HTTP status code + typed body together
+- `withJsonBody(String)` / `withJsonBody(Object)` - JSON request body in one line
+- `Response<T>` wrapper with `status()`, `body()`, `isSuccessful()`, `isClientError()`
 - Reduces boilerplate for request setup
 - Auto-cleanup of JCR sessions (try-with-resources)
 - Method chaining for readable test code
 - Works with both PageModel and JAX-RS tests
 
-#### 7. Enhanced Error Messages
+#### 6. Enhanced Error Messages
 
 Context-rich error messages with actionable fix suggestions:
 

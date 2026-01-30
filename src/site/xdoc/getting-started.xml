@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Getting Started with BRUT</title>
+  </properties>
+  <body>
+
+    <section name="Prerequisites">
+      <ul>
+        <li>Java 17+</li>
+        <li>Maven 3.8+</li>
+        <li>brXM 16.x project</li>
+        <li>JUnit 5 (typically from brXM parent pom)</li>
+      </ul>
+    </section>
+
+    <section name="Step 1: Add Dependencies">
+
+      <subsection name="Parent pom.xml">
+        <div class="brush: xml">
+          <source><![CDATA[
+<properties>
+    <brut.version>5.1.0</brut.version>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.bloomreach.forge.brut</groupId>
+            <artifactId>brut-components</artifactId>
+            <version>${brut.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bloomreach.forge.brut</groupId>
+            <artifactId>brut-resources</artifactId>
+            <version>${brut.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="site/components/pom.xml">
+        <div class="brush: xml">
+          <source><![CDATA[
+<!-- BRUT Component Testing -->
+<dependency>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut-components</artifactId>
+    <scope>test</scope>
+</dependency>
+
+<!-- BRUT PageModel/JAX-RS Testing -->
+<dependency>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut-resources</artifactId>
+    <scope>test</scope>
+</dependency>
+          ]]></source>
+        </div>
+        <p><strong>Note:</strong> JUnit 5, Mockito, AssertJ are managed by the brXM parent pom.</p>
+      </subsection>
+    </section>
+
+    <section name="Step 2: Write Your First Test">
+      <div class="brush: java">
+        <source><![CDATA[
+package com.example.components;
+
+import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
+import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@BrxmComponentTest  // Zero-config! Bean packages auto-detected
+class MyFirstTest {
+
+    @Test
+    void infrastructure_testIsProperlyInitialized(DynamicComponentTest brxm) {
+        // Parameter injection - no IDE warnings
+        assertThat(brxm.getHstRequest()).isNotNull();
+        assertThat(brxm.getHstResponse()).isNotNull();
+    }
+
+    @Test
+    void doBeforeRender_setsExpectedAttribute(DynamicComponentTest brxm) {
+        MyComponent component = new MyComponent();
+        component.init(null, brxm.getComponentConfiguration());
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        String result = brxm.getRequestAttributeValue("myAttribute");
+        assertThat(result).isEqualTo("expected value");
+    }
+}
+        ]]></source>
+      </div>
+
+      <subsection name="Alternative: Field Injection">
+        <p>Use when you need the instance in <code>@BeforeEach</code>:</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmComponentTest
+class MyFirstTest {
+
+    @SuppressWarnings("unused")  // Injected by extension
+    private DynamicComponentTest brxm;
+    private MyComponent component;
+
+    @BeforeEach
+    void setUp() {
+        component = new MyComponent();
+        component.init(null, brxm.getComponentConfiguration());
+    }
+
+    @Test
+    void doBeforeRender_setsExpectedAttribute() {
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+        String result = brxm.getRequestAttributeValue("myAttribute");
+        assertThat(result).isEqualTo("expected value");
+    }
+}
+          ]]></source>
+        </div>
+        <p><strong>Tip:</strong> If auto-detection fails, add explicit packages:
+           <code>@BrxmComponentTest(beanPackages = {"com.example.beans"})</code></p>
+      </subsection>
+    </section>
+
+    <section name="Step 3: Run Your Test">
+      <div class="brush: bash">
+        <source><![CDATA[
+cd site/components
+mvn test -Dtest=MyFirstTest
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="What Just Happened?">
+      <table>
+        <tr><th>Element</th><th>Purpose</th></tr>
+        <tr>
+          <td><code>@BrxmComponentTest</code></td>
+          <td>JUnit 5 extension that bootstraps in-memory JCR, initializes HST mocks</td>
+        </tr>
+        <tr>
+          <td><code>DynamicComponentTest brxm</code></td>
+          <td>Test harness with <code>getHstRequest()</code>, <code>getHstResponse()</code>, <code>getRequestAttributeValue()</code></td>
+        </tr>
+        <tr>
+          <td>Parameter injection</td>
+          <td>Standard JUnit 5 pattern - no IDE "field never assigned" warnings</td>
+        </tr>
+        <tr>
+          <td>beanPackages</td>
+          <td>Auto-detected from <code>project-settings.xml</code> or explicit configuration</td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="Next Steps">
+      <table>
+        <tr><th>I want to...</th><th>Go to...</th></tr>
+        <tr>
+          <td>Test JAX-RS REST endpoints</td>
+          <td><a href="testing/jaxrs-testing.html">JAX-RS Testing Guide</a></td>
+        </tr>
+        <tr>
+          <td>Test PageModel API responses</td>
+          <td><a href="testing/pagemodel-testing.html">Page Model Testing Guide</a></td>
+        </tr>
+        <tr>
+          <td>Add test content from YAML</td>
+          <td><a href="testing/stubbing-data.html">Stubbing Test Data</a></td>
+        </tr>
+        <tr>
+          <td>Test authenticated users</td>
+          <td><a href="patterns/authentication.html">Authentication Patterns</a></td>
+        </tr>
+        <tr>
+          <td>Fix a failing test</td>
+          <td><a href="troubleshooting.html">Troubleshooting Guide</a></td>
+        </tr>
+        <tr>
+          <td>Understand BRUT architecture</td>
+          <td><a href="architecture.html">Architecture</a></td>
+        </tr>
+      </table>
+    </section>
+
+  </body>
+</document>

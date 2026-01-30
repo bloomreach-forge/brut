@@ -15,6 +15,7 @@
  */
 package org.bloomreach.forge.brut.resources.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.bloomreach.forge.brut.resources.MockHstRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -242,5 +243,191 @@ class RequestBuilderTest {
 
         assertTrue(mockRequest.isUserInRole("admin"));
         assertEquals("value", mockRequest.getHeader("X-Custom"));
+    }
+
+    @Test
+    @DisplayName("executeAs() deserializes JSON response to specified type")
+    void testExecuteAsDeserializesJson() throws JsonProcessingException {
+        String jsonResponse = "{\"name\":\"John\",\"age\":30}";
+        RequestBuilder jsonBuilder = new RequestBuilder(mockRequest, () -> jsonResponse);
+
+        TestUser user = jsonBuilder.get("/api/user").executeAs(TestUser.class);
+
+        assertEquals("John", user.name);
+        assertEquals(30, user.age);
+    }
+
+    @Test
+    @DisplayName("executeAs() ignores unknown properties")
+    void testExecuteAsIgnoresUnknownProperties() throws JsonProcessingException {
+        String jsonResponse = "{\"name\":\"Jane\",\"age\":25,\"unknownField\":\"ignored\"}";
+        RequestBuilder jsonBuilder = new RequestBuilder(mockRequest, () -> jsonResponse);
+
+        TestUser user = jsonBuilder.get("/api/user").executeAs(TestUser.class);
+
+        assertEquals("Jane", user.name);
+        assertEquals(25, user.age);
+    }
+
+    @Test
+    @DisplayName("executeAs() throws JsonProcessingException for invalid JSON")
+    void testExecuteAsThrowsOnInvalidJson() {
+        String invalidJson = "not valid json";
+        RequestBuilder jsonBuilder = new RequestBuilder(mockRequest, () -> invalidJson);
+
+        assertThrows(JsonProcessingException.class, () ->
+            jsonBuilder.get("/api/user").executeAs(TestUser.class)
+        );
+    }
+
+    @Test
+    @DisplayName("executeAs() works with nested objects")
+    void testExecuteAsWithNestedObjects() throws JsonProcessingException {
+        String jsonResponse = "{\"name\":\"Alice\",\"age\":28,\"address\":{\"city\":\"Amsterdam\"}}";
+        RequestBuilder jsonBuilder = new RequestBuilder(mockRequest, () -> jsonResponse);
+
+        TestUserWithAddress user = jsonBuilder.get("/api/user").executeAs(TestUserWithAddress.class);
+
+        assertEquals("Alice", user.name);
+        assertEquals(28, user.age);
+        assertNotNull(user.address);
+        assertEquals("Amsterdam", user.address.city);
+    }
+
+    @Test
+    @DisplayName("withBody() sets request input stream")
+    void testWithBodySetsInputStream() {
+        builder.post("/api/users")
+               .withBody("test body content")
+               .execute();
+
+        assertNotNull(mockRequest.getInputStream());
+    }
+
+    @Test
+    @DisplayName("withJsonBody(String) sets body and Content-Type header")
+    void testWithJsonBodyStringSetsBodyAndContentType() {
+        builder.post("/api/users")
+               .withJsonBody("{\"name\":\"John\"}")
+               .execute();
+
+        assertEquals(MediaType.APPLICATION_JSON, mockRequest.getHeader(HttpHeaders.CONTENT_TYPE));
+        assertNotNull(mockRequest.getInputStream());
+    }
+
+    @Test
+    @DisplayName("withJsonBody(Object) serializes object and sets Content-Type")
+    void testWithJsonBodyObjectSerializesAndSetsContentType() throws JsonProcessingException {
+        TestUser user = new TestUser();
+        user.name = "Jane";
+        user.age = 25;
+
+        builder.post("/api/users")
+               .withJsonBody(user)
+               .execute();
+
+        assertEquals(MediaType.APPLICATION_JSON, mockRequest.getHeader(HttpHeaders.CONTENT_TYPE));
+        assertNotNull(mockRequest.getInputStream());
+    }
+
+    @Test
+    @DisplayName("withBody() does not set Content-Type automatically")
+    void testWithBodyDoesNotSetContentType() {
+        builder.post("/api/users")
+               .withBody("<xml>data</xml>")
+               .execute();
+
+        assertNull(mockRequest.getHeader(HttpHeaders.CONTENT_TYPE));
+    }
+
+    @Test
+    @DisplayName("withBody() chains with other methods")
+    void testWithBodyChaining() {
+        builder.post("/api/users")
+               .withHeader("X-Custom", "value")
+               .withJsonBody("{\"name\":\"test\"}")
+               .asUser("admin", "editor")
+               .execute();
+
+        assertEquals("admin", mockRequest.getRemoteUser());
+        assertEquals("value", mockRequest.getHeader("X-Custom"));
+        assertEquals(MediaType.APPLICATION_JSON, mockRequest.getHeader(HttpHeaders.CONTENT_TYPE));
+    }
+
+    @Test
+    @DisplayName("executeWithStatus() returns Response with status code")
+    void testExecuteWithStatusReturnsStatusAndBody() {
+        int[] capturedStatus = {201};
+        RequestBuilder statusBuilder = new RequestBuilder(
+                mockRequest,
+                () -> "created",
+                () -> capturedStatus[0]
+        );
+
+        Response<String> response = statusBuilder.get("/api/users").executeWithStatus();
+
+        assertEquals(201, response.status());
+        assertEquals("created", response.body());
+    }
+
+    @Test
+    @DisplayName("executeWithStatus(Class) returns Response with typed body")
+    void testExecuteWithStatusTypedReturnsStatusAndBody() throws JsonProcessingException {
+        String jsonResponse = "{\"name\":\"John\",\"age\":30}";
+        RequestBuilder statusBuilder = new RequestBuilder(
+                mockRequest,
+                () -> jsonResponse,
+                () -> 200
+        );
+
+        Response<TestUser> response = statusBuilder.get("/api/user").executeWithStatus(TestUser.class);
+
+        assertEquals(200, response.status());
+        assertEquals("John", response.body().name);
+        assertEquals(30, response.body().age);
+        assertEquals(jsonResponse, response.rawBody());
+    }
+
+    @Test
+    @DisplayName("executeWithStatus() with error status code")
+    void testExecuteWithStatusErrorCode() {
+        RequestBuilder statusBuilder = new RequestBuilder(
+                mockRequest,
+                () -> "{\"error\":\"not found\"}",
+                () -> 404
+        );
+
+        Response<String> response = statusBuilder.get("/api/missing").executeWithStatus();
+
+        assertEquals(404, response.status());
+        assertTrue(response.isClientError());
+        assertFalse(response.isSuccessful());
+    }
+
+    @Test
+    @DisplayName("executeWithStatus() defaults to 200 when no status supplier")
+    void testExecuteWithStatusDefaultsTo200() {
+        // Using constructor without status supplier
+        RequestBuilder defaultBuilder = new RequestBuilder(mockRequest, () -> "ok");
+
+        Response<String> response = defaultBuilder.get("/api/test").executeWithStatus();
+
+        assertEquals(200, response.status());
+    }
+
+    // Test DTOs
+    static class TestUser {
+        public String name;
+        public int age;
+    }
+
+    static class TestUserWithAddress {
+        public String name;
+        public int age;
+        public TestAddress address;
+    }
+
+    static class TestAddress {
+        public String city;
     }
 }

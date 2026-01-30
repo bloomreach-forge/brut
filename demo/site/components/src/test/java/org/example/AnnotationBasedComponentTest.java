@@ -15,11 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @BrxmComponentTest(beanPackages = {"org.example.beans"})
 public class AnnotationBasedComponentTest {
 
-    private DynamicComponentTest brxm;
-
     @Test
     @DisplayName("Component infrastructure is initialized")
-    void testInfrastructureSetup() throws Exception {
+    void testInfrastructureSetup(DynamicComponentTest brxm) throws Exception {
         assertNotNull(brxm.getHstRequest());
         assertNotNull(brxm.getHstResponse());
         assertNotNull(brxm.getHstRequestContext());

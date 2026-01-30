@@ -9,12 +9,14 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback {
+public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, ParameterResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(BrxmComponentTestExtension.class);
     private static final String TEST_INSTANCE_KEY = "brxm.component.test.instance";
@@ -118,6 +120,16 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
             testInstance.recalculateRepositoryPaths();
             testInstance.setSiteContentBasePath(config.getContentRoot());
         }
+    }
+
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return parameterContext.getParameter().getType() == DynamicComponentTest.class;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return getRootStore(extensionContext).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
     }
 
     private void registerNodeTypes(DynamicComponentTest testInstance, ComponentTestConfig config) {

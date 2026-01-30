@@ -76,14 +76,39 @@ package com.example.components;
 
 import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
 import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@BrxmComponentTest(beanPackages = {"com.example.beans"})
+@BrxmComponentTest  // Zero-config! Bean packages auto-detected from project-settings.xml
 class MyFirstTest {
 
+    @Test
+    void infrastructure_testIsProperlyInitialized(DynamicComponentTest brxm) {
+        // Parameter injection - no IDE warnings, standard JUnit 5 pattern
+        assertThat(brxm.getHstRequest()).isNotNull();
+        assertThat(brxm.getHstResponse()).isNotNull();
+    }
+
+    @Test
+    void doBeforeRender_setsExpectedAttribute(DynamicComponentTest brxm) {
+        MyComponent component = new MyComponent();
+        component.init(null, brxm.getComponentConfiguration());
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        String result = brxm.getRequestAttributeValue("myAttribute");
+        assertThat(result).isEqualTo("expected value");
+    }
+}
+```
+
+**Alternative: Field Injection** (use when you need the instance in `@BeforeEach`):
+
+```java
+@BrxmComponentTest
+class MyFirstTest {
+
+    @SuppressWarnings("unused")  // Injected by extension
     private DynamicComponentTest brxm;
     private MyComponent component;
 
@@ -94,20 +119,15 @@ class MyFirstTest {
     }
 
     @Test
-    void infrastructure_testIsProperlyInitialized() {
-        assertThat(brxm.getHstRequest()).isNotNull();
-        assertThat(brxm.getHstResponse()).isNotNull();
-    }
-
-    @Test
     void doBeforeRender_setsExpectedAttribute() {
         component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
-
         String result = brxm.getRequestAttributeValue("myAttribute");
         assertThat(result).isEqualTo("expected value");
     }
 }
 ```
+
+> **Note:** If auto-detection doesn't find your beans (e.g., no `project-settings.xml`), add explicit packages: `@BrxmComponentTest(beanPackages = {"com.example.beans"})`
 
 ## Step 3: Run Your Test
 
@@ -132,14 +152,18 @@ mvn test -Dtest=MyFirstTest
 1. **`@BrxmComponentTest`** - BRUT's JUnit 5 extension that:
    - Bootstraps an in-memory JCR repository
    - Initializes HST mock objects (request, response, component configuration)
-   - Injects the `DynamicComponentTest` instance into your test
+   - Provides `DynamicComponentTest` via parameter or field injection
 
 2. **`DynamicComponentTest brxm`** - Your test harness providing:
    - `getHstRequest()` / `getHstResponse()` - Mock HST request/response
    - `getComponentConfiguration()` - Mock component config for `init()`
    - `getRequestAttributeValue(name)` - Retrieve attributes set by your component
 
-3. **`beanPackages`** - Tells BRUT where to scan for `@Node` annotated beans
+3. **Injection patterns** - Choose between:
+   - **Parameter injection** (recommended) - `void test(DynamicComponentTest brxm)` - no IDE warnings
+   - **Field injection** - `private DynamicComponentTest brxm;` - needed for `@BeforeEach` access
+
+4. **`beanPackages`** - Tells BRUT where to scan for `@Node` annotated beans. This is **optional** if your project has a `project-settings.xml` file - BRUT will auto-detect packages from `selectedProjectPackage` and `selectedBeansPackage` settings
 
 ## Next Steps
 

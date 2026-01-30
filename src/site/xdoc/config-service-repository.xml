@@ -35,7 +35,41 @@
       </ul>
     </section>
 
-    <section name="Quick Start">
+    <section name="Annotation-Based Usage (Recommended)">
+      <p>With BRUT 5.1.0+, ConfigServiceRepository integration is a one-liner via the <code>loadProjectContent</code> attribute:</p>
+
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {MyResource.class},
+    loadProjectContent = true  // Enables ConfigServiceRepository
+)
+class MyTest {
+
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {
+        brxm.request()
+            .get("/site/api/my-endpoint")
+            .assertStatus(200);
+    }
+}
+        ]]></source>
+      </div>
+
+      <p><strong>What <code>loadProjectContent = true</code> does:</strong></p>
+      <ul>
+        <li>Auto-detects your project namespace from <code>pom.xml</code> <code>groupId</code></li>
+        <li>Loads HCM modules from <code>target/test-classes/META-INF/hcm-module.yaml</code></li>
+        <li>Creates production-identical HST configuration</li>
+        <li>All without manual Spring XML configuration</li>
+      </ul>
+
+      <p>You still need the HCM module descriptor and config files (see Manual Setup below), but the annotation handles the repository wiring automatically.</p>
+    </section>
+
+    <section name="Manual Setup (Legacy)">
+      <p>For legacy abstract class tests or advanced customization, use manual Spring XML configuration:</p>
 
       <subsection name="1. Add HCM Module Descriptor">
         <p><strong>File:</strong> <code>src/test/resources/META-INF/hcm-module.yaml</code></p>

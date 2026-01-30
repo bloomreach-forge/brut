@@ -67,12 +67,12 @@
         <repository>
             <id>bloomreach-maven2</id>
             <name>Bloomreach Maven 2 Repository</name>
-            <url>https://maven.bloomreach.com/maven2/</url>
+            <url>https://maven.bloomreach.com/repository/maven2/</url>
         </repository>
         <repository>
             <id>bloomreach-maven2-forge</id>
             <name>Bloomreach Maven 2 Forge Repository</name>
-            <url>https://maven.bloomreach.com/maven2-forge/</url>
+            <url>https://maven.bloomreach.com/repository/maven2-forge/</url>
         </repository>
     </repositories>
 
