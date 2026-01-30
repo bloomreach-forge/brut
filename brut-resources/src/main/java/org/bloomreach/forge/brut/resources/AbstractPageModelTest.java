@@ -68,6 +68,8 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         hstRequest.setContextPath("/site");
         hstRequest.setHeader("Host", "localhost:8080");
         hstRequest.setHeader("X-Forwarded-Proto", "http");
+        // Signal HST to reset its internal state for this request (ensures test isolation)
+        hstRequest.setAttribute("org.hippoecm.hst.container.HstFilter.reset", true);
     }
 
     protected void setupComponentManager() {
@@ -79,7 +81,8 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         componentManager.initialize();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
-        containerConfiguration.setProperty("hst.configuration.rootPath", contributeHstConfigurationRootPath());
+        String hstRoot = resolveExistingHstRoot(contributeHstConfigurationRootPath());
+        containerConfiguration.setProperty("hst.configuration.rootPath", hstRoot);
     }
 
     private void includeAdditionalAddonModules() {
@@ -134,17 +137,30 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
     }
 
     public String removeRefIdFromJsonString(String jsonString) {
-        // Handle null input
         if (jsonString == null) {
             return null;
         }
-        // Replace all ref id values with empty strings
+        // Replace "id" field values
         jsonString = jsonString.replaceAll(
                 "(\\n?\\s*\"id\"\\s?:\\s?\")[^\\n\"]*(\",?\\n?)", "$1$2");
 
-        return jsonString.replaceAll(
+        // Replace ref= patterns
+        jsonString = jsonString.replaceAll(
                 "(\\n?\\s*ref=)[^\\n\"]*(\",?\\n?)", "$1$2");
 
+        // Normalize "$ref": "/page/uidN" to "$ref": "/page/uid"
+        jsonString = jsonString.replaceAll(
+                "(\"\\$ref\"\\s*:\\s*\"/page/)uid\\d+(\")", "$1uid$2");
+
+        // Normalize "uidN": { to "uid": { (page object keys)
+        jsonString = jsonString.replaceAll(
+                "(\"page\"\\s*:\\s*\\{[^}]*\"?)uid\\d+(\"\\s*:\\s*\\{)", "$1uid$2");
+
+        // More aggressive: normalize all "uidN" keys at start of object definitions
+        jsonString = jsonString.replaceAll(
+                "(,\\s*\")uid\\d+(\"\\s*:\\s*\\{)", "$1uid$2");
+
+        return jsonString;
     }
 
     protected String getExpectedResponse(final String expectedResource) {

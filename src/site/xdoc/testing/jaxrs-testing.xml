@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>JAX-RS Testing Guide</title>
+  </properties>
+  <body>
+
+    <section name="Minimal Setup">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(resources = {HelloResource.class})
+class HelloResourceTest {
+
+    @Test
+    void hello_returnsGreeting(DynamicJaxrsTest brxm) {
+        String response = brxm.request()
+            .get("/site/api/hello/world")
+            .execute();
+
+        assertEquals("Hello, World!", response);
+    }
+}
+        ]]></source>
+      </div>
+      <p><strong>That's it.</strong> No Spring XML required.</p>
+    </section>
+
+    <section name="How It Works">
+      <table>
+        <tr><th>Parameter</th><th>What it does</th></tr>
+        <tr><td><code>resources</code></td><td>JAX-RS classes (auto-wrapped in <code>SingletonResourceProvider</code>)</td></tr>
+        <tr><td><code>beanPackages</code></td><td>Packages for HST content beans (auto-detected)</td></tr>
+      </table>
+
+      <p><strong>Auto-detected:</strong></p>
+      <ul>
+        <li>HST root from Maven artifactId</li>
+        <li>Test YAML from <code>&lt;testPackage&gt;/imports/*.yaml</code></li>
+        <li>Jackson JSON support</li>
+        <li>Project content via ConfigService</li>
+      </ul>
+    </section>
+
+    <section name="Request Testing">
+
+      <subsection name="GET Requests">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void getUser_returnsUserData(DynamicJaxrsTest brxm) {
+    User user = brxm.request()
+        .get("/site/api/users/123")
+        .executeAs(User.class);
+
+    assertEquals("123", user.getId());
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Query Parameters">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void search_returnsFilteredResults(DynamicJaxrsTest brxm) {
+    String json = brxm.request()
+        .get("/site/api/search")
+        .queryParam("q", "news")
+        .queryParam("limit", "10")
+        .execute();
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Headers">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void secureEndpoint_requiresAuth(DynamicJaxrsTest brxm) {
+    String json = brxm.request()
+        .get("/site/api/secure/data")
+        .withHeader("Authorization", "Bearer token")
+        .execute();
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="POST with JSON Body">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void createUser_returnsCreated(DynamicJaxrsTest brxm) {
+    User created = brxm.request()
+        .post("/site/api/users")
+        .withJsonBody(new User("John", 25))
+        .executeAs(User.class);
+
+    assertEquals("John", created.getName());
+}
+          ]]></source>
+        </div>
+      </subsection>
+    </section>
+
+    <section name="Response Handling">
+      <table>
+        <tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+        <tr><td><code>execute()</code></td><td>String</td><td>Raw response body</td></tr>
+        <tr><td><code>executeAs(Class&lt;T&gt;)</code></td><td>T</td><td>Deserialize JSON to type</td></tr>
+        <tr><td><code>executeWithStatus()</code></td><td>Response&lt;String&gt;</td><td>Response with status code</td></tr>
+        <tr><td><code>executeWithStatus(Class&lt;T&gt;)</code></td><td>Response&lt;T&gt;</td><td>Typed response with status</td></tr>
+        <tr><td><code>assertBody(expected)</code></td><td>void</td><td>Assert response equals expected</td></tr>
+      </table>
+
+      <div class="brush: java">
+        <source><![CDATA[
+// Status code access
+Response<User> response = brxm.request()
+    .get("/site/api/users/123")
+    .executeWithStatus(User.class);
+
+response.status();        // HTTP status code
+response.body();          // Typed body
+response.isSuccessful();  // true if 2xx
+response.isClientError(); // true if 4xx
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Authentication">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void adminEndpoint_requiresAdminRole(DynamicJaxrsTest brxm) {
+    String response = brxm.request()
+        .get("/site/api/admin/users")
+        .asUser("admin", "admin", "editor")  // username + roles
+        .execute();
+
+    assertThat(response).contains("users");
+}
+
+@Test
+void reportEndpoint_requiresRole(DynamicJaxrsTest brxm) {
+    String response = brxm.request()
+        .get("/site/api/reports")
+        .withRole("manager")  // role-only
+        .execute();
+}
+        ]]></source>
+      </div>
+
+      <subsection name="Testing Auth Failures">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void login_fails_forInvalidUser(DynamicJaxrsTest brxm) {
+    brxm.authentication().rejectUser("baduser");
+
+    String response = brxm.request()
+        .post("/site/api/auth/login")
+        .execute();
+
+    assertThat(response).contains("401");
+}
+          ]]></source>
+        </div>
+        <p>See <a href="../patterns/authentication.html">Authentication Patterns</a> for more details.</p>
+      </subsection>
+    </section>
+
+    <section name="Multiple Resources">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    resources = {UserResource.class, NewsResource.class, AuthResource.class}
+)
+class ApiTest {
+    // All three resources are registered
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Annotation Reference">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(
+    // Optional: Bean packages (auto-detected from project-settings.xml)
+    beanPackages = {"org.example.model"},
+
+    // JAX-RS resources to register (replaces Spring XML)
+    resources = {HelloResource.class},
+
+    // Optional: Custom YAML patterns (auto-detected from <package>/imports/)
+    yamlPatterns = {"classpath*:custom/path/**/*.yaml"},
+
+    // Optional: Custom CND patterns
+    cndPatterns = {"classpath*:custom/namespaces/**/*.cnd"},
+
+    // Optional: Load production HCM content
+    loadProjectContent = true,
+
+    // Optional: Override auto-detected HST root
+    hstRoot = "/hst:myproject",
+
+    // Optional: Additional Spring configs (for special cases)
+    springConfigs = {"/org/example/custom.xml"}
+)
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Spring XML Configuration (Advanced)">
+      <p>For complex scenarios requiring Spring-managed dependencies:</p>
+      <div class="brush: xml">
+        <source><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <import resource="classpath:/org/hippoecm/hst/site/optional/jaxrs/SpringComponentManager-rest-jackson.xml"/>
+
+  <bean id="customRestPlainResourceProviders" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <bean class="org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider">
+          <constructor-arg>
+            <bean class="com.example.rest.MyResource">
+              <constructor-arg ref="someSpringBean"/>
+            </bean>
+          </constructor-arg>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>
+        ]]></source>
+      </div>
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"com.example.model"},
+    springConfigs = {"/com/example/test-jaxrs.xml"}
+)
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Common Issues">
+      <table>
+        <tr><th>Issue</th><th>Fix</th></tr>
+        <tr><td>404 Not Found</td><td>Check <code>@Path</code> annotation matches request URI</td></tr>
+        <tr><td>Empty response</td><td>Verify resource is in <code>resources</code> array</td></tr>
+        <tr><td>JSON parse error</td><td>Ensure response POJO has matching field names</td></tr>
+        <tr><td>Mount not found</td><td>Add test YAML with HST mount config to <code>&lt;package&gt;/imports/</code></td></tr>
+      </table>
+    </section>
+
+    <section name="Required Imports">
+      <div class="brush: java">
+        <source><![CDATA[
+import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
+import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="../quick-reference.html">Quick Reference</a> - All annotation options</li>
+        <li><a href="../patterns/authentication.html">Authentication Patterns</a> - Testing secured endpoints</li>
+        <li><a href="stubbing-data.html">Stubbing Test Data</a> - YAML content setup</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Stubbing Test Data (YAML)</title>
+  </properties>
+  <body>
+
+    <section name="Overview">
+      <p>BRUT supports two approaches for test data:</p>
+      <ol>
+        <li><strong>Stubbed YAML content</strong> - Minimal, focused test data you control</li>
+        <li><strong>Production HCM modules</strong> - Real project config via <code>loadProjectContent = true</code></li>
+      </ol>
+      <p>For component unit tests, <strong>stubbed data is strongly preferred</strong>.</p>
+    </section>
+
+    <section name="The content and contentRoot Parameters">
+      <table>
+        <tr><th>Parameter</th><th>Purpose</th><th>Example</th></tr>
+        <tr>
+          <td><code>content</code></td>
+          <td><strong>Source:</strong> Classpath path to YAML</td>
+          <td><code>/test-content.yaml</code></td>
+        </tr>
+        <tr>
+          <td><code>contentRoot</code></td>
+          <td><strong>Target:</strong> JCR path for import</td>
+          <td><code>/content/documents/mysite</code></td>
+        </tr>
+      </table>
+
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/articles-test-data.yaml",        // Load from classpath
+    contentRoot = "/content/documents/mysite"    // Import to this JCR path
+)
+        ]]></source>
+      </div>
+
+      <p><strong>Path Resolution:</strong></p>
+      <ul>
+        <li><code>/articles-test-data.yaml</code> → <code>src/test/resources/articles-test-data.yaml</code></li>
+        <li><code>/org/example/test-data.yaml</code> → <code>src/test/resources/org/example/test-data.yaml</code></li>
+      </ul>
+    </section>
+
+    <section name="Why Stub Data?">
+      <table>
+        <tr><th>Benefit</th><th>Description</th></tr>
+        <tr><td>Test Isolation</td><td>Each test controls its own data, no external dependencies</td></tr>
+        <tr><td>Reproducibility</td><td>Same results regardless of CMS content, environment, or time</td></tr>
+        <tr><td>Speed</td><td>Load only what the test needs vs thousands of production nodes</td></tr>
+        <tr><td>Documentation</td><td>YAML files document expected data structure for new developers</td></tr>
+        <tr><td>Focused Testing</td><td>Create edge cases, boundary conditions, error scenarios</td></tr>
+      </table>
+    </section>
+
+    <section name="When to Use Each Approach">
+      <table>
+        <tr><th>Approach</th><th>Use Case</th></tr>
+        <tr><td>Stubbed YAML</td><td>Component unit tests, bean property access, business logic</td></tr>
+        <tr><td><code>loadProjectContent = true</code></td><td>HST config validation, sitemap/mount testing, integration tests</td></tr>
+      </table>
+    </section>
+
+    <section name="Basic YAML Structure">
+      <div class="brush: yaml">
+        <source><![CDATA[
+# src/test/resources/org/example/news-test-data.yaml
+definitions:
+  content:
+    /news:
+      jcr:primaryType: hippostd:folder
+      /article-1:
+        jcr:primaryType: hippo:handle
+        /article-1:
+          jcr:primaryType: ns:Article
+          ns:title: Test Article
+          ns:date: 2024-01-15T10:00:00.000Z
+          ns:author: John Doe
+        ]]></source>
+      </div>
+
+      <subsection name="Key Points">
+        <ul>
+          <li><strong>Match your @Node beans</strong> - <code>jcr:primaryType</code> must match the <code>jcrType</code> in your bean's <code>@Node</code> annotation</li>
+          <li><strong>Use hippo:handle wrapper</strong> - Documents need the handle/document structure for HST queries</li>
+          <li><strong>Include required properties</strong> - Add properties your component accesses</li>
+          <li><strong>Keep it minimal</strong> - Only include data the test actually uses</li>
+        </ul>
+      </subsection>
+    </section>
+
+    <section name="Handle/Document Structure">
+      <p>brXM documents follow a handle/variant pattern:</p>
+      <div class="brush: plain">
+        <source><![CDATA[
+/folder                    <- hippostd:folder
+  /document-name           <- hippo:handle (container)
+    /document-name         <- actual document (same name as handle)
+      properties...
+        ]]></source>
+      </div>
+
+      <div class="brush: yaml">
+        <source><![CDATA[
+# Correct structure
+/articles:
+  jcr:primaryType: hippostd:folder
+  /my-article:                          # Handle
+    jcr:primaryType: hippo:handle
+    /my-article:                        # Document (same name!)
+      jcr:primaryType: myproject:Article
+      hippo:availability: [live]
+      hippostd:state: published
+      # ...properties
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Required Properties">
+      <table>
+        <tr><th>Property</th><th>Required?</th><th>Purpose</th></tr>
+        <tr><td><code>jcr:primaryType</code></td><td><strong>Yes</strong></td><td>Must match <code>@Node(jcrType)</code></td></tr>
+        <tr><td><code>jcr:mixinTypes: ['mix:referenceable']</code></td><td>Recommended</td><td>Enables UUID-based references</td></tr>
+        <tr><td><code>jcr:uuid</code></td><td>Recommended</td><td>Unique identifier</td></tr>
+        <tr><td><code>hippo:availability: [live]</code></td><td><strong>Yes</strong></td><td>Makes document visible to HST queries</td></tr>
+        <tr><td><code>hippostd:state: published</code></td><td><strong>Yes</strong></td><td>Marks document as published</td></tr>
+        <tr><td>Custom properties</td><td>As needed</td><td>Data your component accesses</td></tr>
+      </table>
+    </section>
+
+    <section name="Compound Types (Nested Content)">
+      <div class="brush: yaml">
+        <source><![CDATA[
+# Parent document with compound type
+/my-document:
+  jcr:primaryType: hippo:handle
+  /my-document:
+    jcr:primaryType: myproject:Page
+    hippo:availability: [live]
+    hippostd:state: published
+    myproject:title: My Page
+
+    # Compound type - child node with its own type
+    /myproject:callToAction:
+      jcr:primaryType: myproject:CallToAction
+      myproject:title: Learn More
+      myproject:link: /about
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Multi-Value Properties">
+      <div class="brush: yaml">
+        <source><![CDATA[
+/my-document:
+  jcr:primaryType: myproject:PricingCard
+  # Single value
+  myproject:title: Premium Plan
+
+  # Multi-value property (array)
+  myproject:features: ['Feature 1', 'Feature 2', 'Feature 3']
+
+  # Multi-value with complex values
+  jcr:mixinTypes: ['mix:referenceable', 'hippo:harddocument']
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Complete Example">
+      <div class="brush: yaml">
+        <source><![CDATA[
+# src/test/resources/petbase-test-content.yaml
+/petbase-telecom:
+  jcr:primaryType: hippostd:folder
+  jcr:mixinTypes: ['hippo:harddocument', 'hippotranslation:translated']
+  jcr:uuid: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+  hippostd:foldertype: [new-document, new-folder]
+  hippotranslation:id: petbase-test-id
+  hippotranslation:locale: en
+
+  /herobanners:
+    jcr:primaryType: hippostd:folder
+    jcr:mixinTypes: ['mix:referenceable']
+    jcr:uuid: b2c3d4e5-f6a7-8901-bcde-f12345678901
+
+    /test-hero:
+      jcr:primaryType: hippo:handle
+      jcr:mixinTypes: ['mix:referenceable']
+      jcr:uuid: c3d4e5f6-a7b8-9012-cdef-123456789012
+
+      /test-hero:
+        jcr:primaryType: petbase:HeroBanner
+        jcr:mixinTypes: ['mix:referenceable']
+        jcr:uuid: d4e5f6a7-b8c9-0123-def0-123456789013
+        hippo:availability: [live]
+        hippostd:state: published
+        petbase:title: Welcome to PetBase
+        petbase:description: Hello ${USER}, welcome!
+
+        # Compound type (nested content)
+        /petbase:callToAction:
+          jcr:primaryType: petbase:CallToAction
+          petbase:title: Get Started
+          petbase:externalLink: /plans
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="File Organization">
+      <p>Keep test YAML files close to the tests that use them:</p>
+      <div class="brush: plain">
+        <source><![CDATA[
+src/test/
+├── java/org/example/
+│   ├── ArticleListComponentTest.java
+│   └── NewsDetailComponentTest.java
+└── resources/org/example/
+    ├── articles-test-data.yaml
+    └── news-detail-test-data.yaml
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Comparison">
+      <table>
+        <tr><th>Stubbed Data</th><th>Production Content</th></tr>
+        <tr><td>Fast</td><td>Slower (more data)</td></tr>
+        <tr><td>Isolated</td><td>Depends on project state</td></tr>
+        <tr><td>Reproducible</td><td>May vary by environment</td></tr>
+        <tr><td>Documents expectations</td><td>Tests real config</td></tr>
+        <tr><td>Unit tests</td><td>Integration tests</td></tr>
+      </table>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="../getting-started.html">Getting Started</a> - Initial BRUT setup</li>
+        <li><a href="../patterns/common-patterns.html">Common Patterns</a> - Content import patterns</li>
+        <li><a href="../troubleshooting.html">Troubleshooting</a> - YAML import issues</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

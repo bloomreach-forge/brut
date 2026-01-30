@@ -1,265 +1,281 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.onehippo.cms7</groupId>
-    <artifactId>hippo-cms7-project</artifactId>
-    <version>16.6.5</version>
-  </parent>
-
-  <name>Bloomreach Unit Testing Library</name>
-  <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
-  <groupId>org.bloomreach.forge.brut</groupId>
-  <artifactId>brut</artifactId>
-  <version>5.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
-
-  <contributors>
-    <contributor>
-      <name>Baris Can Vural</name>
-      <organization>Bloomreach</organization>
-    </contributor>
-  </contributors>
-
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <properties>
-    <objensis.version>3.4</objensis.version>
-    <logback.version>1.5.13</logback.version>
-
-    <project.build.javaVersion>17</project.build.javaVersion>
-  </properties>
-
-  <scm>
-    <connection>scm:git:git@github.com:bloomreach-forge/brut.git</connection>
-    <developerConnection>scm:git:git@github.com:bloomreach-forge/brut.git</developerConnection>
-    <url>https://github.com/bloomreach-forge/brut.git</url>
-  </scm>
-
-  <distributionManagement>
-    <repository>
-      <name>Bloomreach Maven 2 Forge Repository</name>
-      <id>bloomreach-maven2-forge</id>
-      <url>https://maven.bloomreach.com/content/repositories/forge-releases</url>
-      <uniqueVersion>false</uniqueVersion>
-    </repository>
-  </distributionManagement>
-
-  <issueManagement>
-    <url>https://issues.onehippo.com/browse/FORGE</url>
-  </issueManagement>
-
-  <organization>
-    <name>Bloomreach</name>
-    <url>https://www.bloomreach.com</url>
-  </organization>
-
-  <repositories>
-    <repository>
-      <id>bloomreach-maven2</id>
-      <name>Bloomreach Maven 2 Repository</name>
-      <url>https://maven.bloomreach.com/maven2/</url>
-    </repository>
-    <repository>
-      <id>bloomreach-maven2-forge</id>
-      <name>Bloomreach Maven 2 Forge Repository</name>
-      <url>https://maven.bloomreach.com/maven2-forge/</url>
-    </repository>
-  </repositories>
-
-  <dependencyManagement>
-    <dependencies>
-      <!--hst-->
-      <dependency>
-        <groupId>org.onehippo.cms7.hst.components</groupId>
-        <artifactId>hst-platform</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.onehippo.cms7.hst</groupId>
-        <artifactId>hst-api</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.onehippo.cms7.hst.components</groupId>
-        <artifactId>hst-core</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.onehippo.cms7.hst</groupId>
-        <artifactId>hst-commons</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.onehippo.cms7.hst</groupId>
-        <artifactId>hst-client</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.onehippo.cms7.hst</groupId>
-        <artifactId>hst-mock</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
+    <parent>
         <groupId>org.onehippo.cms7</groupId>
-        <artifactId>hippo-essentials-components-hst</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.onehippo.cms7</groupId>
-        <artifactId>hippo-repository-engine</artifactId>
-        <version>${hippo.release.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.skyscreamer</groupId>
-        <artifactId>jsonassert</artifactId>
-        <version>${skyscreamer.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit-jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit-jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>${mockito.version}</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+        <artifactId>hippo-cms7-project</artifactId>
+        <version>16.6.5</version>
+    </parent>
 
-  <modules>
-    <module>brut-common</module>
-    <module>brut-components</module>
-    <module>brut-resources</module>
-  </modules>
+    <name>Bloomreach Unit Testing Library</name>
+    <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut</artifactId>
+    <version>5.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <encoding>${project.build.sourceEncoding}</encoding>
-          <skip>false</skip>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
+    <contributors>
+        <contributor>
+            <name>Baris Can Vural</name>
+            <organization>Bloomreach</organization>
+        </contributor>
+    </contributors>
 
-  <build>
-    <defaultGoal>package</defaultGoal>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.plugin.compiler.version}</version>
-        <configuration>
-          <source>${project.build.javaVersion}</source>
-          <target>${project.build.javaVersion}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>${maven.plugin.clean.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>${maven.plugin.install.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${maven.plugin.deploy.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven.plugin.jar.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven.plugin.surefire.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven.plugin.resources.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>${maven.plugin.site.version}</version>
-      </plugin>
-    </plugins>
+    <properties>
+        <objensis.version>3.4</objensis.version>
+        <logback.version>1.5.13</logback.version>
 
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>${basedir}</directory>
-        <targetPath>META-INF</targetPath>
-        <includes>
-          <include>LICENSE</include>
-          <include>NOTICE</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+        <project.build.javaVersion>17</project.build.javaVersion>
+    </properties>
 
-  <profiles>
-    <profile>
-      <!-- For generating/publishing GitHub Site Pages into /docs/ folder on master branch only -->
-      <id>github.pages</id>
-      <build>
+    <scm>
+        <connection>scm:git:git@github.com:bloomreach-forge/brut.git</connection>
+        <developerConnection>scm:git:git@github.com:bloomreach-forge/brut.git</developerConnection>
+        <url>https://github.com/bloomreach-forge/brut.git</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <name>Bloomreach Maven 2 Forge Repository</name>
+            <id>bloomreach-maven2-forge</id>
+            <url>https://maven.bloomreach.com/content/repositories/forge-releases</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+    </distributionManagement>
+
+    <issueManagement>
+        <url>https://issues.onehippo.com/browse/FORGE</url>
+    </issueManagement>
+
+    <organization>
+        <name>Bloomreach</name>
+        <url>https://www.bloomreach.com</url>
+    </organization>
+
+    <repositories>
+        <repository>
+            <id>bloomreach-maven2</id>
+            <name>Bloomreach Maven 2 Repository</name>
+            <url>https://maven.bloomreach.com/repository/maven2/</url>
+        </repository>
+        <repository>
+            <id>bloomreach-maven2-enterprise</id>
+            <name>Bloomreach Maven 2 Enterprise Repository</name>
+            <url>https://maven.bloomreach.com/repository/maven2-enterprise/</url>
+        </repository>
+        <repository>
+            <id>bloomreach-maven2-forge</id>
+            <name>Bloomreach Maven 2 Forge Repository</name>
+            <url>https://maven.bloomreach.com/repository/maven2-forge/</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--hst-->
+            <dependency>
+                <groupId>org.onehippo.cms</groupId>
+                <artifactId>hippo-configuration-management</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms</groupId>
+                <artifactId>hippo-configuration-management-model</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7</groupId>
+                <artifactId>hippo-repository-engine</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7.hst.components</groupId>
+                <artifactId>hst-platform</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7.hst</groupId>
+                <artifactId>hst-api</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7.hst.components</groupId>
+                <artifactId>hst-core</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7.hst</groupId>
+                <artifactId>hst-commons</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7.hst</groupId>
+                <artifactId>hst-client</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7.hst</groupId>
+                <artifactId>hst-mock</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.onehippo.cms7</groupId>
+                <artifactId>hippo-essentials-components-hst</artifactId>
+                <version>${hippo.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.skyscreamer</groupId>
+                <artifactId>jsonassert</artifactId>
+                <version>${skyscreamer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>brut-common</module>
+        <module>brut-components</module>
+        <module>brut-resources</module>
+    </modules>
+
+    <reporting>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-site-plugin</artifactId>
-            <configuration>
-              <outputDirectory>docs</outputDirectory>
-            </configuration>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <skip>false</skip>
+                    <aggregate>true</aggregate>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </reporting>
+
+    <build>
+        <defaultGoal>package</defaultGoal>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.plugin.compiler.version}</version>
+                <configuration>
+                    <source>${project.build.javaVersion}</source>
+                    <target>${project.build.javaVersion}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven.plugin.clean.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${maven.plugin.install.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.plugin.deploy.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.plugin.jar.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.plugin.surefire.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.plugin.resources.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.plugin.site.version}</version>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+    <profiles>
+        <profile>
+            <!-- For generating/publishing GitHub Site Pages into /docs/ folder on master branch only -->
+            <id>github.pages</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <configuration>
+                            <outputDirectory>docs</outputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

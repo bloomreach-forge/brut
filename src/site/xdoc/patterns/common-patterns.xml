@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Common Test Patterns</title>
+  </properties>
+  <body>
+
+    <section name="Component Parameter Mocking">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmComponentTest(beanPackages = {"com.example.beans"})
+class HeroBannerTest {
+
+    @Test
+    void testWithDocumentParameter(DynamicComponentTest brxm) {
+        HeroBanner component = new HeroBanner();
+        component.init(null, brxm.getComponentConfiguration());
+
+        // Mock the ParametersInfo interface
+        HeroBannerInfo paramInfo = mock(HeroBannerInfo.class);
+        when(paramInfo.getDocument()).thenReturn("herobanners/test-hero");
+        brxm.setComponentParameters(paramInfo);
+
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        HeroBannerModel model = brxm.getRequestAttributeValue("heroBanner");
+        assertThat(model.getTitle()).isEqualTo("Welcome");
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Request Attribute Assertions">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void doBeforeRender_setsExpectedAttributes(DynamicComponentTest brxm) {
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    // Type-safe retrieval
+    HeroBannerModel model = brxm.getRequestAttributeValue("heroBanner");
+    assertThat(model).isNotNull();
+    assertThat(model.getTitle()).isEqualTo("Expected Title");
+    assertThat(model.getDescription()).contains("expected text");
+
+    // Boolean attributes
+    Boolean isLoggedIn = brxm.getRequestAttributeValue("loggedin");
+    assertThat(isLoggedIn).isTrue();
+
+    // Null checks for optional attributes
+    assertThat((Object) brxm.getRequestAttributeValue("optionalAttr")).isNull();
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="PageModel Navigation">
+      <div class="brush: java">
+        <source><![CDATA[
+private static final ObjectMapper MAPPER = new ObjectMapper();
+
+private PageModelResponse fetchPageModel(String path, DynamicPageModelTest brxm) throws Exception {
+    return brxm.request()
+        .get("/site/resourceapi" + path)
+        .executeAsPageModel();
+}
+
+private <T> T mapModel(Map<String, Object> model, Class<T> clazz) {
+    return MAPPER.convertValue(model, clazz);
+}
+
+@Test
+void testPageStructure(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = fetchPageModel("/dashboard", brxm);
+
+    // Root component
+    PageComponent root = pageModel.getRootComponent();
+    assertThat(root).isNotNull();
+    assertThat(root.getName()).isEqualTo("dashboard");
+
+    // Find component by name
+    PageComponent heroBanner = pageModel.findComponentByName("HeroBanner").orElseThrow();
+    assertThat(heroBanner.getComponentClass())
+        .isEqualTo("com.example.components.HeroBanner");
+
+    // Get child components
+    List<PageComponent> children = pageModel.getChildComponents(root);
+    assertThat(children).isNotEmpty();
+
+    // Extract model data
+    Map<String, Object> model = heroBanner.getModel("heroBanner");
+    HeroBannerContent content = mapModel(model, HeroBannerContent.class);
+    assertThat(content.getTitle()).isNotBlank();
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="POJO Mapping for Content">
+      <div class="brush: java">
+        <source><![CDATA[
+// POJO for HeroBanner content
+public class HeroBannerContent {
+    private String title;
+    private String description;
+    private CallToAction callToAction;
+
+    // Getters and setters...
+
+    public static class CallToAction {
+        private String title;
+        private String externalLink;
+        // Getters and setters...
+    }
+}
+
+// Usage in tests
+@Test
+void testContentMapping(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = fetchPageModel("/dashboard", brxm);
+
+    PageComponent petProfile = pageModel.findComponentByName("PetProfile").orElseThrow();
+    Map<String, Object> model = petProfile.getModel("petProfile");
+
+    PetProfileContent content = MAPPER.convertValue(model, PetProfileContent.class);
+
+    assertThat(content.getPetName()).isEqualTo("Max");
+    assertThat(content.getPetBreed()).isEqualTo("Golden Retriever");
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Infrastructure Verification Tests">
+      <div class="brush: java">
+        <source><![CDATA[
+// Component test
+@Test
+@DisplayName("Infrastructure: HST request is properly initialized")
+void infrastructure_hstRequestInitialized(DynamicComponentTest brxm) {
+    assertThat(brxm.getHstRequest()).isNotNull();
+    assertThat(brxm.getHstResponse()).isNotNull();
+}
+
+// JAX-RS test
+@Test
+@DisplayName("Infrastructure: JAX-RS request is properly initialized")
+void infrastructure_jaxrsRequestInitialized(DynamicJaxrsTest brxm) {
+    assertThat(brxm.getHstRequest()).isNotNull();
+    assertThat(brxm.getComponentManager()).isNotNull();
+}
+
+// PageModel test
+@Test
+@DisplayName("Infrastructure: PageModel API returns valid response")
+void infrastructure_pageModelApiWorks(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/")
+        .executeAsPageModel();
+
+    assertThat(pageModel).isNotNull();
+    assertThat(pageModel.getRootComponent()).isNotNull();
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Test Naming Conventions">
+      <div class="brush: java">
+        <source><![CDATA[
+// Pattern: methodName_condition_expectedResult
+@Test void doBeforeRender_whenNotLoggedIn_setsLoggedInFalse()
+@Test void doBeforeRender_withUserProfile_createsUserFromProfile()
+@Test void doBeforeRender_withLoginParameter_setsLoginModelTrue()
+
+// Pattern: context_scenario_expectedBehavior (for PageModel)
+@Test void unauthenticated_dashboardShowsPromotionalContent()
+@Test void freeTier_userSeesDashboard()
+@Test void essentialTier_userHasLocationMap()
+
+// Pattern: structure_aspect_assertion (for structural tests)
+@Test void structure_dashboardHasMainContainer()
+@Test void structure_dashboardHasExpectedContainers()
+@Test void content_petProfileShowsPetInfo()
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Request Parameter Testing">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void doBeforeRender_withSearchQuery_returnsFilteredResults(DynamicComponentTest brxm) {
+    brxm.addRequestParameter("q", "golden retriever");
+    brxm.addRequestParameter("category", "dogs");
+    brxm.addRequestParameter("page", "2");
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    SearchResults results = brxm.getRequestAttributeValue("searchResults");
+    assertThat(results.getQuery()).isEqualTo("golden retriever");
+    assertThat(results.getCurrentPage()).isEqualTo(2);
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Content Import Pattern">
+      <div class="brush: java">
+        <source><![CDATA[
+@BeforeEach
+void setUp(DynamicComponentTest brxm) throws RepositoryException {
+    // 1. Register custom node types first
+    brxm.registerNodeType("myproject:HeroBanner");
+    brxm.registerNodeType("myproject:CallToAction");
+
+    // 2. Import YAML content
+    URL resource = getClass().getResource("/test-content.yaml");
+    ImporterUtils.importYaml(resource, brxm.getRootNode(),
+            "/content/documents", "hippostd:folder");
+
+    // 3. Update paths after import
+    brxm.recalculateRepositoryPaths();
+
+    // 4. Set content base path
+    brxm.setSiteContentBasePath("/content/documents/myproject");
+
+    // 5. Initialize component
+    component = new MyComponent();
+    component.init(null, brxm.getComponentConfiguration());
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Session Management">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void testWithSession(DynamicComponentTest brxm) {
+    HttpSession session = brxm.getHstRequest().getSession();
+    session.setAttribute("user", userProfile);
+    session.setAttribute("cart", shoppingCart);
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    // Sessions auto-invalidate between tests
+}
+
+@Test
+void testWithMockSession(DynamicComponentTest brxm) {
+    HttpSession session = mock(HttpSession.class);
+    when(session.getAttribute("user")).thenReturn(testUser);
+    when(session.getAttribute("preferences")).thenReturn(userPrefs);
+    brxm.getHstRequest().setSession(session);
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="../getting-started.html">Getting Started</a> - Initial setup</li>
+        <li><a href="authentication.html">Authentication Patterns</a> - User/session testing</li>
+        <li><a href="../testing/jaxrs-testing.html">JAX-RS Testing</a> - REST endpoint testing</li>
+        <li><a href="../testing/stubbing-data.html">Stubbing Test Data</a> - YAML content structure</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

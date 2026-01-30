@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Component Testing Guide</title>
+  </properties>
+  <body>
+
+    <section name="Basic Component Test">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmComponentTest  // beanPackages, nodeTypes auto-detected
+class MyComponentTest {
+
+    @Test
+    void testComponent(DynamicComponentTest brxm) {
+        // Create and initialize component
+        MyComponent component = new MyComponent();
+        component.init(null, brxm.getComponentConfiguration());
+
+        // Execute
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        // Assert on model attributes
+        MyModel model = brxm.getRequestAttributeValue("model");
+        assertNotNull(model);
+    }
+}
+        ]]></source>
+      </div>
+      <p><strong>Node Type Auto-Detection:</strong> Types are detected from <code>@Node(jcrType="...")</code> annotations.</p>
+    </section>
+
+    <section name="Parameter Mocking">
+      <div class="brush: java">
+        <source><![CDATA[
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/test-content.yaml",
+    contentRoot = "/content/documents/myproject"
+)
+class HeroBannerTest {
+
+    @Test
+    void testWithDocumentParameter(DynamicComponentTest brxm) {
+        // Create component
+        HeroBanner component = new HeroBanner();
+        component.init(null, brxm.getComponentConfiguration());
+
+        // Mock the ParametersInfo interface
+        HeroBannerInfo paramInfo = mock(HeroBannerInfo.class);
+        when(paramInfo.getDocument()).thenReturn("herobanners/test-hero");
+        brxm.setComponentParameters(paramInfo);
+
+        // Execute
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        // Assert
+        HeroBannerModel model = brxm.getRequestAttributeValue("heroBanner");
+        assertThat(model.getTitle()).isEqualTo("Welcome");
+    }
+
+    @Test
+    void testWithMultipleParameters(DynamicComponentTest brxm) {
+        CardCollectionSectionInfo paramInfo = mock(CardCollectionSectionInfo.class);
+        when(paramInfo.getTitle()).thenReturn("Featured Cards");
+        when(paramInfo.getPageSize()).thenReturn(3);
+        when(paramInfo.getSortOrder()).thenReturn("desc");
+        brxm.setComponentParameters(paramInfo);
+
+        // Execute and verify...
+    }
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Request Attribute Assertions">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void doBeforeRender_setsExpectedAttributes(DynamicComponentTest brxm) {
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    // Type-safe retrieval
+    HeroBannerModel model = brxm.getRequestAttributeValue("heroBanner");
+    assertThat(model).isNotNull();
+    assertThat(model.getTitle()).isEqualTo("Expected Title");
+    assertThat(model.getDescription()).contains("expected text");
+
+    // Boolean attributes
+    Boolean isLoggedIn = brxm.getRequestAttributeValue("loggedin");
+    assertThat(isLoggedIn).isTrue();
+
+    // Null checks for optional attributes
+    assertThat((Object) brxm.getRequestAttributeValue("optionalAttr")).isNull();
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Request Parameters">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void doBeforeRender_withSearchQuery_returnsFilteredResults(DynamicComponentTest brxm) {
+    brxm.addRequestParameter("q", "golden retriever");
+    brxm.addRequestParameter("category", "dogs");
+    brxm.addRequestParameter("page", "2");
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    SearchResults results = brxm.getRequestAttributeValue("searchResults");
+    assertThat(results.getQuery()).isEqualTo("golden retriever");
+    assertThat(results.getCurrentPage()).isEqualTo(2);
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Session Handling">
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+void testWithSession(DynamicComponentTest brxm) {
+    // Get or create session (lazy initialization)
+    HttpSession session = brxm.getHstRequest().getSession();
+    session.setAttribute("user", new User("John"));
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    // Verify session was used
+    assertThat(session.getAttribute("loginCount")).isEqualTo(1);
+}
+
+@Test
+void testWithMockedSession(DynamicComponentTest brxm) {
+    HttpSession session = mock(HttpSession.class);
+    when(session.getAttribute("user")).thenReturn(new User("Jane"));
+
+    brxm.getHstRequest().setSession(session);
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Annotation Options">
+      <table>
+        <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        <tr>
+          <td><code>beanPackages</code></td>
+          <td>String[]</td>
+          <td>auto-detected</td>
+          <td>HST content bean packages</td>
+        </tr>
+        <tr>
+          <td><code>nodeTypes</code></td>
+          <td>String[]</td>
+          <td>auto-detected</td>
+          <td>Node types (from @Node annotations)</td>
+        </tr>
+        <tr>
+          <td><code>content</code></td>
+          <td>String</td>
+          <td>""</td>
+          <td>Classpath path to YAML file</td>
+        </tr>
+        <tr>
+          <td><code>contentRoot</code></td>
+          <td>String</td>
+          <td>""</td>
+          <td>JCR path where content is imported</td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="DynamicComponentTest API">
+      <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>getHstRequest()</code></td><td>Mock HST request</td></tr>
+        <tr><td><code>getHstResponse()</code></td><td>Mock HST response</td></tr>
+        <tr><td><code>getComponentConfiguration()</code></td><td>Mock component config for <code>init()</code></td></tr>
+        <tr><td><code>getRequestAttributeValue(name)</code></td><td>Type-safe attribute retrieval</td></tr>
+        <tr><td><code>setComponentParameters(params)</code></td><td>Set mocked ParametersInfo</td></tr>
+        <tr><td><code>addRequestParameter(name, value)</code></td><td>Add query parameter</td></tr>
+        <tr><td><code>getRootNode()</code></td><td>JCR root node</td></tr>
+        <tr><td><code>setSiteContentBasePath(path)</code></td><td>Set content base path</td></tr>
+      </table>
+    </section>
+
+    <section name="Infrastructure Test">
+      <p>Always include a basic infrastructure verification test:</p>
+      <div class="brush: java">
+        <source><![CDATA[
+@Test
+@DisplayName("Infrastructure: HST request is properly initialized")
+void infrastructure_hstRequestInitialized(DynamicComponentTest brxm) {
+    assertThat(brxm.getHstRequest()).isNotNull();
+    assertThat(brxm.getHstResponse()).isNotNull();
+}
+        ]]></source>
+      </div>
+    </section>
+
+    <section name="Related">
+      <ul>
+        <li><a href="stubbing-data.html">Stubbing Test Data</a> - YAML content for component tests</li>
+        <li><a href="../patterns/common-patterns.html">Common Patterns</a> - Mocking, assertions, naming</li>
+        <li><a href="../patterns/authentication.html">Authentication Patterns</a> - Testing logged-in users</li>
+      </ul>
+    </section>
+
+  </body>
+</document>

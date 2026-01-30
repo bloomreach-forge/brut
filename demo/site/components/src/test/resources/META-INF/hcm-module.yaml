@@ -1,0 +1,5 @@
+group:
+  name: myproject-demo-test
+project: myproject-demo-test
+module:
+  name: demo-test-config

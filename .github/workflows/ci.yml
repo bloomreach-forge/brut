@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main, master]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [develop, main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Configure Maven settings
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << EOF
+          <settings>
+            <servers>
+              <server>
+                <id>bloomreach-maven2</id>
+              </server>
+              <server>
+                <id>bloomreach-maven2-forge</id>
+              </server>
+              <server>
+                <id>bloomreach-maven2-enterprise</id>
+                <username>${BR_MAVEN_USERNAME}</username>
+                <password>${BR_MAVEN_PASSWORD}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
+
+      - name: Verify versions are aligned
+        run: |
+          ROOT_VERSION=$(awk -F'[<>]' '/<parent>/,/<\/parent>/{next} /<version>/{print $3; exit}' pom.xml)
+          DEMO_VERSION=$(awk -F'[<>]' '/<parent>/,/<\/parent>/{next} /<version>/{print $3; exit}' demo/pom.xml)
+          echo "Root: $ROOT_VERSION, Demo: $DEMO_VERSION"
+          if [ "$ROOT_VERSION" != "$DEMO_VERSION" ]; then
+            echo "ERROR: Root version '$ROOT_VERSION' does not match demo version '$DEMO_VERSION'"
+            exit 1
+          fi
+
+      - name: Build and test
+        run: mvn -B clean install
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
+
+      - name: Build and test demo
+        run: mvn -B -f demo clean verify
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
+

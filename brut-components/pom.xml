@@ -96,7 +96,8 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
+      <!-- compile scope needed for annotation API -->
+      <scope>compile</scope>
     </dependency>
 
     <dependency>

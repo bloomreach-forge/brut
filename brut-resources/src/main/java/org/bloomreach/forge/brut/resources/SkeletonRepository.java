@@ -1,45 +1,37 @@
 package org.bloomreach.forge.brut.resources;
 
-import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
+import org.bloomreach.forge.brut.common.repository.AbstractBrutRepository;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
-import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.nodetype.NodeType;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
 import java.util.List;
 
-import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
+public class SkeletonRepository extends AbstractBrutRepository {
 
-public class SkeletonRepository extends BrxmTestingRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(SkeletonRepository.class);
+    private static final String HST_CONTENT_PROPERTY = "hst:content";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SkeletonRepository.class);
-
-    private List<String> cndResourcesPatterns;
-    private List<String> yamlResourcesPatterns;
+    private final List<String> cndResourcesPatterns;
+    private final List<String> yamlResourcesPatterns;
 
     public SkeletonRepository(List<String> cndResourcesPatterns, List<String> contributedCndResourcesPatterns,
                               List<String> yamlResourcesPatterns, List<String> contributedYamlResourcesPatterns)
             throws RepositoryException, IOException {
-
-        this.cndResourcesPatterns = cndResourcesPatterns;
+        super();
+        this.cndResourcesPatterns = new java.util.ArrayList<>(cndResourcesPatterns);
         this.cndResourcesPatterns.addAll(contributedCndResourcesPatterns);
 
-        this.yamlResourcesPatterns = yamlResourcesPatterns;
+        this.yamlResourcesPatterns = new java.util.ArrayList<>(yamlResourcesPatterns);
         this.yamlResourcesPatterns.addAll(contributedYamlResourcesPatterns);
-
     }
 
     public void init() {
@@ -48,14 +40,79 @@ public class SkeletonRepository extends BrxmTestingRepository {
             session = this.login(new SimpleCredentials("admin", "admin".toCharArray()));
             registerCnds(session, cndResourcesPatterns);
             importYamlResources(session, yamlResourcesPatterns);
-            recalculateHippoPaths("/content");
+            if (session.getRootNode().hasNode("content")) {
+                recalculateHippoPaths("/content");
+            } else {
+                LOG.debug("Skipping /content path recalculation: node does not exist");
+            }
+            ensureContentPaths(session);
         } catch (RepositoryException e) {
-            e.printStackTrace();
+            LOG.error("Repository initialization failed", e);
         } finally {
             if (session != null && session.isLive()) {
                 session.logout();
             }
         }
+    }
+
+    /**
+     * Ensures that hst:content paths in HST site configurations exist in JCR.
+     * Creates stub folders for any missing content paths to support getSiteContentBaseBean().
+     */
+    private void ensureContentPaths(Session session) {
+        try {
+            // Check common HST root locations
+            String[] hstRoots = {"/hst:hst", "/hst:myproject"};
+            for (String hstRoot : hstRoots) {
+                if (session.nodeExists(hstRoot)) {
+                    ensureContentPathsUnder(session, session.getNode(hstRoot));
+                }
+            }
+        } catch (RepositoryException e) {
+            LOG.debug("Content path setup skipped: {}", e.getMessage());
+        }
+    }
+
+    private void ensureContentPathsUnder(Session session, Node node) throws RepositoryException {
+        if (node.hasProperty(HST_CONTENT_PROPERTY)) {
+            Property contentProp = node.getProperty(HST_CONTENT_PROPERTY);
+            String contentPath = contentProp.getString();
+            if (contentPath != null && !contentPath.isEmpty()) {
+                String absolutePath = contentPath.startsWith("/") ? contentPath : "/" + contentPath;
+                if (!session.nodeExists(absolutePath)) {
+                    ensureContentPath(session, absolutePath);
+                    LOG.info("Created stub content folder at '{}' for HST config '{}'",
+                            absolutePath, node.getPath());
+                }
+            }
+        }
+        // Recurse into child nodes
+        for (NodeIterator children = node.getNodes(); children.hasNext(); ) {
+            ensureContentPathsUnder(session, children.nextNode());
+        }
+    }
+
+    /**
+     * Creates a stub content folder at the given path, ensuring all parent folders exist.
+     */
+    private void ensureContentPath(Session session, String path) throws RepositoryException {
+        String[] segments = path.substring(1).split("/");
+        Node current = session.getRootNode();
+
+        for (String segment : segments) {
+            if (segment.isEmpty()) {
+                continue;
+            }
+            if (current.hasNode(segment)) {
+                current = current.getNode(segment);
+            } else {
+                current = current.addNode(segment, "hippostd:folder");
+                if (current.canAddMixin("mix:referenceable")) {
+                    current.addMixin("mix:referenceable");
+                }
+            }
+        }
+        session.save();
     }
 
     private void importYamlResources(Session session, List<String> yamlResourcePatterns) throws RepositoryException {
@@ -68,106 +125,8 @@ public class SkeletonRepository extends BrxmTestingRepository {
                 }
             }
             session.save();
-
         } catch (Exception ex) {
             throw new RepositoryException(ex);
-        }
-    }
-
-    private void registerCnds(Session session, List<String> cndResourcesPatterns) throws RepositoryException {
-        for (String cndResourcePattern : cndResourcesPatterns) {
-            registerNamespaces(session, resolveResourcePattern(cndResourcePattern));
-        }
-    }
-
-    private void registerNamespaces(Session session, Resource[] cndResources) throws RepositoryException {
-        for (Resource cndResource : cndResources) {
-            try {
-                // Register the custom node types defined in the CND file, using JCR Commons CndImporter
-                NodeType[] nodeTypes = CndImporter.registerNodeTypes(new InputStreamReader(cndResource.getInputStream()), session);
-                for (NodeType nt : nodeTypes) {
-                    LOGGER.debug("Registered: " + nt.getName());
-                }
-            } catch (Exception e) {
-                throw new RepositoryException(e);
-            }
-        }
-    }
-
-    private Resource[] resolveResourcePattern(String pattern) throws RepositoryException {
-        try {
-            ClassLoader cl = this.getClass().getClassLoader();
-            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
-            Resource[] resources = resolver.getResources(pattern);
-            for (Resource resource : resources) {
-                LOGGER.debug("RESOURCE: " + resource.getFilename());
-            }
-            return resources;
-        } catch (Exception e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-    /**
-     * Recalculating hippo paths is necessary for the HstQueries
-     *
-     * @param absolutePath
-     */
-
-    private void recalculateHippoPaths(String absolutePath) {
-        Session session = null;
-        try {
-            session = this.login(new SimpleCredentials("admin", "admin".toCharArray()));
-            Node rootNode = session.getRootNode();
-            Node node = rootNode.getNode(absolutePath.substring(1));
-            calculateHippoPaths(node, getPathsForNode(node, rootNode));
-            session.save();
-        } catch (RepositoryException e) {
-            throw new RuntimeRepositoryException(e);
-        } finally {
-            if (session != null && session.isLive()) {
-                session.logout();
-            }
-        }
-    }
-
-    private LinkedList<String> getPathsForNode(Node node, Node rootNode) throws RepositoryException {
-        LinkedList<String> paths = new LinkedList<>();
-        Node parentNode = node;
-        do {
-            parentNode = parentNode.getParent();
-            paths.add(parentNode.getIdentifier());
-        } while (!parentNode.isSame(rootNode));
-        return paths;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void calculateHippoPaths(Node node, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, node.getIdentifier());
-        setHippoPath(node, paths);
-        for (NodeIterator nodes = node.getNodes(); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            if (!subnode.isNodeType("hippo:handle")) {
-                if (!subnode.isNodeType("hippotranslation:translations")) {
-                    calculateHippoPaths(subnode, (LinkedList<String>) paths.clone());
-                }
-            } else {
-                setHandleHippoPaths(subnode, (LinkedList<String>) paths.clone());
-            }
-        }
-    }
-
-    private void setHippoPath(Node node, LinkedList<String> paths) throws RepositoryException {
-        node.setProperty(HIPPO_PATHS, paths.toArray(new String[0]));
-    }
-
-    private void setHandleHippoPaths(Node handle, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, handle.getIdentifier());
-        for (NodeIterator nodes = handle.getNodes(handle.getName()); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            paths.add(0, subnode.getIdentifier());
-            setHippoPath(subnode, paths);
-            paths.remove(0);
         }
     }
 }

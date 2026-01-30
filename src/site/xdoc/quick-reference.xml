@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2024 Bloomreach, Inc (http://www.bloomreach.com)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>BRUT Quick Reference Guide</title>
+  </properties>
+  <body>
+
+    <section name="Quick Reference Guide">
+
+      <subsection name="1. Add Dependencies">
+        <div class="brush: xml">
+          <source><![CDATA[
+<!-- JUnit 5 (Required for annotation-based testing) -->
+<dependency>
+  <groupId>org.junit.jupiter</groupId>
+  <artifactId>junit-jupiter</artifactId>
+  <version>5.10.2</version>
+  <scope>test</scope>
+</dependency>
+
+<!-- For JAX-RS / Page Model API Testing -->
+<dependency>
+  <groupId>org.bloomreach.forge.brut</groupId>
+  <artifactId>brut-resources</artifactId>
+  <version>${brut.version}</version>
+  <scope>test</scope>
+</dependency>
+
+<!-- For Component Testing -->
+<dependency>
+  <groupId>org.bloomreach.forge.brut</groupId>
+  <artifactId>brut-components</artifactId>
+  <version>${brut.version}</version>
+  <scope>test</scope>
+</dependency>
+          ]]></source>
+        </div>
+        <p><strong>Note:</strong> Most brXM projects already include JUnit 5 via the parent POM.</p>
+      </subsection>
+
+      <subsection name="2. Create Your First Test">
+
+        <h4>JAX-RS API Test (Parameter Injection - Recommended)</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.resources.annotation.BrxmJaxrsTest;
+import org.bloomreach.forge.brut.resources.annotation.DynamicJaxrsTest;
+import org.example.rest.HelloResource;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmJaxrsTest(resources = {HelloResource.class})  // beanPackages auto-detected!
+public class MyApiTest {
+
+    @Test
+    void testEndpoint(DynamicJaxrsTest brxm) {  // Parameter injection - no IDE warnings!
+        String response = brxm.request()
+            .get("/site/api/hello/world")
+            .execute();
+        assertEquals("Hello, World!", response);
+    }
+}
+          ]]></source>
+        </div>
+
+        <h4>Page Model API Test</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.resources.annotation.BrxmPageModelTest;
+import org.bloomreach.forge.brut.resources.annotation.DynamicPageModelTest;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmPageModelTest  // Zero-config for standard project layouts
+public class MyPageModelTest {
+
+    @Test
+    void testComponent(DynamicPageModelTest brxm) {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
+        assertNotNull(pageModel.getRootComponent());
+    }
+}
+          ]]></source>
+        </div>
+
+        <h4>Component Test</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+package org.example;
+
+import org.bloomreach.forge.brut.components.annotation.BrxmComponentTest;
+import org.bloomreach.forge.brut.components.annotation.DynamicComponentTest;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@BrxmComponentTest  // beanPackages, nodeTypes auto-detected
+public class MyComponentTest {
+
+    @Test
+    void testComponent(DynamicComponentTest brxm) {
+        assertNotNull(brxm.getHstRequest());
+        assertNotNull(brxm.getHstResponse());
+        assertTrue(brxm.getRootNode().hasNode("hippo:configuration"));
+    }
+}
+          ]]></source>
+        </div>
+        <p><strong>Node Type Auto-Detection:</strong> When <code>nodeTypes</code> is not specified,
+           types are automatically detected from <code>@Node(jcrType="...")</code> annotations in bean classes.
+           Use explicit <code>nodeTypes</code> only for inheritance (<code>"ns:Child extends ns:Parent"</code>)
+           or types outside scanned packages.</p>
+
+        <h4>Alternative: Field Injection (for @BeforeEach or Nested Classes)</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(resources = {HelloResource.class})
+public class MyApiTest {
+
+    @SuppressWarnings("unused")  // Injected by extension
+    private DynamicJaxrsTest brxm;
+
+    @BeforeEach
+    void setup() {
+        brxm.getHstRequest().setHeader("X-Custom", "value");
+    }
+
+    @Test
+    void testEndpoint() {
+        brxm.request().get("/site/api/hello").assertBody("Hello");
+    }
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="3. Configuration Options">
+
+        <h4>JAX-RS Test (Minimal - Zero Config)</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(resources = {HelloResource.class, NewsResource.class})
+// beanPackages auto-detected from project-settings.xml or pom.xml
+          ]]></source>
+        </div>
+
+        <h4>Full Options (all optional)</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(
+    // Optional: Override auto-detected bean packages
+    beanPackages = {"org.example.model"},
+
+    // JAX-RS resources (recommended - eliminates Spring XML)
+    resources = {HelloResource.class},
+
+    // Custom YAML patterns (auto-detected from <package>/imports/)
+    yamlPatterns = {"classpath*:custom/**/*.yaml"},
+
+    // Custom CND patterns
+    cndPatterns = {"classpath*:custom/**/*.cnd"},
+
+    // Load production HCM content
+    loadProjectContent = true,
+
+    // Override auto-detected values
+    hstRoot = "/hst:myproject",
+    springConfigs = {"/org/example/custom.xml"},
+    addonModules = {"/org/example/addon"}
+)
+          ]]></source>
+        </div>
+
+        <h4>When to Configure Manually</h4>
+        <p><strong>Use zero-config (recommended) when:</strong></p>
+        <ul>
+          <li>Project has <code>project-settings.xml</code> → beanPackages auto-detected</li>
+          <li>Test YAML is in <code>&lt;package&gt;/imports/</code> → auto-detected</li>
+          <li>HST root matches Maven artifactId → auto-detected</li>
+        </ul>
+        <p><strong>Specify parameters when:</strong></p>
+        <ul>
+          <li><code>beanPackages</code> - auto-detection fails or you need different packages</li>
+          <li><code>resources</code> - to register JAX-RS endpoints without Spring XML</li>
+          <li><code>springConfigs</code> - resources need Spring-managed dependencies</li>
+          <li><code>hstRoot</code> - HST root doesn't match Maven artifactId</li>
+        </ul>
+
+        <h4>@BrxmComponentTest Options</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/test-content.yaml",    // YAML content to import
+    contentRoot = "/content/documents", // Where to import + sets site base
+    nodeTypes = {"ns:Type extends ns:Base"} // Optional - auto-detected from @Node
+)
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="4. Fluent Request API">
+
+        <h4>Basic Requests</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testWithFluentApi(DynamicJaxrsTest brxm) {
+    String response = brxm.request()
+        .get("/site/api/news")              // Sets URI and GET method
+        .withHeader("X-Custom", "value")    // Add custom header
+        .queryParam("category", "tech")     // Add query parameter
+        .execute();                         // Execute and get response as String
+
+    assertTrue(response.contains("news"));
+}
+
+// One-liner assertion
+@Test
+void testAssertBody(DynamicJaxrsTest brxm) {
+    brxm.request()
+        .get("/site/api/hello/world")
+        .assertBody("Hello, World!");       // Assert response body directly
+}
+          ]]></source>
+        </div>
+
+        <h4>Typed JSON Responses</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+// JSON deserialization in one line
+@Test
+void testTypedResponse(DynamicJaxrsTest brxm) {
+    User user = brxm.request()
+        .get("/site/api/user/123")
+        .executeAs(User.class);             // Execute and deserialize JSON
+
+    assertEquals("John", user.getName());
+}
+
+// Response with status code
+@Test
+void testResponseWithStatus(DynamicJaxrsTest brxm) {
+    Response<User> response = brxm.request()
+        .get("/site/api/users/123")
+        .executeWithStatus(User.class);     // Get status + typed body
+
+    assertEquals(200, response.status());
+    assertTrue(response.isSuccessful());
+    assertEquals("John", response.body().getName());
+}
+          ]]></source>
+        </div>
+
+        <h4>POST with JSON Body</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+// POST with JSON string
+@Test
+void testPostRequest(DynamicJaxrsTest brxm) {
+    User created = brxm.request()
+        .post("/site/api/users")
+        .withJsonBody("{\"name\": \"John\"}")  // Sets body + Content-Type
+        .executeAs(User.class);
+
+    assertEquals("John", created.getName());
+}
+
+// POST with object serialization
+@Test
+void testPostWithObject(DynamicJaxrsTest brxm) {
+    User input = new User("Jane", 25);
+    User created = brxm.request()
+        .post("/site/api/users")
+        .withJsonBody(input)                   // Auto-serializes to JSON
+        .executeAs(User.class);
+
+    assertEquals("Jane", created.getName());
+}
+          ]]></source>
+        </div>
+
+        <h4>Authentication</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+// Authenticated user with roles
+@Test
+void testProtectedEndpoint(DynamicJaxrsTest brxm) {
+    String response = brxm.request()
+        .get("/site/api/admin/users")
+        .asUser("admin", "admin", "editor")  // username, roles...
+        .execute();
+
+    assertThat(response).contains("users");
+}
+
+// Role-only (no username needed)
+@Test
+void testRoleBasedAccess(DynamicJaxrsTest brxm) {
+    String response = brxm.request()
+        .get("/site/api/reports")
+        .withRole("manager", "viewer")       // roles only
+        .execute();
+
+    assertThat(response).contains("reports");
+}
+          ]]></source>
+        </div>
+
+        <h4>PageModel API</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testPageModelApi(DynamicPageModelTest brxm) throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/")
+        .executeAsPageModel();  // Parse response as PageModelResponse
+
+    // Navigate component tree
+    PageComponent root = pageModel.getRootComponent();
+    assertNotNull(root);
+
+    // Find component by name
+    PageComponent header = pageModel.findComponentByName("header").orElseThrow();
+
+    // Get children
+    List<PageComponent> children = pageModel.getChildComponents(root);
+}
+          ]]></source>
+        </div>
+
+        <h4>Repository Access</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testRepositoryAccess(DynamicJaxrsTest brxm) {
+    try (RepositorySession session = brxm.repository()) {
+        session.assertNodeExists("/hst:myproject")
+               .assertNodeExists("/hippo:configuration");
+
+        Node newsNode = session.getNode("/content/documents/news");
+        assertEquals("hippo:handle", newsNode.getPrimaryNodeType().getName());
+    }
+    // Auto-cleanup on try-with-resources exit
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="5. Component Test Patterns">
+
+        <h4>Annotation-Driven Setup</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmComponentTest(
+    beanPackages = {"org.example.beans"},
+    content = "/test-content.yaml",
+    contentRoot = "/content/documents/myproject"
+)
+class MyComponentTest {
+
+    @Test
+    void testComponent(DynamicComponentTest brxm) {
+        // Node types auto-detected from @Node annotations!
+        // Content imported automatically from annotation parameters
+        MyComponent component = new MyComponent();
+        component.init(null, brxm.getComponentConfiguration());
+        component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+        MyModel model = brxm.getRequestAttributeValue("model");
+        assertNotNull(model);
+    }
+}
+          ]]></source>
+        </div>
+
+        <h4>Mocking Component Parameters</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testComponentWithParameters(DynamicComponentTest brxm) {
+    // Mock the ParameterInfo interface
+    MyComponentInfo paramInfo = mock(MyComponentInfo.class);
+    when(paramInfo.getDocument()).thenReturn("articles/my-article");
+    when(paramInfo.getPageSize()).thenReturn(10);
+
+    // Set on request
+    brxm.setComponentParameters(paramInfo);
+
+    // Execute component
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    // Assert on model attributes
+    MyModel model = brxm.getRequestAttributeValue("model");
+    assertThat(model).isNotNull();
+}
+          ]]></source>
+        </div>
+
+        <h4>Request Parameters</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testWithRequestParameters(DynamicComponentTest brxm) {
+    // Add request parameters
+    brxm.addRequestParameter("page", "2");
+    brxm.addRequestParameter("sort", "date");
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="6. HTTP Session Support">
+        <div class="brush: java">
+          <source><![CDATA[
+@Test
+void testWithSession(DynamicComponentTest brxm) {
+    // Get or create session (lazy initialization)
+    HttpSession session = brxm.getHstRequest().getSession();
+    session.setAttribute("user", new User("John"));
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+
+    // Verify session was used
+    assertThat(session.getAttribute("loginCount")).isEqualTo(1);
+}
+
+// Mock session for more control
+@Test
+void testWithMockedSession(DynamicComponentTest brxm) {
+    HttpSession session = mock(HttpSession.class);
+    when(session.getAttribute("user")).thenReturn(new User("Jane"));
+
+    brxm.getHstRequest().setSession(session);
+
+    component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
+}
+          ]]></source>
+        </div>
+        <p><strong>Session Isolation:</strong> Sessions are automatically invalidated between tests for JAX-RS/PageModel tests.</p>
+      </subsection>
+
+      <subsection name="7. Production Config (ConfigService)">
+
+        <h4>One-Liner</h4>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmJaxrsTest(
+    beanPackages = {"org.example.model"},
+    loadProjectContent = true  // Uses HCM modules from classpath
+)
+          ]]></source>
+        </div>
+
+        <h4>HCM Structure</h4>
+        <div class="brush: plain">
+          <source><![CDATA[
+src/test/resources/
+├── META-INF/
+│   └── hcm-module.yaml
+├── hcm-config/
+│   └── hst/
+│       ├── configurations.yaml
+│       ├── hosts.yaml
+│       └── sites.yaml
+└── hcm-content/
+    └── content/
+        └── documents/
+          ]]></source>
+        </div>
+
+        <p>See <a href="config-service-repository.html">ConfigService Repository Guide</a> for detailed setup.</p>
+      </subsection>
+
+    </section>
+
+    <section name="Annotation Parameter Reference">
+
+      <subsection name="@BrxmJaxrsTest">
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr>
+            <td><code>beanPackages</code></td>
+            <td>String[]</td>
+            <td>auto-detected</td>
+            <td>HST content bean packages (from project-settings.xml or classpath scan)</td>
+          </tr>
+          <tr>
+            <td><code>resources</code></td>
+            <td>Class&lt;?&gt;[]</td>
+            <td>{}</td>
+            <td>JAX-RS resource classes (recommended - eliminates Spring XML)</td>
+          </tr>
+          <tr>
+            <td><code>hstRoot</code></td>
+            <td>String</td>
+            <td>auto-detected</td>
+            <td>HST configuration root (from Maven artifactId)</td>
+          </tr>
+          <tr>
+            <td><code>springConfigs</code></td>
+            <td>String[]</td>
+            <td>auto-detected</td>
+            <td>Spring XML configs (only for Spring-managed dependencies)</td>
+          </tr>
+          <tr>
+            <td><code>yamlPatterns</code></td>
+            <td>String[]</td>
+            <td>auto-detected</td>
+            <td>YAML patterns (from &lt;testPackage&gt;/imports/**/*.yaml)</td>
+          </tr>
+          <tr>
+            <td><code>cndPatterns</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>CND node type definition patterns</td>
+          </tr>
+          <tr>
+            <td><code>loadProjectContent</code></td>
+            <td>boolean</td>
+            <td>true</td>
+            <td>Load real HCM modules via ConfigServiceRepository</td>
+          </tr>
+        </table>
+      </subsection>
+
+      <subsection name="@BrxmPageModelTest">
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr>
+            <td><code>beanPackages</code></td>
+            <td>String[]</td>
+            <td>auto-detected</td>
+            <td>HST content bean packages</td>
+          </tr>
+          <tr>
+            <td><code>hstRoot</code></td>
+            <td>String</td>
+            <td>auto-detected</td>
+            <td>HST configuration root</td>
+          </tr>
+          <tr>
+            <td><code>springConfig</code></td>
+            <td>String</td>
+            <td>auto-detected</td>
+            <td>Spring XML config for PageModel pipeline</td>
+          </tr>
+          <tr>
+            <td><code>loadProjectContent</code></td>
+            <td>boolean</td>
+            <td>false</td>
+            <td>Load real HCM modules via ConfigServiceRepository</td>
+          </tr>
+        </table>
+      </subsection>
+
+      <subsection name="@BrxmComponentTest">
+        <table>
+          <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr>
+          <tr>
+            <td><code>beanPackages</code></td>
+            <td>String[]</td>
+            <td>auto-detected</td>
+            <td>HST content bean packages</td>
+          </tr>
+          <tr>
+            <td><code>nodeTypes</code></td>
+            <td>String[]</td>
+            <td>auto-detected</td>
+            <td>Node types (from @Node annotations in beanPackages)</td>
+          </tr>
+          <tr>
+            <td><code>content</code></td>
+            <td>String</td>
+            <td>""</td>
+            <td>Classpath path to YAML file with test content</td>
+          </tr>
+          <tr>
+            <td><code>contentRoot</code></td>
+            <td>String</td>
+            <td>""</td>
+            <td>JCR path where content is imported + sets site base</td>
+          </tr>
+        </table>
+      </subsection>
+
+    </section>
+
+    <section name="Auto-Detection Rules">
+      <table>
+        <tr><th>Setting</th><th>Auto-Detection Strategy</th><th>Override</th></tr>
+        <tr>
+          <td>Bean Packages</td>
+          <td>1. project-settings.xml<br/>2. @Node classpath scan<br/>3. pom.xml groupId<br/>4. test class package</td>
+          <td><code>beanPackages = {"org.example.beans"}</code></td>
+        </tr>
+        <tr>
+          <td>HST Root</td>
+          <td><code>/hst:${artifactId}</code> from pom.xml</td>
+          <td><code>hstRoot = "/hst:customname"</code></td>
+        </tr>
+        <tr>
+          <td>Spring Configs</td>
+          <td>JAX-RS: custom-jaxrs.xml, rest-resources.xml<br/>PageModel: custom-pagemodel.xml</td>
+          <td><code>springConfigs = {"/path/to/config.xml"}</code></td>
+        </tr>
+        <tr>
+          <td>Node Types</td>
+          <td>Scans @Node(jcrType="...") in beanPackages</td>
+          <td><code>nodeTypes = {"ns:Type extends ns:Base"}</code></td>
+        </tr>
+        <tr>
+          <td>Test YAML</td>
+          <td>&lt;testPackage&gt;/imports/**/*.yaml</td>
+          <td><code>yamlPatterns = {"classpath*:custom/**/*.yaml"}</code></td>
+        </tr>
+      </table>
+    </section>
+
+    <section name="Troubleshooting">
+      <table>
+        <tr><th>Issue</th><th>Fix</th></tr>
+        <tr>
+          <td>NullPointerException on <code>brxm</code></td>
+          <td>Use parameter injection: <code>void test(DynamicJaxrsTest brxm)</code></td>
+        </tr>
+        <tr>
+          <td>"Missing @BrxmJaxrsTest annotation"</td>
+          <td>Add annotation to test class</td>
+        </tr>
+        <tr>
+          <td>"Bean packages: NONE" warning</td>
+          <td>Verify project-settings.xml exists, or add explicit <code>beanPackages</code></td>
+        </tr>
+        <tr>
+          <td>Spring config not found</td>
+          <td>Verify file exists, use absolute path starting with <code>/</code></td>
+        </tr>
+        <tr>
+          <td>HST root not found</td>
+          <td>Override with <code>hstRoot = "/hst:actualname"</code></td>
+        </tr>
+        <tr>
+          <td>IDE "field never assigned" warning</td>
+          <td>Use parameter injection (recommended) or add <code>@SuppressWarnings("unused")</code></td>
+        </tr>
+      </table>
+    </section>
+
+  </body>
+</document>
