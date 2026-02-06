@@ -1,14 +1,14 @@
 package org.bloomreach.forge.brut.components.mock;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hippoecm.hst.core.component.HstComponentException;
 import org.hippoecm.hst.core.request.HstRequestContext;
 import org.hippoecm.hst.core.util.PathEncoder;
 
 import java.io.UnsupportedEncodingException;
 
-import static org.apache.commons.lang.CharEncoding.UTF_8;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hippoecm.hst.util.PathUtils.FULLY_QUALIFIED_URL_PREFIXES;
 
 public class MockHstLink extends org.hippoecm.hst.mock.core.linking.MockHstLink {
@@ -52,7 +52,7 @@ public class MockHstLink extends org.hippoecm.hst.mock.core.linking.MockHstLink 
             String result = null;
             for (String prefix : FULLY_QUALIFIED_URL_PREFIXES) {
                 if (getPath() != null && getPath().startsWith(prefix)) {
-                    result = PathEncoder.encode(getPath(), UTF_8, FULLY_QUALIFIED_URL_PREFIXES);
+                    result = PathEncoder.encode(getPath(), UTF_8.name(), FULLY_QUALIFIED_URL_PREFIXES);
                 }
             }
             return result;

@@ -1,6 +1,6 @@
 package org.bloomreach.forge.brut.components;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.bloomreach.forge.brut.common.repository.utils.NodeTypeUtils;
 import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
