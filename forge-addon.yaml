@@ -25,4 +25,4 @@ documentation:
 installation:
   target:
   - site
-  verification: Tests run with @BrxmComponentTest, @BrxmPageModelTest, or @BrxmJaxrsTest
+  verification: "Tests run with @BrxmComponentTest, @BrxmPageModelTest, or @BrxmJaxrsTest"
