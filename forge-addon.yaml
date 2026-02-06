@@ -1,0 +1,29 @@
+id: brut
+name: Bloomreach Unit Testing Library
+version: 5.1.1-SNAPSHOT
+description: Bloomreach Unit Testing Library for BrXM Delivery Tier
+repository:
+  url: https://github.com/bloomreach-forge/brut
+  branch: master
+publisher:
+  name: bloomreach-forge
+  type: community
+category: developer-tools
+pluginTier: forge-addon
+compatibility:
+  brxm:
+    min: 16.0.0
+artifacts:
+- type: maven-lib
+  maven:
+    groupId: org.bloomreach.forge.brut
+    artifactId: brut
+    version: 5.1.1-SNAPSHOT
+documentation:
+- type: site
+  url: https://bloomreach-forge.github.io/brut/
+installation:
+  target:
+  - site
+  verification: Tests compile and run with @ComponentTest or @ObjectConverterTest
+    annotations

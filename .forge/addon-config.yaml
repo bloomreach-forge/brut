@@ -1,0 +1,21 @@
+# BRUT - Bloomreach Unit Testing Library
+# Minimal config for forge-addon.yaml auto-generation
+
+category: developer-tools
+pluginTier: forge-addon
+
+compatibility:
+  brxm:
+    min: "16.0.0"
+
+repository:
+  branch: master
+
+documentation:
+  - type: site
+    url: https://bloomreach-forge.github.io/brut/
+
+installation:
+  target:
+    - site
+  verification: "Tests compile and run with @ComponentTest or @ObjectConverterTest annotations"
