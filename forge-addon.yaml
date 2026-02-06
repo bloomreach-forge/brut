@@ -25,5 +25,4 @@ documentation:
 installation:
   target:
   - site
-  verification: Tests compile and run with @ComponentTest or @ObjectConverterTest
-    annotations
+  verification: Tests run with @BrxmComponentTest, @BrxmPageModelTest, or @BrxmJaxrsTest

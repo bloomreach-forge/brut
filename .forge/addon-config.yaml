@@ -1,5 +1,5 @@
 # BRUT - Bloomreach Unit Testing Library
-# Minimal config for forge-addon.yaml auto-generation
+# Config for forge-addon.yaml auto-generation
 
 category: developer-tools
 pluginTier: forge-addon
@@ -11,6 +11,20 @@ compatibility:
 repository:
   branch: master
 
+artifacts:
+  - artifactId: brut-common
+    target: site/components
+    scope: test
+    description: "Core testing utilities and base classes"
+  - artifactId: brut-components
+    target: site/components
+    scope: test
+    description: "HST component testing support"
+  - artifactId: brut-resources
+    target: site/components
+    scope: test
+    description: "JAX-RS and Page Model API testing support"
+
 documentation:
   - type: site
     url: https://bloomreach-forge.github.io/brut/
@@ -18,4 +32,4 @@ documentation:
 installation:
   target:
     - site
-  verification: "Tests compile and run with @ComponentTest or @ObjectConverterTest annotations"
+  verification: "Tests run with @BrxmComponentTest, @BrxmPageModelTest, or @BrxmJaxrsTest"
