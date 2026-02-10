@@ -53,20 +53,20 @@ public class SiteContentBaseResolverValve extends AbstractBaseOrderableValve {
 
             ObjectBeanManager obm = requestContext.getObjectBeanManager();
             if (obm == null) {
-                LOG.warn("ObjectBeanManager not available");
+                LOG.debug("ObjectBeanManager not available");
                 return;
             }
 
             HippoBean siteContentBaseBean = (HippoBean) obm.getObject(absolutePath);
             if (siteContentBaseBean == null) {
-                LOG.warn("Could not resolve site content base bean at: {}", absolutePath);
+                LOG.debug("Could not resolve site content base bean at: {}", absolutePath);
                 return;
             }
 
             setSiteContentBaseBeanViaReflection(requestContext, siteContentBaseBean, contentPath);
             LOG.debug("Resolved site content base bean at: {}", absolutePath);
         } catch (Exception e) {
-            LOG.warn("Failed to resolve site content base bean", e);
+            LOG.debug("Failed to resolve site content base bean", e);
         }
     }
 

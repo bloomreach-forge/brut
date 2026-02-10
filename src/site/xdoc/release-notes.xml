@@ -31,6 +31,10 @@
             <th>Bloomreach Experience Manager Version</th>
           </tr>
           <tr>
+            <td>5.2.0</td>
+            <td>16.7.0</td>
+          </tr>
+          <tr>
             <td>5.1.0</td>
             <td>16.6.5</td>
           </tr>
@@ -66,6 +70,16 @@
       </subsection>
 
       <subsection name="Release Notes">
+        <h4>5.2.0</h4>
+        <ul>
+          <li><strong>Breaking:</strong> brXM 16.7.0 required — parent POM upgraded from 16.6.5</li>
+          <li><strong>Breaking:</strong> commons-lang3 migration in internal Spring config (affects <code>hst-manager.xml</code> overrides)</li>
+          <li><strong>Security:</strong> CVE-2025-48924 — CI credential hardening (heredoc quoting, Maven env syntax, fork PR skip)</li>
+          <li>Fork PR detection — CI skips build with notice instead of 401 failure</li>
+          <li>Log level normalization — operational messages downgraded from WARN to INFO/DEBUG</li>
+          <li>Javadoc scope warnings added to all test annotations</li>
+        </ul>
+
         <h4>5.1.0</h4>
         <p><strong>Quick Start Guides:</strong>
           <a href="user-guide/getting-started.html">Getting Started</a> |

@@ -12,7 +12,7 @@
     <property name="hstFilterPrefixExclusions">
       <bean class="org.hippoecm.hst.site.container.TypeDeterminedMethodInvokingFactoryBean">
         <constructor-arg value="java.lang.Object" />
-        <property name="targetClass" value="org.apache.commons.lang.StringUtils" />
+        <property name="targetClass" value="org.apache.commons.lang3.StringUtils" />
         <property name="targetMethod" value="split" />
         <property name="arguments">
           <list>
@@ -25,7 +25,7 @@
     <property name="hstFilterSuffixExclusions">
       <bean class="org.hippoecm.hst.site.container.TypeDeterminedMethodInvokingFactoryBean">
         <constructor-arg value="java.lang.Object" />
-        <property name="targetClass" value="org.apache.commons.lang.StringUtils" />
+        <property name="targetClass" value="org.apache.commons.lang3.StringUtils" />
         <property name="targetMethod" value="split" />
         <property name="arguments">
           <list>

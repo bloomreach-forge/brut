@@ -33,6 +33,7 @@ Zero-config unit testing for BrXM HST components, JAX-RS APIs, and Page Model AP
 
 | BRUT Version | brXM Version | Java | JUnit |
 |--------------|--------------|------|-------|
+| 5.2.x | 16.7+ | 17+ | 5.x |
 | 5.1.x | 16.x | 17+ | 5.x |
 | 5.0.x | 16.x | 17+ | 5.x |
 | 4.x | 15.x | 11+ | 4.x / 5.x |
@@ -66,7 +67,7 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
 
 ```xml
 <properties>
-    <brut.version>5.1.0</brut.version>
+    <brut.version>5.2.0</brut.version>
 </properties>
 ```
 
@@ -108,6 +109,8 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
     <scope>test</scope>
 </dependency>
 ```
+
+> **Warning: `<scope>test</scope>` is required.** BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented implementations. If BRUT is on the runtime classpath without test scope, its mock beans will shadow production beans and real HST endpoints will stop working. Always declare BRUT dependencies with `<scope>test</scope>`.
 
 > **Note:** JUnit 5, Mockito, and AssertJ versions are typically managed by the brXM parent pom. Only add explicit versions if not already provided by your project's dependency management.
 

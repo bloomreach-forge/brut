@@ -12,7 +12,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  fork-notice:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fork PR — build skipped
+        run: |
+          echo "::notice::This PR originates from a fork and cannot access repository secrets."
+          echo "The build requires credentials for Bloomreach's private Maven repository."
+          echo ""
+          echo "A maintainer should pull this branch locally and run:"
+          echo "  mvn -B clean install && mvn -B -f demo clean verify"
+
   build:
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
     steps:
@@ -28,26 +45,27 @@ jobs:
       - name: Configure Maven settings
         run: |
           mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml << EOF
+          cat > ~/.m2/settings.xml << 'EOF'
           <settings>
             <servers>
               <server>
                 <id>bloomreach-maven2</id>
+                <username>${env.BR_MAVEN_USERNAME}</username>
+                <password>${env.BR_MAVEN_PASSWORD}</password>
               </server>
               <server>
                 <id>bloomreach-maven2-forge</id>
+                <username>${env.BR_MAVEN_USERNAME}</username>
+                <password>${env.BR_MAVEN_PASSWORD}</password>
               </server>
               <server>
                 <id>bloomreach-maven2-enterprise</id>
-                <username>${BR_MAVEN_USERNAME}</username>
-                <password>${BR_MAVEN_PASSWORD}</password>
+                <username>${env.BR_MAVEN_USERNAME}</username>
+                <password>${env.BR_MAVEN_PASSWORD}</password>
               </server>
             </servers>
           </settings>
           EOF
-        env:
-          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
-          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Verify versions are aligned
         run: |
@@ -70,4 +88,3 @@ jobs:
         env:
           BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
-

@@ -9,6 +9,23 @@ difficulty: all-levels
 
 ## Common Setup Issues
 
+### Endpoints Not Working After Adding BRUT
+
+**Symptom:** Real HST endpoints return errors or stop responding after adding BRUT as a dependency
+
+**Cause:** BRUT is declared without `<scope>test</scope>`. BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented implementations. When these are on the runtime classpath, they shadow the real production beans.
+
+**Fix:**
+Ensure all BRUT dependencies use `<scope>test</scope>`:
+```xml
+<dependency>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut-resources</artifactId>
+    <version>${brut.version}</version>
+    <scope>test</scope>  <!-- Required - do not omit -->
+</dependency>
+```
+
 ### Missing Bean Packages
 
 **Symptom:** `NoClassDefFoundError` or beans return null properties
@@ -197,6 +214,7 @@ What are you testing?
 
 | Error | Likely Cause | Solution |
 |-------|--------------|----------|
+| Endpoints broken after adding BRUT | Missing `<scope>test</scope>` | Add `<scope>test</scope>` to all BRUT dependencies |
 | `NoSuchNodeTypeException` | CND not registered | Call `registerNodeType()` or add CND pattern to Spring config |
 | `PathNotFoundException` | Content path wrong | Verify YAML structure matches path |
 | `BeanCreationException` | Spring config error | Check XML syntax and import paths |

@@ -18,6 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
+| 16.7.0   | 5.2.0   |
 | 16.6.5   | 5.1.0   |
 | 16.6.5   | 5.0.1   |
 | 16.0.0   | 5.0.0   |
@@ -29,6 +30,28 @@
 | 12.x     | 1.x     |
 
 ## Release Notes
+
+### 5.2.0
+
+**brXM 16.7.0 Compatibility & Security Hardening**
+
+This release upgrades the brXM parent POM to 16.7.0 and includes breaking changes in transitive dependencies.
+
+#### Breaking Changes
+
+* **brXM 16.7.0 required** — Parent POM upgraded from `hippo-cms7-project:16.6.5` to `16.7.0`. Projects on 16.6.x must remain on BRUT 5.1.x.
+* **commons-lang3 migration** — Internal Spring config references updated from `org.apache.commons.lang.StringUtils` to `org.apache.commons.lang3.StringUtils`, matching brXM 16.7.0's classpath. Projects overriding `hst-manager.xml` must update their copies.
+
+#### Security
+
+* **CVE-2025-48924** — CI workflow hardened to prevent credential exposure: heredoc quoting (`<< 'EOF'`), Maven `${env.*}` syntax for server credentials, and fork PR builds are now skipped (secrets are unavailable to fork workflows).
+
+#### Improvements
+
+* **Fork PR handling** — CI detects fork PRs and skips the build with a notice, instead of failing with 401 Unauthorized on the private Maven repository.
+* **Log level normalization** — Operational messages from `ConfigServiceBootstrapStrategy`, `RuntimeTypeStubber`, `JcrNodeSynchronizer`, `ConfigServiceReflectionBridge`, and `SiteContentBaseResolverValve` downgraded from WARN to INFO/DEBUG. These are expected conditions during test bootstrap, not warnings.
+* **Log noise reduction** — `VirtualHostsService` (duplicate mount alias errors) suppressed; `HstDelegateeFilterBean` reduced from ALL to WARN.
+* **Javadoc scope warnings** — `@BrxmComponentTest`, `@BrxmJaxrsTest`, and `@BrxmPageModelTest` annotations now document the `<scope>test</scope>` requirement and the consequences of omitting it.
 
 ### 5.1.0
 

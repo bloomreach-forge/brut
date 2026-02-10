@@ -135,7 +135,7 @@ public final class ConfigServiceReflectionBridge {
                 }
                 removedPaths.add(existingPath);
                 attempts++;
-                LOG.warn("Removed existing node {} after ItemExistsException; retrying ConfigService delta.", existingPath);
+                LOG.info("Removed existing node {} after ItemExistsException; retrying ConfigService delta.", existingPath);
             } catch (Exception e) {
                 throw new RepositoryException("Failed to compute configuration delta", e);
             }

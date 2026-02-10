@@ -52,6 +52,10 @@
 </dependency>
           ]]></source>
         </div>
+        <p><strong>Warning: <code>&lt;scope&gt;test&lt;/scope&gt;</code> is required.</strong>
+           BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented
+           implementations. If BRUT is on the runtime classpath without test scope, its mock beans will shadow
+           production beans and real HST endpoints will stop working.</p>
         <p><strong>Note:</strong> Most brXM projects already include JUnit 5 via the parent POM.</p>
       </subsection>
 
