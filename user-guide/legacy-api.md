@@ -9,6 +9,8 @@ difficulty: intermediate
 
 > **Note:** This is the legacy approach using abstract base classes. For new tests, we recommend the [annotation-based API](../README.MD#annotation-based-testing-recommended) which reduces boilerplate by 66-74%.
 
+> **Warning:** BRUT must always be declared with `<scope>test</scope>`. Without test scope, BRUT's mock beans will shadow production HST beans and real endpoints will stop working. See [Troubleshooting](troubleshooting.md#endpoints-not-working-after-adding-brut) for details.
+
 For existing tests or special cases, the abstract class approach is still fully supported.
 
 ## Example with Page Model API

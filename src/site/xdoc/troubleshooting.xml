@@ -24,6 +24,24 @@
 
     <section name="Common Setup Issues">
 
+      <subsection name="Endpoints Not Working After Adding BRUT">
+        <p><strong>Symptom:</strong> Real HST endpoints return errors or stop responding after adding BRUT as a dependency</p>
+        <p><strong>Cause:</strong> BRUT is declared without <code>&lt;scope&gt;test&lt;/scope&gt;</code>.
+           BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented
+           implementations. When these are on the runtime classpath, they shadow the real production beans.</p>
+        <p><strong>Fix:</strong> Ensure all BRUT dependencies use <code>&lt;scope&gt;test&lt;/scope&gt;</code>:</p>
+        <div class="brush: xml">
+          <source><![CDATA[
+<dependency>
+    <groupId>org.bloomreach.forge.brut</groupId>
+    <artifactId>brut-resources</artifactId>
+    <version>${brut.version}</version>
+    <scope>test</scope>  <!-- Required - do not omit -->
+</dependency>
+          ]]></source>
+        </div>
+      </subsection>
+
       <subsection name="Missing Bean Packages">
         <p><strong>Symptom:</strong> <code>NoClassDefFoundError</code> or beans return null properties</p>
         <p><strong>Cause:</strong> BRUT can't find your <code>@Node</code> annotated beans</p>
@@ -163,6 +181,11 @@ void testWithParameters(DynamicComponentTest brxm) {
     <section name="Error Message Quick Reference">
       <table>
         <tr><th>Error</th><th>Likely Cause</th><th>Solution</th></tr>
+        <tr>
+          <td>Endpoints broken after adding BRUT</td>
+          <td>Missing <code>&lt;scope&gt;test&lt;/scope&gt;</code></td>
+          <td>Add <code>&lt;scope&gt;test&lt;/scope&gt;</code> to all BRUT dependencies</td>
+        </tr>
         <tr>
           <td><code>NoSuchNodeTypeException</code></td>
           <td>CND not registered</td>

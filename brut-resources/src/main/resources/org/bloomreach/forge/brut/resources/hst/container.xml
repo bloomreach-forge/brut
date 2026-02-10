@@ -21,7 +21,7 @@
 
   <bean id="containerConfiguration" class="org.hippoecm.hst.core.container.ContainerConfigurationImpl">
     <constructor-arg>
-      <bean class="org.apache.commons.configuration.PropertiesConfiguration"/>
+      <bean class="org.apache.commons.configuration2.PropertiesConfiguration"/>
     </constructor-arg>
   </bean>
 

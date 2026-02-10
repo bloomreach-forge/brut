@@ -29,6 +29,8 @@ jobs:
             <servers>
               <server>
                 <id>bloomreach-maven2</id>
+                <username>${BR_MAVEN_USERNAME}</username>
+                <password>${BR_MAVEN_PASSWORD}</password>
               </server>
               <server>
                 <id>bloomreach-maven2-forge</id>
@@ -54,6 +56,9 @@ jobs:
             echo "ERROR: Tag '${{ github.ref_name }}' does not match pom version '$POM_VERSION'"
             exit 1
           fi
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Verify demo version matches tag
         run: |
@@ -62,6 +67,9 @@ jobs:
             echo "ERROR: Tag '${{ github.ref_name }}' does not match demo pom version '$DEMO_VERSION'"
             exit 1
           fi
+        env:
+          BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
+          BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Build and test
         run: mvn -B clean install

@@ -57,7 +57,7 @@ public final class JcrNodeSynchronizer {
             if (projectSites.hasNode(sourceSite.getName())) {
                 Node targetSite = projectSites.getNode(sourceSite.getName());
                 if (!sourceSite.getPrimaryNodeType().getName().equals(targetSite.getPrimaryNodeType().getName())) {
-                    LOG.warn("Replacing site {} due to primary type mismatch (source {}, target {})",
+                    LOG.info("Replacing site {} due to primary type mismatch (source {}, target {})",
                         sourceSite.getPath(),
                         sourceSite.getPrimaryNodeType().getName(),
                         targetSite.getPrimaryNodeType().getName());
@@ -108,7 +108,7 @@ public final class JcrNodeSynchronizer {
             if (projectConfigs.hasNode(sourceConfig.getName())) {
                 Node targetConfig = projectConfigs.getNode(sourceConfig.getName());
                 if (!sourceConfig.getPrimaryNodeType().getName().equals(targetConfig.getPrimaryNodeType().getName())) {
-                    LOG.warn("Replacing configuration {} due to primary type mismatch (source {}, target {})",
+                    LOG.info("Replacing configuration {} due to primary type mismatch (source {}, target {})",
                         sourceConfig.getPath(),
                         sourceConfig.getPrimaryNodeType().getName(),
                         targetConfig.getPrimaryNodeType().getName());
@@ -210,7 +210,7 @@ public final class JcrNodeSynchronizer {
             if (target.hasNode(child.getName())) {
                 Node targetChild = target.getNode(child.getName());
                 if (!child.getPrimaryNodeType().getName().equals(targetChild.getPrimaryNodeType().getName())) {
-                    LOG.warn("Replacing {} due to primary type mismatch (source {}, target {})",
+                    LOG.info("Replacing {} due to primary type mismatch (source {}, target {})",
                         child.getPath(),
                         child.getPrimaryNodeType().getName(),
                         targetChild.getPrimaryNodeType().getName());

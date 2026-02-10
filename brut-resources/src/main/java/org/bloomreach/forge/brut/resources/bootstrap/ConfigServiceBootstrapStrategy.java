@@ -288,7 +288,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
     private void ensureChildNode(Node parent, String name, String primaryType) throws RepositoryException {
         if (!parent.hasNode(name)) {
             parent.addNode(name, primaryType);
-            LOG.warn("Injected missing node {} under {}", name, parent.getPath());
+            LOG.info("Injected missing node {} under {}", name, parent.getPath());
         }
     }
 
@@ -417,7 +417,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
         List<String> allowedRoots = resolveAllowedConfigRoots();
         int filteredDefinitions = filterConfigDefinitionsByAllowedRoots(modules, allowedRoots);
         if (filteredDefinitions > 0) {
-            LOG.warn("Removed {} config definition(s) outside allowed roots {}. " +
+            LOG.info("Removed {} config definition(s) outside allowed roots {}. " +
                     "Set -D{} to adjust or '*' to disable filtering.",
                 filteredDefinitions, allowedRoots, ALLOWED_CONFIG_ROOTS_PROPERTY);
         }
@@ -463,7 +463,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             return;
         }
         LOG.info("Loading minimal framework module from: {}", modulePath);
-        LOG.warn("Embedded minimal framework config is injected to satisfy core node types. " +
+        LOG.info("Embedded minimal framework config is injected to satisfy core node types. " +
             "Consider defining required primary types in project config for full parity.");
         ModuleImpl module = moduleReader.read(modulePath, false).getModule();
         modules.add(module);
@@ -836,7 +836,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             }
         }
         if (removed > 0) {
-            LOG.warn("Removed {} config definition(s) under {}", removed, rootPrefix);
+            LOG.info("Removed {} config definition(s) under {}", removed, rootPrefix);
         }
         return removed > 0;
     }
@@ -952,7 +952,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             LOG.debug("No HCM content sources found to import");
         }
         if (removedSources > 0) {
-            LOG.warn("Skipped {} HCM content source(s) outside allowed roots {}. " +
+            LOG.info("Skipped {} HCM content source(s) outside allowed roots {}. " +
                     "Set -D{} to adjust or '*' to disable filtering.",
                 removedSources, allowedRoots, ALLOWED_CONTENT_SOURCE_ROOTS_PROPERTY);
         }
