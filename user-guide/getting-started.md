@@ -65,6 +65,8 @@ Add the dependencies (version inherited from parent):
 </dependency>
 ```
 
+> **Warning: `<scope>test</scope>` is required.** BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented implementations. If BRUT is on the runtime classpath without test scope, its mock beans will shadow production beans and real HST endpoints will stop working. Always declare BRUT dependencies with `<scope>test</scope>`.
+
 > **Note:** JUnit 5, Mockito, and AssertJ are typically managed by the brXM parent pom. Only add explicit versions if not already provided.
 
 ## Step 2: Write Your First Test

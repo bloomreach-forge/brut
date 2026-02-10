@@ -26,6 +26,11 @@ import java.lang.annotation.Target;
 /**
  * Annotation for PageModel API tests that eliminates boilerplate configuration.
  *
+ * <p><strong>Important:</strong> BRUT must be declared with {@code <scope>test</scope>} in your POM.
+ * BRUT replaces core HST beans with test-oriented implementations. Without test scope, these mock
+ * beans will be on the runtime classpath and will shadow production beans, causing real endpoints
+ * to stop working.</p>
+ *
  * <p>Tests using this annotation automatically get:</p>
  * <ul>
  *   <li>Lifecycle management (init/destroy/beforeEach)</li>
