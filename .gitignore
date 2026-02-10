@@ -40,3 +40,6 @@ Temporary Items
 *.sassc
 
 *.tar.gz
+
+# Generated site docs (deployed via gh-pages branch)
+/docs/
