@@ -18,6 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
+| 16.7.0   | 5.3.0   |
 | 16.7.0   | 5.2.0   |
 | 16.6.5   | 5.1.0   |
 | 16.6.5   | 5.0.1   |
@@ -30,6 +31,105 @@
 | 12.x     | 1.x     |
 
 ## Release Notes
+
+### 5.3.0
+
+**Page Model API v1.0 Document Resolution + Ergonomic Content API**
+
+This release fixes silent data loss when parsing Page Model API v1.0 responses and adds helper methods that replace 4-step stream pipelines with single calls.
+
+#### Bug Fixes
+
+* **v1.0 document resolution** — `PageModelResponse` now correctly handles v1.0 responses where documents and imagesets live inside the `page` section (no separate `content` section). Previously, Jackson silently dropped the `data` field on these entries because `page` was typed `Map<String, PageComponent>`. A new `@JsonSetter("page")` splits entries by `type`: `document` and `imageset` entries route to an internal `documents` map; component entries stay in `page`.
+* **`resolveContent` v1.0 fallback** — `resolveContent(ref)` previously only checked `content` (v1.1). It now also checks the `documents` map, so `/page/`-scoped `$ref` values resolve in v1.0 responses.
+* **`hasContent()` recognizes v1.0** — Returns `true` when `documents` is non-empty, even when `content` is absent.
+* **`getComponentCount()` excludes documents/imagesets** — Counts only component entries. Documents and imagesets parsed from the v1.0 `page` map are no longer included in the count.
+
+#### New API
+
+* **`resolveModelContent(component, modelName, type)`** — Resolves a single `$ref` from a component model to a typed `Optional<T>`. Works with both `/content/` (v1.1) and `/page/` (v1.0) refs.
+* **`resolveModelContentList(component, modelName, type)`** — Resolves a list of `$ref` objects from a component model to `List<T>`. Same dual-format support.
+* **`getDocuments()`** — Exposes the parsed document/imageset map for v1.0 responses.
+
+**Before (manual 4-step pipeline):**
+```java
+List<ArticleData> articles = component.<List<Map<String, Object>>>getModel("items")
+        .stream()
+        .map(m -> PageModelMapper.INSTANCE.convertValue(m, ContentRef.class))
+        .map(pageModel::resolveContent)
+        .filter(Objects::nonNull)
+        .map(item -> item.as(ArticleData.class))
+        .toList();
+```
+
+**After (one call):**
+```java
+List<ArticleData> articles = pageModel.resolveModelContentList(component, "items", ArticleData.class);
+```
+
+#### Backward Compatibility
+
+| Caller | Impact |
+|--------|--------|
+| `setPage(Map<String, PageComponent>)` | Preserved — programmatic callers unaffected; `documents` stays empty |
+| `getPage()` | Returns only components — **behavioural change for v1.0 responses**: documents/imagesets no longer appear here (this is the correct behaviour) |
+| `resolveContent()` | New fallback only — existing `/content/` behaviour unchanged |
+| `getComponentCount()` | Counts only components — **behavioural change for v1.0 responses** (fix, not regression) |
+
+#### Diagnostics Package (New)
+
+New `org.bloomreach.forge.brut.resources.diagnostics` package. Bare `AssertionError` failures now include structured, actionable output pointing to the exact YAML file or configuration node that needs fixing.
+
+**`PageModelAssert`** — Fluent assertions that embed diagnostic output on failure:
+
+```java
+PageModelAssert.assertThat(pageModel, "/news", "mysite")
+    .hasPage("newsoverview")
+    .hasComponent("NewsList")
+    .containerNotEmpty("main");
+```
+
+Failure output example:
+```
+[ERROR] Expected page 'newsoverview' but got 'pagenotfound'
+
+RECOMMENDATIONS:
+   • Add sitemap entry in: hst/configurations/mysite/sitemap.yaml for path: /news
+   • Ensure sitemap entry points to: hst:pages/newsoverview
+   • Create page configuration in: hst/configurations/mysite/pages/newsoverview.yaml
+   • Example sitemap entry:
+     /news:
+       jcr:primaryType: hst:sitemapitem
+       hst:componentconfigurationid: hst:pages/newsoverview
+```
+
+| Assertion | What it diagnoses |
+|-----------|------------------|
+| `hasPage(name)` | `pagenotfound`, wrong page — sitemap and page config guidance |
+| `hasComponent(name)` | Missing component — lists all available component names |
+| `containerNotEmpty(name)` | Empty container — workspace reference and child component guidance |
+| `containerHasMinChildren(name, n)` | Insufficient children count |
+| `hasContent()` | No content items in response |
+| `componentHasModel(comp, model)` | Missing model on a named component |
+
+**`PageModelDiagnostics`** — Manual diagnostic calls returning `DiagnosticResult` without failing the test:
+- `diagnosePageNotFound(expectedPage, path, pageModel)`
+- `diagnoseComponentNotFound(name, requestUri, pageModel)`
+- `diagnoseEmptyContainer(containerName, pageModel)`
+- `diagnoseEmptyResponse(requestUri)`
+
+**`ConfigurationDiagnostics`** — Diagnoses `ConfigService` bootstrap failures. Walks the full exception chain and identifies:
+- YAML parse errors — with file name, line number, and column
+- Circular module dependencies — suggests checking `after:` in `hcm-module.yaml`
+- Duplicate node names — identifies conflicting definitions
+- Missing property definitions — names the property, namespace, and node type
+- Invalid node types — names the type and namespace prefix
+
+**`ConfigErrorParser`** — Extracts structured data from `ConfigurationRuntimeException` messages: JCR paths, YAML file references, node types, property issues.
+
+**`DiagnosticResult`** — Java record: `severity()`, `message()`, `recommendations()`. `toString()` formats with `[ERROR]`/`[WARN]`/`[OK]` prefix and bullet-pointed recommendations.
+
+**`DiagnosticSeverity`** — `SUCCESS`, `INFO`, `WARNING`, `ERROR`.
 
 ### 5.2.0
 

@@ -89,8 +89,6 @@ public class ConfigServiceRepository extends AbstractBrutRepository {
             );
         }
         this.bootstrapStrategy = new ConfigServiceBootstrapStrategy();
-
-        LOG.info("ConfigServiceRepository initialized for project: {}", this.projectNamespace);
     }
 
     public void setAdditionalRepositoryModules(List<String> additionalRepositoryModules) {

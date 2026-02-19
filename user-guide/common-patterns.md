@@ -2,8 +2,8 @@
 
 <!-- AI-METADATA
 test-types: [component, pagemodel, jaxrs]
-patterns: [mocking, assertions, navigation, infrastructure, naming]
-keywords: [component, parameters, attributes, pagemodel, fluent, pojo, mapping]
+patterns: [mocking, assertions, navigation, infrastructure, naming, content-resolution]
+keywords: [component, parameters, attributes, pagemodel, fluent, pojo, mapping, v1, v1.0, documents, resolveModelContent, resolveModelContentList]
 difficulty: intermediate
 -->
 
@@ -169,12 +169,63 @@ void testContainerStructure() throws Exception {
 }
 ```
 
+## Resolving Document References
+
+`PageModelResponse` provides ergonomic helpers for resolving `$ref` document models.
+These work with both v1.1 (`/content/` section) and v1.0 (`/page/` section) responses transparently.
+
+**Single document reference → typed Optional:**
+```java
+@Test
+void testHeroBannerDocument() throws Exception {
+    PageModelResponse pageModel = fetchPageModel("/homepage");
+
+    PageComponent heroBanner = pageModel.findComponentByName("HeroBanner").orElseThrow();
+
+    // Resolves the "document" model $ref to a typed POJO — one call, no pipeline
+    HeroBannerContent content = pageModel
+            .resolveModelContent(heroBanner, "document", HeroBannerContent.class)
+            .orElseThrow();
+
+    assertThat(content.getTitle()).isEqualTo("Welcome");
+    assertThat(content.getDescription()).contains("expected text");
+}
+```
+
+**List of document references → typed List:**
+```java
+@Test
+void testNewsListItems() throws Exception {
+    PageModelResponse pageModel = fetchPageModel("/news");
+
+    PageComponent newsList = pageModel.findComponentByName("NewsList").orElseThrow();
+
+    // Resolves the "items" model (array of $ref objects) to a typed list — no stream boilerplate
+    List<ArticleData> articles = pageModel.resolveModelContentList(newsList, "items", ArticleData.class);
+
+    assertThat(articles).isNotEmpty();
+    assertThat(articles.get(0).getTitle()).isNotBlank();
+}
+```
+
+**Before (manual pipeline — now replaced):**
+```java
+// Old 4-step approach — replaced by resolveModelContentList
+List<ArticleData> articles = newsList.<List<Map<String, Object>>>getModel("items")
+        .stream()
+        .map(m -> PageModelMapper.INSTANCE.convertValue(m, ContentRef.class))
+        .map(pageModel::resolveContent)
+        .filter(Objects::nonNull)
+        .map(item -> item.as(ArticleData.class))
+        .toList();
+```
+
 ## POJO Mapping for Content Assertions
 
-Create simple POJOs to map model content for easier assertions:
+Create simple POJOs to map document data for typed assertions:
 
 ```java
-// POJO for HeroBanner content
+// POJO for HeroBanner document data
 public class HeroBannerContent {
     private String title;
     private String description;
@@ -189,30 +240,63 @@ public class HeroBannerContent {
     }
 }
 
-// POJO for PetProfile content
-public class PetProfileContent {
-    private String petName;
-    private String petBreed;
-    private int petAge;
-    private String collarStatus;
-    private int batteryLevel;
+// POJO for article list items
+public class ArticleData {
+    private String title;
+    private String introduction;
     // Getters and setters...
 }
 
-// Usage in tests
+// Usage — resolveModelContent handles $ref resolution and POJO mapping in one call
 @Test
 void testContentMapping() throws Exception {
     PageModelResponse pageModel = fetchPageModel("/dashboard");
 
     PageComponent petProfile = pageModel.findComponentByName("PetProfile").orElseThrow();
-    Map<String, Object> model = petProfile.getModel("petProfile");
 
-    PetProfileContent content = MAPPER.convertValue(model, PetProfileContent.class);
+    PetProfileContent content = pageModel
+            .resolveModelContent(petProfile, "document", PetProfileContent.class)
+            .orElseThrow();
 
     assertThat(content.getPetName()).isEqualTo("Max");
     assertThat(content.getPetBreed()).isEqualTo("Golden Retriever");
     assertThat(content.getPetAge()).isEqualTo(3);
     assertThat(content.getCollarStatus()).isEqualTo("connected");
+}
+```
+
+## Diagnostic Assertions Pattern
+
+Use `PageModelAssert` instead of bare `assertTrue`/`assertNotNull` to get actionable failure output that points to the YAML entry or configuration node that needs fixing:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.PageModelAssert;
+
+@Test
+void testPageStructureWithDiagnostics() throws Exception {
+    PageModelResponse pageModel = fetchPageModel("/news");
+
+    // Fails with sitemap/page config recommendations, not a bare AssertionError
+    PageModelAssert.assertThat(pageModel, "/news", "mysite")
+        .hasPage("newsoverview")
+        .hasComponent("NewsList")
+        .containerNotEmpty("main");
+}
+```
+
+Retrieve a component after asserting it exists:
+
+```java
+@Test
+void testComponentModels() throws Exception {
+    PageModelResponse pageModel = fetchPageModel("/homepage");
+
+    // Asserts component exists and returns it — one call instead of two
+    PageComponent heroBanner = PageModelAssert.assertThat(pageModel)
+        .componentHasModel("HeroBanner", "document")
+        .getComponent("HeroBanner");
+
+    assertThat(heroBanner.getComponentClass()).isNotBlank();
 }
 ```
 

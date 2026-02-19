@@ -86,9 +86,6 @@ public abstract class AbstractBrutRepository extends BrxmTestingRepository {
             ClassLoader cl = this.getClass().getClassLoader();
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
             Resource[] resources = resolver.getResources(pattern);
-            for (Resource resource : resources) {
-                LOG.debug("RESOURCE: {}", resource.getFilename());
-            }
             return resources;
         } catch (Exception e) {
             throw new RepositoryException(e);

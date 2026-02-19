@@ -559,8 +559,49 @@ class MyPageModelTest {
         assertThat(pageModel.getLinks()).containsKey("self");
         assertThat(pageModel.getComponentCount()).isGreaterThan(0);
     }
+
+    @Test
+    void testErgonomicContentResolution() throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
+
+        PageComponent list = pageModel.findComponentByName("NewsList").orElseThrow();
+
+        // Single $ref model → typed Optional (v1.0 /page/ refs and v1.1 /content/ refs both work)
+        Optional<ArticleData> featured = pageModel.resolveModelContent(list, "document", ArticleData.class);
+        featured.ifPresent(a -> assertThat(a.getTitle()).isNotBlank());
+
+        // List of $ref models → typed List (same dual-format support)
+        List<ArticleData> articles = pageModel.resolveModelContentList(list, "items", ArticleData.class);
+        assertThat(articles).isNotEmpty();
+    }
 }
 ```
+
+**`PageModelResponse` API Summary:**
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `getRootComponent()` | `PageComponent` | Root of the component tree |
+| `resolveComponent(ref)` | `PageComponent` | Resolves a `$ref` to a component |
+| `resolveContent(ref)` | `ContentItem` | Resolves a `$ref` to a document/imageset. Checks `content` (v1.1) then `documents` (v1.0) |
+| `resolveModelContent(comp, name, type)` | `Optional<T>` | Resolves a single `$ref` model to a typed optional |
+| `resolveModelContentList(comp, name, type)` | `List<T>` | Resolves a list of `$ref` models to a typed list |
+| `findComponentByName(name)` | `Optional<PageComponent>` | Searches the entire component tree by name |
+| `findComponentsByType(type)` | `List<PageComponent>` | Finds all components matching a type string |
+| `getChildComponents(parent)` | `List<PageComponent>` | Direct children of a container component |
+| `getComponentDocument(comp)` | `Optional<ContentItem>` | Convenience wrapper: resolves the `document` model ref |
+| `hasContent()` | `boolean` | `true` if `content` (v1.1) or `documents` (v1.0) is non-empty |
+| `getComponentCount()` | `int` | Count of components only — excludes documents/imagesets |
+| `getDocuments()` | `Map<String, ContentItem>` | Documents and imagesets parsed from v1.0 `page` section |
+| `getChannel()` | `Map<String, Object>` | Channel metadata map |
+| `getChannelProperty(key)` | `T` | Typed access to a channel property |
+| `getMeta(key)` | `T` | Typed access to a response metadata value |
+
+**v1.0 vs v1.1 Format Support:**
+
+Page Model API v1.1 puts documents in a separate `content` section. v1.0 puts everything — components, documents, and imagesets — inside the `page` section, discriminated by `"type"`. Both formats are handled transparently: `resolveContent`, `resolveModelContent`, and `resolveModelContentList` check both locations automatically.
 
 ### 8. Production Config (ConfigService)
 
@@ -860,6 +901,19 @@ brut-resources:
     - BrxmJaxrsTest (annotation)
     - DynamicPageModelTest (test class)
     - DynamicJaxrsTest (test class)
+  org.bloomreach.forge.brut.resources.pagemodel
+    - PageModelResponse (response wrapper — parse, navigate, resolve)
+    - PageComponent (component node with models, children, refs)
+    - ContentItem (document/imageset node with typed data access)
+    - ContentRef ($ref wrapper — getId(), getSection())
+    - Link (link object)
+  org.bloomreach.forge.brut.resources.diagnostics
+    - PageModelAssert (fluent assertions with diagnostic output on failure)
+    - PageModelDiagnostics (manual diagnose* methods returning DiagnosticResult)
+    - ConfigurationDiagnostics (walks exception chains from ConfigService failures)
+    - ConfigErrorParser (extracts path, YAML file, node type, property from error messages)
+    - DiagnosticResult (record: severity + message + recommendations, formatted toString)
+    - DiagnosticSeverity (SUCCESS, INFO, WARNING, ERROR)
   org.bloomreach.forge.brut.resources.bootstrap
     - ConfigServiceBootstrapStrategy (orchestrator)
     - RuntimeTypeStubber (namespace/nodetype stubbing)
