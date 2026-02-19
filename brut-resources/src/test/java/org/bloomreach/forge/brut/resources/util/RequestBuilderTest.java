@@ -246,6 +246,31 @@ class RequestBuilderTest {
     }
 
     @Test
+    @DisplayName("executeAsPageModel() throws AssertionError with diagnostic when response is null")
+    void executeAsPageModel_nullResponse_throwsAssertionErrorWithDiagnostic() {
+        RequestBuilder nullResponseBuilder = new RequestBuilder(mockRequest, () -> null);
+
+        AssertionError error = assertThrows(AssertionError.class, () ->
+            nullResponseBuilder.get("/site/fr/resourceapi").executeAsPageModel()
+        );
+
+        assertTrue(error.getMessage().contains("/site/fr/resourceapi"));
+        assertTrue(error.getMessage().toLowerCase().contains("component"));
+    }
+
+    @Test
+    @DisplayName("executeAsPageModel() throws AssertionError with diagnostic when response is empty")
+    void executeAsPageModel_emptyResponse_throwsAssertionErrorWithDiagnostic() {
+        RequestBuilder emptyResponseBuilder = new RequestBuilder(mockRequest, () -> "");
+
+        AssertionError error = assertThrows(AssertionError.class, () ->
+            emptyResponseBuilder.get("/site/fr/resourceapi").executeAsPageModel()
+        );
+
+        assertTrue(error.getMessage().toLowerCase().contains("component"));
+    }
+
+    @Test
     @DisplayName("executeAs() deserializes JSON response to specified type")
     void testExecuteAsDeserializesJson() throws JsonProcessingException {
         String jsonResponse = "{\"name\":\"John\",\"age\":30}";

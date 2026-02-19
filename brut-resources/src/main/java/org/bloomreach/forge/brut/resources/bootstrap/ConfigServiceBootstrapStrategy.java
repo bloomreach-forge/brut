@@ -3,6 +3,9 @@ package org.bloomreach.forge.brut.resources.bootstrap;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.bloomreach.forge.brut.common.project.ProjectSettings;
+import org.bloomreach.forge.brut.resources.diagnostics.ConfigurationDiagnostics;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticResult;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticSeverity;
 import org.onehippo.cm.engine.ConfigurationConfigService;
 import org.onehippo.cm.engine.JcrContentProcessor;
 import org.onehippo.cm.model.definition.ActionType;
@@ -161,6 +164,15 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
         } catch (Exception e) {
             LOG.error("ConfigService bootstrap failed for project: {}", projectNamespace, e);
+
+            // Add diagnostic logging
+            DiagnosticResult diagnostic = ConfigurationDiagnostics.diagnoseConfigurationError(e);
+            if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
+                LOG.error("\n{}", diagnostic);
+            } else if (diagnostic.severity() == DiagnosticSeverity.WARNING) {
+                LOG.warn("\n{}", diagnostic);
+            }
+
             throw new RepositoryException("Failed to bootstrap using ConfigurationConfigService", e);
         }
     }
@@ -253,11 +265,11 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             for (String suffix : paths) {
                 String fullPath = root + suffix;
                 if (!session.nodeExists(fullPath)) {
-                    LOG.info("Workspace diagnostic: missing {}", fullPath);
+                    LOG.debug("Workspace diagnostic: missing {}", fullPath);
                     continue;
                 }
                 Node node = session.getNode(fullPath);
-                LOG.info("Workspace diagnostic: {} (children: {})", fullPath, countChildNodes(node));
+                LOG.debug("Workspace diagnostic: {} (children: {})", fullPath, countChildNodes(node));
             }
         }
     }
@@ -288,7 +300,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
     private void ensureChildNode(Node parent, String name, String primaryType) throws RepositoryException {
         if (!parent.hasNode(name)) {
             parent.addNode(name, primaryType);
-            LOG.info("Injected missing node {} under {}", name, parent.getPath());
+            LOG.debug("Injected missing node {} under {}", name, parent.getPath());
         }
     }
 
@@ -403,7 +415,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
                 continue;
             }
 
-            LOG.info("  Loading module from: {}", moduleDescriptor);
+            LOG.debug("  Loading module from: {}", moduleDescriptor);
             String moduleName = resolveRepositoryModuleName(moduleDescriptor, repositoryDataModule);
             String siteName = siteModuleNames.contains(moduleName) ? projectSiteName : null;
             if (siteName != null) {
@@ -411,7 +423,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             }
             ModuleImpl module = moduleReader.read(moduleDescriptor, false, siteName, null).getModule();
             modules.add(module);
-            LOG.info("  ✓ Loaded module from: {}", moduleDescriptor);
+            LOG.info("  Loaded module from: {}", moduleDescriptor);
         }
 
         List<String> allowedRoots = resolveAllowedConfigRoots();
@@ -427,10 +439,10 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
         addStubGroups(model, stubGroups);
         modules.forEach(model::addModule);
 
-        LOG.info("Building configuration model from {} module(s)...", modules.size());
+        LOG.debug("Building configuration model from {} module(s)...", modules.size());
         ConfigurationModelImpl builtModel = buildModelOnce(model, modules, stubGroups);
 
-        LOG.info("✓ Successfully built model with explicit modules only (framework modules NOT scanned)");
+        LOG.debug("Successfully built model with explicit modules only (framework modules NOT scanned)");
         return new LoadedModules(builtModel, List.copyOf(modules));
     }
 
@@ -462,8 +474,8 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             LOG.debug("No minimal framework module resource found on classpath");
             return;
         }
-        LOG.info("Loading minimal framework module from: {}", modulePath);
-        LOG.info("Embedded minimal framework config is injected to satisfy core node types. " +
+        LOG.debug("Loading minimal framework module from: {}", modulePath);
+        LOG.debug("Embedded minimal framework config is injected to satisfy core node types. " +
             "Consider defining required primary types in project config for full parity.");
         ModuleImpl module = moduleReader.read(modulePath, false).getModule();
         modules.add(module);
@@ -565,7 +577,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
         // Fall back to classpath scanning only if no explicit modules provided
         ClassLoader classLoader = context.getClassLoader();
-        LOG.info("Finding test module descriptors (target/test-classes or build/resources/test)...");
+        LOG.debug("Finding test module descriptors (target/test-classes or build/resources/test)...");
 
         Enumeration<URL> resources = classLoader.getResources(HCM_MODULE_DESCRIPTOR);
         while (resources.hasMoreElements()) {
@@ -575,9 +587,9 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
                  moduleUrl.getPath().contains("/build/resources/test/"))) {
                 Path moduleDescriptorPath = Paths.get(moduleUrl.toURI());
                 descriptors.add(moduleDescriptorPath.toAbsolutePath().normalize());
-                LOG.info("✓ Found test module descriptor at: {}", moduleDescriptorPath);
+                LOG.info("Found test module descriptor at: {}", moduleDescriptorPath);
             } else {
-                LOG.debug("✗ Skipping framework/JAR module: {}", moduleUrl);
+                LOG.debug("Skipping framework/JAR module: {}", moduleUrl);
             }
         }
 
@@ -614,7 +626,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             ProjectImpl project = group.addProject(groupName + "-stub");
             project.addModule(groupName + "-stub");
             model.addGroup(group);
-            LOG.info("Added stub group '{}' to satisfy dependency ordering", groupName);
+            LOG.debug("Added stub group '{}' to satisfy dependency ordering", groupName);
         }
     }
 
@@ -836,7 +848,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             }
         }
         if (removed > 0) {
-            LOG.info("Removed {} config definition(s) under {}", removed, rootPrefix);
+            LOG.debug("Removed {} config definition(s) under {}", removed, rootPrefix);
         }
         return removed > 0;
     }

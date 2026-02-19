@@ -2,8 +2,8 @@
 
 <!-- AI-METADATA
 test-types: [component, pagemodel, jaxrs]
-patterns: [debugging, errors, fixes]
-keywords: [troubleshooting, error, null, exception, setup, debug, logging]
+patterns: [debugging, errors, fixes, diagnostics, assertions]
+keywords: [troubleshooting, error, null, exception, setup, debug, logging, diagnostics, PageModelAssert, ConfigurationDiagnostics]
 difficulty: all-levels
 -->
 
@@ -310,6 +310,131 @@ void setUp() {
     component.init(null, brxm.getComponentConfiguration());
 }
 ```
+
+---
+
+---
+
+## Diagnostics API
+
+BRUT provides structured diagnostics that replace bare `AssertionError` failures with actionable output pointing to the exact YAML file or configuration entry that needs fixing.
+
+### `PageModelAssert` — Fluent Assertions
+
+Drop-in replacement for `assertTrue`/`assertNotNull` on `PageModelResponse`:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.PageModelAssert;
+
+@Test
+void testNewsPage() throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/news")
+        .executeAsPageModel();
+
+    // Each step fails with targeted recommendations if the condition isn't met
+    PageModelAssert.assertThat(pageModel, "/news", "mysite")
+        .hasPage("newsoverview")
+        .hasComponent("NewsList")
+        .containerNotEmpty("main");
+}
+```
+
+Failure example for `hasPage("newsoverview")`:
+```
+[ERROR] Expected page 'newsoverview' but got 'pagenotfound'
+
+RECOMMENDATIONS:
+   • Add sitemap entry in: hst/configurations/mysite/sitemap.yaml for path: /news
+   • Ensure sitemap entry points to: hst:pages/newsoverview
+   • Create page configuration in: hst/configurations/mysite/pages/newsoverview.yaml
+   • Example sitemap entry:
+     /news:
+       jcr:primaryType: hst:sitemapitem
+       hst:componentconfigurationid: hst:pages/newsoverview
+```
+
+Failure example for `hasComponent("NewsList")`:
+```
+[ERROR] Component 'NewsList' not found in PageModel
+
+RECOMMENDATIONS:
+   • Available components in PageModel: footer, header, homepage, main
+   • Verify component name spelling and case sensitivity
+   • Check container references (hst:referencecomponent paths)
+```
+
+**All assertion methods:**
+
+| Method | What it checks | Diagnostic on failure |
+|--------|---------------|----------------------|
+| `hasPage(name)` | Root component name matches | Sitemap + page config YAML guidance |
+| `hasComponent(name)` | Component exists by name | Lists all available component names |
+| `containerNotEmpty(name)` | Container has children | Workspace reference + child component guidance |
+| `containerHasMinChildren(name, n)` | At least `n` children | Child count vs expected |
+| `hasContent()` | `content` or `documents` map is non-empty | Generic content check |
+| `componentHasModel(comp, model)` | Component has named model | Model name + component context |
+| `getComponent(name)` | Asserts + returns `PageComponent` | Same as `hasComponent` |
+
+**Factory methods:**
+```java
+// With request path and channel (recommended — gives better sitemap advice)
+PageModelAssert.assertThat(pageModel, "/news", "mysite")
+
+// Without context (path defaults to "/", channel to "unknown")
+PageModelAssert.assertThat(pageModel)
+```
+
+### `PageModelDiagnostics` — Manual Diagnostic Calls
+
+Use when you want the diagnostic result without immediately failing:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.PageModelDiagnostics;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticSeverity;
+
+DiagnosticResult result = PageModelDiagnostics.diagnoseComponentNotFound(
+    "NewsList", "/site/resourceapi/news", pageModel);
+
+if (result.severity() == DiagnosticSeverity.ERROR) {
+    log.warn("Diagnostic: {}", result);  // Log rather than fail
+}
+```
+
+Available methods:
+
+| Method | Use when |
+|--------|----------|
+| `diagnosePageNotFound(page, path, pm)` | Root component doesn't match expected name |
+| `diagnoseComponentNotFound(name, uri, pm)` | `findComponentByName` returns empty |
+| `diagnoseEmptyContainer(name, pm)` | `getChildComponents` returns empty list |
+| `diagnoseEmptyResponse(uri)` | Page Model API returns empty string |
+
+### `ConfigurationDiagnostics` — Bootstrap Failure Diagnostics
+
+Wraps exceptions from `ConfigService` bootstrap to give targeted YAML/CND recommendations:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.ConfigurationDiagnostics;
+
+try {
+    repository.init();
+} catch (Exception e) {
+    DiagnosticResult result = ConfigurationDiagnostics.diagnoseConfigurationError(e);
+    throw new RuntimeException(result.toString(), e);
+}
+```
+
+Recognises and explains:
+
+| Exception type | Output |
+|----------------|--------|
+| `ParserException` | File name + line/column of the YAML syntax error |
+| `CircularDependencyException` | Which `after:` declarations cause the cycle |
+| `DuplicateNameException` | Conflicting node path across YAML files |
+| `ConfigurationRuntimeException` (property) | Property name, namespace, and node type |
+| `ConfigurationRuntimeException` (node type) | Type name and namespace prefix |
+| Any other exception | Generic recommendations + class name |
 
 ---
 

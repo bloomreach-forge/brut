@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bloomreach.forge.brut.resources.MockHstRequest;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticResult;
+import org.bloomreach.forge.brut.resources.diagnostics.PageModelDiagnostics;
 import org.bloomreach.forge.brut.resources.pagemodel.PageModelResponse;
 
 import jakarta.ws.rs.HttpMethod;
@@ -285,6 +287,10 @@ public class RequestBuilder {
      */
     public PageModelResponse executeAsPageModel() throws JsonProcessingException {
         String json = execute();
+        if (json == null || json.isBlank()) {
+            DiagnosticResult diagnostic = PageModelDiagnostics.diagnoseEmptyResponse(hstRequest.getRequestURI());
+            throw new AssertionError(diagnostic.toString());
+        }
         return PageModelResponse.parse(json);
     }
 

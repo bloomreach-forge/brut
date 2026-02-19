@@ -310,7 +310,7 @@ group:
 
 ### "Module descriptor not found: .../META-INF/META-INF/hcm-module.yaml"
 
-**Cause**: Bug in path resolution (fixed in 5.1.0-SNAPSHOT)
+**Cause**: Bug in path resolution (fixed in 5.1.0)
 
 **Fix**: Upgrade to latest version
 

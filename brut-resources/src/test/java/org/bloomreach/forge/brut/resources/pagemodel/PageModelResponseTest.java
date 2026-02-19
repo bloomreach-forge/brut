@@ -268,6 +268,84 @@ class PageModelResponseTest {
         assertEquals("Discover Amazing Content", banner.getSubtitle());
     }
 
+    private static final String V1_PAGE_MODEL = """
+            {
+              "root": { "$ref": "/page/uid" },
+              "page": {
+                "uid": {
+                  "type": "component",
+                  "name": "myComp",
+                  "models": {
+                    "document": { "$ref": "/page/udoc1" },
+                    "items": [ { "$ref": "/page/udoc1" } ]
+                  }
+                },
+                "udoc1": { "type": "document", "data": { "title": "Hello" }, "links": { "site": { "type": "internal" } } },
+                "uimg1": { "type": "imageset", "data": { "fileName": "cat.jpg" }, "links": {} }
+              }
+            }
+            """;
+
+    @Test
+    void resolveContent_v1PageDocumentRef_returnsContentItem() throws Exception {
+        PageModelResponse response = PageModelResponse.parse(V1_PAGE_MODEL);
+        ContentRef ref = new ContentRef();
+        ref.setRef("/page/udoc1");
+
+        ContentItem item = response.resolveContent(ref);
+
+        assertNotNull(item);
+        assertEquals("Hello", item.getDataField("title"));
+    }
+
+    @Test
+    void resolveContent_v1ImagesetRef_returnsContentItem() throws Exception {
+        PageModelResponse response = PageModelResponse.parse(V1_PAGE_MODEL);
+        ContentRef ref = new ContentRef();
+        ref.setRef("/page/uimg1");
+
+        ContentItem item = response.resolveContent(ref);
+
+        assertNotNull(item);
+        assertEquals("cat.jpg", item.getDataField("fileName"));
+    }
+
+    @Test
+    void hasContent_v1PageDocuments_returnsTrue() throws Exception {
+        PageModelResponse response = PageModelResponse.parse(V1_PAGE_MODEL);
+
+        assertTrue(response.hasContent());
+    }
+
+    @Test
+    void getComponentCount_v1_excludesDocumentsAndImagesets() throws Exception {
+        PageModelResponse response = PageModelResponse.parse(V1_PAGE_MODEL);
+
+        assertEquals(1, response.getComponentCount());
+    }
+
+    @Test
+    void resolveModelContent_singleRef_returnsTypedOptional() throws Exception {
+        PageModelResponse response = PageModelResponse.parse(V1_PAGE_MODEL);
+        PageComponent component = response.getRootComponent();
+
+        Optional<ItemData> result = response.resolveModelContent(component, "document", ItemData.class);
+
+        assertTrue(result.isPresent());
+        assertEquals("Hello", result.get().getTitle());
+    }
+
+    @Test
+    void resolveModelContentList_returnsTypedList() throws Exception {
+        PageModelResponse response = PageModelResponse.parse(V1_PAGE_MODEL);
+        PageComponent component = response.getRootComponent();
+
+        List<ItemData> results = response.resolveModelContentList(component, "items", ItemData.class);
+
+        assertEquals(1, results.size());
+        assertEquals("Hello", results.get(0).getTitle());
+    }
+
     /**
      * Test POJO for banner document conversion.
      */
@@ -319,6 +397,18 @@ class PageModelResponseTest {
 
         public void setUrl(String url) {
             this.url = url;
+        }
+    }
+
+    public static class ItemData {
+        private String title;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
         }
     }
 }
