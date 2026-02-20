@@ -100,9 +100,8 @@ jobs:
           BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
-      - name: Commit site to master
+      - name: Deploy site to gh-pages
         run: |
-          # Preserve generated docs
           if [ ! -d "docs" ]; then
             echo "ERROR: Site build did not produce docs/ directory"
             exit 1
@@ -111,13 +110,13 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin master
-          git checkout master
+          # Switch to gh-pages (create if needed)
+          git fetch origin gh-pages:gh-pages 2>/dev/null || git checkout --orphan gh-pages
+          git checkout gh-pages
 
-          # Restore generated docs
-          rm -rf docs/
-          cp -r /tmp/site-docs/ docs/
-
-          git add docs/
+          # Replace site content
+          git rm -rf . 2>/dev/null || true
+          cp -r /tmp/site-docs/* .
+          git add -A
           git diff --staged --quiet || git commit -m "releasing ${{ github.ref_name }}: regenerate docs"
-          git push origin master
+          git push origin gh-pages
