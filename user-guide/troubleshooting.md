@@ -95,6 +95,24 @@ void setUp() throws RepositoryException {
 }
 ```
 
+### Test Not Picking Up YAML Changes in IntelliJ
+
+**Symptom:** Editing a YAML file and re-running a test in IntelliJ still uses the old content, as if the change never happened. Running `mvn test` works correctly.
+
+**Cause:** IntelliJ's incremental build only recompiles changed `.java` files. A YAML edit alone does not trigger the resource copy step, so `target/test-classes` keeps the stale file.
+
+**Fix (recommended — applies globally):**
+
+`⌘,` → search **"Maven"** → **Build Tools → Maven → Runner** → enable **"Delegate IDE build/run actions to Maven"**
+
+IntelliJ will then invoke `mvn test` under the hood, which always runs `process-test-resources` before executing tests.
+
+**Fix (per run configuration):**
+
+1. Run the test once so the configuration exists
+2. Top toolbar → run config dropdown → **Edit Configurations...**
+3. Select your test config → **Before launch** section → **+** → **Build** → OK
+
 ---
 
 ## Runtime Issues
@@ -222,6 +240,7 @@ What are you testing?
 | `NoClassDefFoundError` | Missing bean package | Add to `beanPackages` parameter |
 | `UnsupportedOperationException` | Method not mocked | Mock the component parameter interface |
 | `InvalidItemStateException` | Session not saved | Call `brxm.recalculateRepositoryPaths()` after import |
+| Test ignores YAML edits in IntelliJ | IntelliJ skips resource copy on incremental build | Delegate builds to Maven or add a Build step to the run config |
 
 ---
 

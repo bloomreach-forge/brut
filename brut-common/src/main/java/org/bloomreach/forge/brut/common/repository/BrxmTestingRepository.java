@@ -22,6 +22,7 @@ public class BrxmTestingRepository implements Repository, AutoCloseable {
     private final RepositoryImpl originalRepository;
     private final Repository repository;
     private final File repositoryFolder;
+    private boolean managed = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(BrxmTestingRepository.class);
 
@@ -37,9 +38,21 @@ public class BrxmTestingRepository implements Repository, AutoCloseable {
         return "repository.xml";
     }
 
+    public void setManaged(boolean managed) {
+        this.managed = managed;
+    }
+
     public void shutdown() throws IOException {
         originalRepository.shutdown();
         FileUtils.deleteDirectory(repositoryFolder);
+    }
+
+    public void forceClose() {
+        try {
+            shutdown();
+        } catch (IOException e) {
+            LOG.warn("Failed to removed temporary repository folder.", e);
+        }
     }
 
     @Override
@@ -94,10 +107,8 @@ public class BrxmTestingRepository implements Repository, AutoCloseable {
 
     @Override
     public void close() {
-        try {
-            shutdown();
-        } catch (IOException e) {
-            LOG.warn("Failed to removed temporary repository folder.", e);
+        if (!managed) {
+            forceClose();
         }
     }
 }

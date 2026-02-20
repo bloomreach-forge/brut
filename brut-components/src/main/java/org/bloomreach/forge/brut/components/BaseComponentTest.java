@@ -15,20 +15,26 @@ public abstract class BaseComponentTest extends AbstractRepoTest {
 
     @Override
     public void setup() {
-        try {
-            repository = new BrxmTestingRepository();
-            Session session = repository.login(ADMIN);
-            rootNode = session.getRootNode();
-        } catch (Exception e) {
-            throw new SetupTeardownException(e);
+        if (repository == null) {
+            try {
+                repository = new BrxmTestingRepository();
+                Session session = repository.login(ADMIN);
+                rootNode = session.getRootNode();
+            } catch (Exception e) {
+                throw new SetupTeardownException(e);
+            }
+            componentManager.addComponent(Repository.class.getName(), repository);
+            componentManager.addComponent(Credentials.class.getName() + ".hstconfigreader", getWritableCredentials());
+            componentManager.addComponent(Credentials.class.getName() + ".default", getWritableCredentials());
+            componentManager.addComponent(Credentials.class.getName() + ".binaries", getWritableCredentials());
+            componentManager.addComponent(Credentials.class.getName() + ".preview", getWritableCredentials());
+            componentManager.addComponent(Credentials.class.getName() + ".writable", getWritableCredentials());
         }
-        componentManager.addComponent(Repository.class.getName(), repository);
-        componentManager.addComponent(Credentials.class.getName() + ".hstconfigreader", getWritableCredentials());
-        componentManager.addComponent(Credentials.class.getName() + ".default", getWritableCredentials());
-        componentManager.addComponent(Credentials.class.getName() + ".binaries", getWritableCredentials());
-        componentManager.addComponent(Credentials.class.getName() + ".preview", getWritableCredentials());
-        componentManager.addComponent(Credentials.class.getName() + ".writable", getWritableCredentials());
         super.setup();
+    }
+
+    protected BrxmTestingRepository getRepository() {
+        return repository;
     }
 
     protected Credentials getWritableCredentials() {

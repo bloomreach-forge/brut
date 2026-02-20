@@ -4,6 +4,7 @@ import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException
 import org.bloomreach.forge.brut.common.junit.NestedTestClassSupport;
 import org.bloomreach.forge.brut.common.junit.TestInstanceInjector;
 import org.bloomreach.forge.brut.common.logging.TestConfigurationLogger;
+import org.bloomreach.forge.brut.common.repository.JcrTransactionSupport;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -21,6 +22,7 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
     private static final Logger LOG = LoggerFactory.getLogger(BrxmComponentTestExtension.class);
     private static final String TEST_INSTANCE_KEY = "brxm.component.test.instance";
     private static final String TEST_CONFIG_KEY = "brxm.component.test.config";
+    private static final String TX_SUPPORT_KEY = "brxm.component.test.tx.support";
     private static final String FRAMEWORK = "Component";
     private static final String ANNOTATION_PACKAGE = "org.bloomreach.forge.brut.components.annotation";
 
@@ -28,7 +30,6 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
     public void beforeAll(ExtensionContext context) throws Exception {
         Class<?> testClass = context.getRequiredTestClass();
 
-        // For nested classes, infrastructure is already initialized by the root class
         if (NestedTestClassSupport.isNestedTestClass(testClass)) {
             return;
         }
@@ -43,8 +44,21 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
 
         DynamicComponentTest testInstance = new DynamicComponentTest(config);
 
+        try {
+            testInstance.setup();
+            testInstance.getRepository().setManaged(true);
+            applyAnnotationConfig(testInstance, config);
+        } catch (Exception e) {
+            TestConfigurationLogger.logFailure(LOG, FRAMEWORK, testClass, e);
+            String configDesc = String.format("  Bean patterns: %s%n  Test resource path: %s",
+                    config.getAnnotatedClassesResourcePath(),
+                    config.getTestResourcePath() != null ? config.getTestResourcePath() : "NONE");
+            throw BrutTestConfigurationException.setupFailed("Component test setup", configDesc, e);
+        }
+
         getRootStore(context).put(TEST_INSTANCE_KEY, testInstance);
         getRootStore(context).put(TEST_CONFIG_KEY, config);
+        getRootStore(context).put(TX_SUPPORT_KEY, new JcrTransactionSupport());
     }
 
     @Override
@@ -58,14 +72,15 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
             );
         }
 
-        ComponentTestConfig config = getRootStore(context).get(TEST_CONFIG_KEY, ComponentTestConfig.class);
+        JcrTransactionSupport txSupport = getRootStore(context).get(TX_SUPPORT_KEY, JcrTransactionSupport.class);
 
         try {
-            TestInstanceInjector.inject(context, testInstance, DynamicComponentTest.class, LOG);
+            txSupport.begin(testInstance.getSession());
             testInstance.setup();
-            applyAnnotationConfig(testInstance, config);
+            TestInstanceInjector.inject(context, testInstance, DynamicComponentTest.class, LOG);
             TestConfigurationLogger.logSuccess(LOG, FRAMEWORK, context.getRequiredTestClass());
         } catch (Exception e) {
+            ComponentTestConfig config = getRootStore(context).get(TEST_CONFIG_KEY, ComponentTestConfig.class);
             TestConfigurationLogger.logFailure(LOG, FRAMEWORK, context.getRequiredTestClass(), e);
             String configDesc = String.format("  Bean patterns: %s%n  Test resource path: %s",
                     config.getAnnotatedClassesResourcePath(),
@@ -77,21 +92,34 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
     @Override
     public void afterEach(ExtensionContext context) {
         DynamicComponentTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
-        if (testInstance == null) {
-            return;
+        JcrTransactionSupport txSupport = getRootStore(context).get(TX_SUPPORT_KEY, JcrTransactionSupport.class);
+
+        if (testInstance != null) {
+            try {
+                testInstance.teardown();
+            } catch (Exception e) {
+                LOG.error("Failed to teardown component test infrastructure", e);
+            }
         }
-        try {
-            testInstance.teardown();
-        } catch (Exception e) {
-            LOG.error("Failed to destroy component test infrastructure", e);
+
+        if (txSupport != null) {
+            try {
+                txSupport.rollback();
+            } catch (Exception e) {
+                LOG.error("Failed to rollback XA transaction", e);
+            }
         }
     }
 
     @Override
     public void afterAll(ExtensionContext context) {
-        // Only clean up from the root class to avoid premature cleanup for nested classes
         if (!NestedTestClassSupport.isNestedTestClass(context.getRequiredTestClass())) {
+            DynamicComponentTest testInstance = getRootStore(context).get(TEST_INSTANCE_KEY, DynamicComponentTest.class);
+            if (testInstance != null && testInstance.getRepository() != null) {
+                testInstance.getRepository().forceClose();
+            }
             getRootStore(context).remove(TEST_INSTANCE_KEY);
+            getRootStore(context).remove(TX_SUPPORT_KEY);
         }
     }
 

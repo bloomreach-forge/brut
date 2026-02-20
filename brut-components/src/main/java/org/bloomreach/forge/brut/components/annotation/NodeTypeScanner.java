@@ -1,5 +1,6 @@
 package org.bloomreach.forge.brut.components.annotation;
 
+import org.bloomreach.forge.brut.common.processor.BrxmBeanRegistry;
 import org.hippoecm.hst.content.beans.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,12 @@ final class NodeTypeScanner {
      * @return set of JCR type names
      */
     static Set<String> scanForNodeTypes(String classpathPatterns) {
+        Set<String> fromRegistry = loadFromRegistry();
+        if (!fromRegistry.isEmpty()) {
+            LOG.debug("Using compile-time registry: {} node type(s): {}", fromRegistry.size(), fromRegistry);
+            return fromRegistry;
+        }
+
         Set<String> nodeTypes = new LinkedHashSet<>();
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
@@ -40,6 +47,23 @@ final class NodeTypeScanner {
         }
 
         LOG.debug("Auto-detected {} node type(s) from @Node annotations: {}", nodeTypes.size(), nodeTypes);
+        return nodeTypes;
+    }
+
+    private static Set<String> loadFromRegistry() {
+        Set<String> nodeTypes = new LinkedHashSet<>();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        for (String fqn : BrxmBeanRegistry.loadBeanClassNames(cl)) {
+            try {
+                Class<?> clazz = Class.forName(fqn, false, cl);
+                Node nodeAnnotation = clazz.getAnnotation(Node.class);
+                if (nodeAnnotation != null && !nodeAnnotation.jcrType().isEmpty()) {
+                    nodeTypes.add(nodeAnnotation.jcrType());
+                }
+            } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                LOG.debug("Registry entry '{}' not loadable: {}", fqn, e.getMessage());
+            }
+        }
         return nodeTypes;
     }
 

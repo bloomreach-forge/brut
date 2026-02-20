@@ -45,13 +45,15 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
     @Override
     public void setup() {
         super.setup();
-        try {
-            registerBaseNodeTypes();
-            importNodeStructure();
-            setObjectConverter();
-            setQueryManager();
-        } catch (Exception e) {
-            throw new SetupTeardownException(e);
+        if (objectConverter == null) {
+            try {
+                registerBaseNodeTypes();
+                importNodeStructure();
+                setObjectConverter();
+                setQueryManager();
+            } catch (Exception e) {
+                throw new SetupTeardownException(e);
+            }
         }
     }
 
