@@ -13,7 +13,7 @@
     <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>5.3.1</version>
+    <version>5.3.2</version>
     <packaging>pom</packaging>
     <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
