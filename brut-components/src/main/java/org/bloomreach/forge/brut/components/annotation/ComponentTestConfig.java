@@ -50,4 +50,18 @@ class ComponentTestConfig {
     Class<?> getTestClass() {
         return testClass;
     }
+
+    /**
+     * Returns a stable string that uniquely identifies the structural configuration.
+     * Two configs with the same fingerprint are safe to share a single
+     * {@link org.bloomreach.forge.brut.common.repository.BrxmTestingRepository}.
+     */
+    String computeFingerprint() {
+        return String.join("|",
+            annotatedClassesResourcePath != null ? annotatedClassesResourcePath : "",
+            testResourcePath != null ? testResourcePath : "",
+            content != null ? content : "",
+            contentRoot != null ? contentRoot : ""
+        );
+    }
 }

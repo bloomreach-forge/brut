@@ -47,14 +47,44 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         super.setup();
         if (objectConverter == null) {
             try {
-                registerBaseNodeTypes();
-                importNodeStructure();
+                if (shouldRegisterBaseNodeTypes()) {
+                    registerBaseNodeTypes();
+                }
+                if (shouldImportNodeStructure()) {
+                    importNodeStructure();
+                }
+                requestContext.setSession(this.rootNode.getSession());
                 setObjectConverter();
                 setQueryManager();
             } catch (Exception e) {
                 throw new SetupTeardownException(e);
             }
         }
+    }
+
+    /**
+     * Controls whether {@link #registerBaseNodeTypes()} runs during {@link #setup()}.
+     * <p>
+     * Return {@code false} when the repository already has the base node types registered
+     * (e.g. a shared repository that was fully bootstrapped by a previous test instance)
+     * to avoid ~50 redundant {@code hasNodeType()} lookups per test class.
+     * The default implementation always returns {@code true}.
+     * </p>
+     */
+    protected boolean shouldRegisterBaseNodeTypes() {
+        return true;
+    }
+
+    /**
+     * Controls whether {@link #importNodeStructure()} runs during {@link #setup()}.
+     * <p>
+     * Return {@code false} when the repository has already been bootstrapped by another test
+     * instance (e.g. a shared repository scenario) to prevent duplicate-node errors.
+     * The default implementation always returns {@code true}.
+     * </p>
+     */
+    protected boolean shouldImportNodeStructure() {
+        return true;
     }
 
     protected HippoBean getHippoBean(String path) {
@@ -191,7 +221,6 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
             throw new SetupTeardownException(new Exception("invalid import file format"));
         }
         moveSkeletonRootToRoot("root");
-        requestContext.setSession(this.rootNode.getSession());
     }
 
     private void moveSkeletonRootToRoot(String rootNodeName) throws RepositoryException {

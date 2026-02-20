@@ -43,11 +43,30 @@ public abstract class AbstractResourceTest {
 
     private static final ReentrantLock webappContextLock = new ReentrantLock();
 
-    // Shared across test instances to support JUnit 4 @Before pattern
-    protected static SpringComponentManager sharedComponentManager;
-    protected static HstModelRegistryImpl sharedHstModelRegistry;
-    protected static PlatformServicesImpl sharedPlatformServices;
-    protected static PlatformModelAvailableService sharedPlatformModelAvailableService;
+    // Cached once at class-load: avoids repeated getDeclaredMethod() on every invokeFilter() call
+    // and makes module-system failures deterministic at startup.
+    private static final Method REQUEST_CONTEXT_SET;
+    private static final Method REQUEST_CONTEXT_CLEAR;
+
+    static {
+        try {
+            REQUEST_CONTEXT_SET = RequestContextProvider.class.getDeclaredMethod("set", HstRequestContext.class);
+            REQUEST_CONTEXT_SET.setAccessible(true);
+            REQUEST_CONTEXT_CLEAR = RequestContextProvider.class.getDeclaredMethod("clear");
+            REQUEST_CONTEXT_CLEAR.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    // Shared across test instances to support JUnit 4 @Before pattern.
+    // volatile ensures the writes in storeSharedReferences() (inside the ReentrantLock) are
+    // visible to reads in reuseSharedInstances() (outside the lock) without relying solely on
+    // the AtomicBoolean volatile-chain for the happens-before guarantee.
+    protected static volatile SpringComponentManager sharedComponentManager;
+    protected static volatile HstModelRegistryImpl sharedHstModelRegistry;
+    protected static volatile PlatformServicesImpl sharedPlatformServices;
+    protected static volatile PlatformModelAvailableService sharedPlatformModelAvailableService;
 
     protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
@@ -199,11 +218,8 @@ public abstract class AbstractResourceTest {
      */
     private void setRequestContextProvider(HstRequestContext requestContext) {
         try {
-            Method set = RequestContextProvider.class.getDeclaredMethod("set", HstRequestContext.class);
-            set.setAccessible(true);
-            set.invoke(null, requestContext);
-            set.setAccessible(false);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            REQUEST_CONTEXT_SET.invoke(null, requestContext);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             LOGGER.warn("Failed to set RequestContextProvider", e);
         }
     }
@@ -214,11 +230,8 @@ public abstract class AbstractResourceTest {
      */
     private void clearRequestContextProvider() {
         try {
-            Method clear = RequestContextProvider.class.getDeclaredMethod("clear");
-            clear.setAccessible(true);
-            clear.invoke(null);
-            clear.setAccessible(false);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            REQUEST_CONTEXT_CLEAR.invoke(null);
+        } catch (IllegalAccessException | InvocationTargetException e) {
             LOGGER.warn("Failed to clear RequestContextProvider", e);
         }
     }

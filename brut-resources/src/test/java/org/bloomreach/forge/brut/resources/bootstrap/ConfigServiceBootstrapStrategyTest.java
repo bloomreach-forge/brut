@@ -8,13 +8,17 @@ import org.junit.jupiter.api.io.TempDir;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -353,6 +357,63 @@ class ConfigServiceBootstrapStrategyTest {
                 "matchesContentRoot", String.class, String.class);
             method.setAccessible(true);
             return (boolean) method.invoke(strategy, candidate, root);
+        }
+    }
+
+    @Nested
+    class ModelCaching {
+
+        @Test
+        void modelCache_isStaticConcurrentHashMap() throws Exception {
+            Field f = ConfigServiceBootstrapStrategy.class.getDeclaredField("MODEL_CACHE");
+            f.setAccessible(true);
+            assertTrue(Modifier.isStatic(f.getModifiers()), "MODEL_CACHE must be static");
+            assertInstanceOf(ConcurrentHashMap.class, f.get(null), "MODEL_CACHE must be a ConcurrentHashMap");
+        }
+
+        @Test
+        void clearModelCache_isCallable() throws Exception {
+            Method m = ConfigServiceBootstrapStrategy.class.getDeclaredMethod("clearModelCache");
+            m.setAccessible(true);
+            // Must not throw; clears the cache for test isolation
+            assertDoesNotThrow(() -> m.invoke(null));
+        }
+
+        @Test
+        void modelCache_populatedAfterExplicitModuleLoad(@TempDir Path tempDir) throws Exception {
+            // Ensure cache is empty before this test
+            Method clearCache = ConfigServiceBootstrapStrategy.class.getDeclaredMethod("clearModelCache");
+            clearCache.setAccessible(true);
+            clearCache.invoke(null);
+
+            // Create a minimal module descriptor
+            Path metaInf = tempDir.resolve("META-INF");
+            Files.createDirectories(metaInf);
+            Path hcmModule = metaInf.resolve("hcm-module.yaml");
+            Files.writeString(hcmModule, "group:\n  name: test\nproject: test\nmodule:\n  name: test\n");
+
+            BootstrapContext context = new BootstrapContext(
+                Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                List.of(hcmModule), new URLClassLoader(new URL[]{tempDir.toUri().toURL()}));
+
+            Method loadModules = ConfigServiceBootstrapStrategy.class.getDeclaredMethod(
+                "loadModulesExplicitly", BootstrapContext.class);
+            loadModules.setAccessible(true);
+
+            // First call populates the cache
+            loadModules.invoke(strategy, context);
+
+            Field cacheField = ConfigServiceBootstrapStrategy.class.getDeclaredField("MODEL_CACHE");
+            cacheField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<String, ?> cache = (Map<String, ?>) cacheField.get(null);
+            assertEquals(1, cache.size(), "Cache must contain exactly one entry after first load");
+
+            // Second call with identical context must not grow the cache
+            loadModules.invoke(strategy, context);
+            assertEquals(1, cache.size(), "Cache size must not grow on second call with same context");
+
+            clearCache.invoke(null);
         }
     }
 

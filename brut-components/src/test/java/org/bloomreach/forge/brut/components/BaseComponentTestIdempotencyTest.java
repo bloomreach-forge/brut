@@ -8,6 +8,7 @@ import javax.jcr.SimpleCredentials;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class BaseComponentTestIdempotencyTest {
 
@@ -32,6 +33,24 @@ class BaseComponentTestIdempotencyTest {
         assertNotNull(s);
         s.logout();
         test.getRepository().forceClose();
+    }
+
+    @Test
+    void setup_withInjectedRepository_reusesIt() throws Exception {
+        var donor = new TestableComponentTest();
+        donor.setup();
+        BrxmTestingRepository shared = donor.getRepository();
+        shared.setManaged(true);
+
+        var consumer = new TestableComponentTest();
+        consumer.setRepository(shared);
+        assertDoesNotThrow(consumer::setup, "setup() must succeed when repository is pre-injected");
+        assertSame(shared, consumer.getRepository(), "consumer must use the injected repository");
+
+        Session s = consumer.getRepository().login(new SimpleCredentials("admin", "admin".toCharArray()));
+        assertNotNull(s);
+        s.logout();
+        shared.forceClose();
     }
 
     private static class TestableComponentTest extends BaseComponentTest {

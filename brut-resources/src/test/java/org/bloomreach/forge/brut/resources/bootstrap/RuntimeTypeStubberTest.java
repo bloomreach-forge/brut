@@ -1,9 +1,25 @@
 package org.bloomreach.forge.brut.resources.bootstrap;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
+import javax.jcr.Workspace;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for RuntimeTypeStubber.
@@ -153,6 +169,58 @@ class RuntimeTypeStubberTest {
         @Test
         void rejectsColonAtEnd() {
             assertFalse(RuntimeTypeStubber.isValidPrefixedNodeTypeName("hippo:"));
+        }
+    }
+
+    @Nested
+    class StubLogging {
+
+        private ListAppender<ILoggingEvent> listAppender;
+        private Logger stubberLogger;
+
+        @BeforeEach
+        void attachAppender() {
+            stubberLogger = (Logger) LoggerFactory.getLogger(RuntimeTypeStubber.class);
+            listAppender = new ListAppender<>();
+            listAppender.start();
+            stubberLogger.addAppender(listAppender);
+        }
+
+        @AfterEach
+        void detachAppender() {
+            stubberLogger.detachAppender(listAppender);
+        }
+
+        @Test
+        void registerStubNamespace_logsAtWarnLevel() throws Exception {
+            NamespaceRegistry registry = mock(NamespaceRegistry.class);
+            Workspace workspace = mock(Workspace.class);
+            when(workspace.getNamespaceRegistry()).thenReturn(registry);
+            Session session = mock(Session.class);
+            when(session.getWorkspace()).thenReturn(workspace);
+
+            RuntimeTypeStubber.registerStubNamespace(session, "testprefix");
+
+            boolean hasWarn = listAppender.list.stream()
+                    .anyMatch(e -> e.getLevel() == Level.WARN && e.getFormattedMessage().contains("testprefix"));
+            assertTrue(hasWarn, "Expected a WARN log containing 'testprefix' but got: " + listAppender.list);
+        }
+
+        @Test
+        @Tag("integration")
+        void registerStubNodeType_logsAtWarnLevelOnSuccess() throws Exception {
+            // CndImporter.registerNodeTypes requires a real JCR session; use embedded repo
+            try (BrxmTestingRepository repo = new BrxmTestingRepository()) {
+                Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
+                try {
+                    RuntimeTypeStubber.registerStubNodeType(session, "brut:testtype", new java.util.HashSet<>());
+                    boolean hasWarn = listAppender.list.stream()
+                            .anyMatch(e -> e.getLevel() == Level.WARN && e.getFormattedMessage().contains("brut:testtype"));
+                    assertTrue(hasWarn, "Expected a WARN log containing 'brut:testtype' but got: " + listAppender.list);
+                } finally {
+                    session.logout();
+                }
+            }
         }
     }
 

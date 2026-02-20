@@ -48,6 +48,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Bootstrap strategy using brXM's ConfigurationConfigService.
@@ -81,6 +82,25 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigServiceBootstrapStrategy.class);
     private static final JcrContentProcessor CONTENT_PROCESSOR = new JcrContentProcessor();
+
+    /**
+     * JVM-scoped cache of built ConfigurationModels keyed by a fingerprint of the module
+     * descriptor paths and their last-modified timestamps.
+     * <p>
+     * The ConfigurationModelImpl is immutable after {@code build()}, so it is safe to share
+     * across test classes within the same JVM run. This eliminates repeated YAML parsing and
+     * model construction when multiple test classes share the same HCM modules.
+     * <p>
+     * Call {@link #clearModelCache()} in tests that modify module descriptors on disk.
+     */
+    static final ConcurrentHashMap<String, LoadedModules> MODEL_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * Clears the model cache. Intended for test isolation when module descriptors change.
+     */
+    static void clearModelCache() {
+        MODEL_CACHE.clear();
+    }
     private static final String HCM_MODULE_DESCRIPTOR = "META-INF/hcm-module.yaml";
     private static final String MINIMAL_FRAMEWORK_MODULE_RESOURCE =
         "org/bloomreach/forge/brut/resources/config-service/minimal-framework/hcm-module.yaml";
@@ -149,6 +169,14 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             ConfigurationConfigService configService = new ConfigurationConfigService();
 
             ConfigServiceReflectionBridge.invokeApplyNamespacesAndNodeTypes(configService, baseline, configModel, session);
+
+            // Proactively refresh before computing the delta: the Jackrabbit repository.xml
+            // bootstraps /hippo:configuration/* on startup, so there may be pending read-ahead
+            // state that would cause the delta engine to see those nodes as "new" and throw
+            // ItemExistsException. session.refresh(false) discards any uncommitted state and
+            // ensures the delta engine sees the real repository state. The retry loop in
+            // applyConfigDeltaWithRetries is a reactive fallback for any remaining conflicts.
+            session.refresh(false);
             ConfigServiceReflectionBridge.applyConfigDeltaWithRetries(configService, baseline, configModel, session);
 
             ensureMandatoryConfigChildren(session);
@@ -393,6 +421,14 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             return new LoadedModules(new ConfigurationModelImpl().build(), List.of());
         }
 
+        String cacheKey = computeModelCacheKey(moduleDescriptors);
+        LoadedModules cached = MODEL_CACHE.get(cacheKey);
+        if (cached != null) {
+            LOG.debug("ConfigurationModel cache hit ({} module(s)); skipping YAML parse and model build",
+                moduleDescriptors.size());
+            return cached;
+        }
+
         LOG.info("Loading {} module(s) explicitly using ModuleReader (no classpath scanning)...",
             moduleDescriptors.size());
 
@@ -443,7 +479,29 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
         ConfigurationModelImpl builtModel = buildModelOnce(model, modules, stubGroups);
 
         LOG.debug("Successfully built model with explicit modules only (framework modules NOT scanned)");
-        return new LoadedModules(builtModel, List.copyOf(modules));
+        LoadedModules result = new LoadedModules(builtModel, List.copyOf(modules));
+        MODEL_CACHE.put(cacheKey, result);
+        return result;
+    }
+
+    private String computeModelCacheKey(List<Path> descriptors) {
+        StringBuilder key = new StringBuilder();
+        List<Path> sorted = new ArrayList<>(descriptors);
+        sorted.sort(Comparator.naturalOrder());
+        for (Path p : sorted) {
+            Path abs = p.toAbsolutePath().normalize();
+            long lastModified = 0L;
+            try {
+                lastModified = Files.getLastModifiedTime(abs).toMillis();
+            } catch (IOException ignored) {
+                // use 0 if unavailable
+            }
+            if (key.length() > 0) {
+                key.append('|');
+            }
+            key.append(abs).append('@').append(lastModified);
+        }
+        return key.toString();
     }
 
     private Set<String> resolveSiteModuleNames(ProjectSettings settings) {
