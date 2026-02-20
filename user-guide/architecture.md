@@ -95,7 +95,53 @@ sitemenus, and channel info become visible to the model.
 HST model caches are built during initialization. If configuration/content is imported after the model is built, caches
 must be invalidated or the model rebuilt for changes to take effect.
 
+## Performance: Repository Sharing (brut-components)
+
+`BrxmComponentTestExtension` shares a single `BrxmTestingRepository` across all test classes whose configuration fingerprint matches. The fingerprint is computed from:
+
+```
+annotatedClassesResourcePath | testResourcePath | content | contentRoot
+```
+
+On the first encounter of a fingerprint, a bootstrap `DynamicComponentTest` is created, `setup()` is called (registering node types and importing the skeleton YAML), and the resulting repository is stored in JUnit 5's global root store as a `CloseableResource`. Subsequent test classes with the same fingerprint receive the shared repository via `BaseComponentTest.setRepository()` and open their own JCR session from it.
+
+The repository is shut down exactly once, at the end of the full test suite, when JUnit calls `SharedRepositoryEntry.close()`.
+
+### `BrxmTestingRepository.recordInitialization(key)`
+
+A first-caller-wins gate backed by a `Collections.synchronizedSet`. Returns `true` the first time a key is seen (the caller should perform the operation) and `false` thereafter (the caller should skip). Used by `BaseComponentTest` for both skeleton YAML import and base node-type registration, ensuring each runs at most once per shared repository regardless of how many test classes share it.
+
+### Extension Hooks
+
+| Hook | Default | `BaseComponentTest` override |
+|------|---------|------------------------------|
+| `shouldImportNodeStructure()` | `true` | Delegates to `recordInitialization(getPathToTestResource())` |
+| `shouldRegisterBaseNodeTypes()` | `true` | Delegates to `recordInitialization("__baseNodeTypes__")` |
+
+Custom subclasses can override these hooks to control whether a given operation runs.
+
+## Performance: ConfigurationModel Caching (brut-resources)
+
+`ConfigServiceBootstrapStrategy` caches the built `ConfigurationModel` keyed by a SHA-256 fingerprint of its source HCM module files. Test classes with identical HCM modules reuse the cached model, skipping the full ConfigService parse on every run.
+
+## Parallel Execution Contract
+
+### Class-level parallelism
+
+Running multiple test classes concurrently (JUnit 5 class-level parallel mode) is supported:
+
+- `getOrComputeIfAbsent()` in the root store serializes repository bootstrapping — only one thread creates the repository per fingerprint.
+- Each class gets its own JCR session, `DynamicComponentTest`, and mock objects.
+- Jackrabbit supports multiple concurrent sessions on a single repository instance.
+
+**Caveat:** `appliedInitKeys` uses `Collections.synchronizedSet` — the `add()` is atomic but callers should not assume the associated operation (e.g. node-type registration) has completed on the thread that received `false`. In practice this is safe because registration happens during `bootstrapSharedRepository()` which completes before any test class can call `setup()` on the shared repo.
+
+### Method-level parallelism
+
+`@Execution(CONCURRENT)` on test methods within the same class is **not supported**. All methods share one `DynamicComponentTest` instance, one JCR session, and non-thread-safe mock objects. Enabling method-level concurrency will cause data corruption and intermittent failures.
+
 ## Customization Points
 - Provide a custom `repository.xml` on the classpath for repository behavior and auth.
 - Control module loading via explicit module descriptors in tests.
 - Add CND/YAML patterns via Spring configuration.
+- Override `shouldImportNodeStructure()` or `shouldRegisterBaseNodeTypes()` in a subclass of `BaseComponentTest` to control per-repository initialization.

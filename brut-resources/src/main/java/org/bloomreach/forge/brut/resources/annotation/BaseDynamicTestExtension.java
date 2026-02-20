@@ -22,6 +22,9 @@ import org.bloomreach.forge.brut.common.exception.BrutTestConfigurationException
 import org.bloomreach.forge.brut.common.junit.NestedTestClassSupport;
 import org.bloomreach.forge.brut.common.junit.TestInstanceInjector;
 import org.bloomreach.forge.brut.common.logging.TestConfigurationLogger;
+import org.bloomreach.forge.brut.resources.diagnostics.ConfigurationDiagnostics;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticResult;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticSeverity;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -76,6 +79,15 @@ abstract class BaseDynamicTestExtension<T extends DynamicTest, A extends Annotat
             TestConfigurationLogger.logSuccess(getLogger(), getFrameworkName(), testClass);
         } catch (Exception e) {
             TestConfigurationLogger.logFailure(getLogger(), getFrameworkName(), testClass, e);
+
+            // Add diagnostic logging
+            DiagnosticResult diagnostic = ConfigurationDiagnostics.diagnoseConfigurationError(e);
+            if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
+                getLogger().error("\n{}", diagnostic);
+            } else if (diagnostic.severity() == DiagnosticSeverity.WARNING) {
+                getLogger().warn("\n{}", diagnostic);
+            }
+
             throw BrutTestConfigurationException.bootstrapFailed(
                     getFrameworkName() + " test initialization",
                     config.getBeanPatterns(), config.getSpringConfigs(), config.getHstRoot(), e);

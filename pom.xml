@@ -13,13 +13,17 @@
     <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>5.2.0</version>
+    <version>5.3.0</version>
     <packaging>pom</packaging>
     <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
     <contributors>
         <contributor>
             <name>Baris Can Vural</name>
+            <organization>Bloomreach</organization>
+        </contributor>
+        <contributor>
+            <name>Phillip Alejo</name>
             <organization>Bloomreach</organization>
         </contributor>
     </contributors>
@@ -232,6 +236,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.plugin.surefire.version}</version>
+                <configuration>
+                    <argLine>-Xmx512m -Xms256m</argLine>
+                    <forkCount>1C</forkCount>
+                    <reuseForks>true</reuseForks>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

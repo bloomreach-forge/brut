@@ -16,14 +16,16 @@
 package org.bloomreach.forge.brut.resources.pagemodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Main wrapper for PageModel API responses.
@@ -48,6 +50,7 @@ public class PageModelResponse {
 
     private Map<String, PageComponent> page;
     private Map<String, ContentItem> content;
+    private Map<String, ContentItem> documents = new HashMap<>();
     private ContentRef root;
     private Map<String, Object> channel;
     private Map<String, Object> meta;
@@ -97,7 +100,12 @@ public class PageModelResponse {
      * @return resolved content item, or null if not found
      */
     public ContentItem resolveContent(ContentRef ref) {
-        return (ref == null || content == null) ? null : content.get(ref.getId());
+        if (ref == null) return null;
+        if (content != null) {
+            ContentItem item = content.get(ref.getId());
+            if (item != null) return item;
+        }
+        return documents != null ? documents.get(ref.getId()) : null;
     }
 
     /**
@@ -113,7 +121,7 @@ public class PageModelResponse {
         return parent.getChildren().stream()
                 .map(this::resolveComponent)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -143,7 +151,7 @@ public class PageModelResponse {
         }
         return page.values().stream()
                 .filter(c -> type.equals(c.getType()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -167,7 +175,7 @@ public class PageModelResponse {
      * @return true if content map is non-empty
      */
     public boolean hasContent() {
-        return content != null && !content.isEmpty();
+        return (content != null && !content.isEmpty()) || (documents != null && !documents.isEmpty());
     }
 
     /**
@@ -203,6 +211,42 @@ public class PageModelResponse {
         return meta == null ? null : (T) meta.get(key);
     }
 
+    /**
+     * Resolves a single $ref from a named component model to a typed POJO.
+     * Handles both /content/ and /page/ references (v1.0 and v1.1).
+     *
+     * @param component component whose model contains the ref
+     * @param modelName name of the model entry
+     * @param type      target class
+     * @return Optional with the converted POJO, or empty if not resolvable
+     */
+    public <T> Optional<T> resolveModelContent(PageComponent component, String modelName, Class<T> type) {
+        Map<String, Object> rawRef = component.getModel(modelName);
+        if (rawRef == null) return Optional.empty();
+        ContentRef ref = PageModelMapper.INSTANCE.convertValue(rawRef, ContentRef.class);
+        return Optional.ofNullable(resolveContent(ref)).map(item -> item.as(type));
+    }
+
+    /**
+     * Resolves a list of $ref objects from a named component model to typed POJOs.
+     * Handles both /content/ and /page/ references (v1.0 and v1.1).
+     *
+     * @param component component whose model contains the ref list
+     * @param modelName name of the model entry
+     * @param type      target class
+     * @return list of converted POJOs (never null)
+     */
+    public <T> List<T> resolveModelContentList(PageComponent component, String modelName, Class<T> type) {
+        List<Map<String, Object>> rawRefs = component.getModel(modelName);
+        if (rawRefs == null) return Collections.emptyList();
+        return rawRefs.stream()
+                .map(m -> PageModelMapper.INSTANCE.convertValue(m, ContentRef.class))
+                .map(this::resolveContent)
+                .filter(Objects::nonNull)
+                .map(item -> item.as(type))
+                .toList();
+    }
+
     public Map<String, PageComponent> getPage() {
         return page;
     }
@@ -211,12 +255,31 @@ public class PageModelResponse {
         this.page = page;
     }
 
+    @JsonSetter("page")
+    void setPageFromJson(Map<String, Object> rawPage) {
+        if (rawPage == null) return;
+        page = new LinkedHashMap<>();
+        documents = new LinkedHashMap<>();
+        rawPage.forEach((id, value) -> {
+            String type = (String) ((Map<?, ?>) value).get("type");
+            if ("document".equals(type) || "imageset".equals(type)) {
+                documents.put(id, PageModelMapper.INSTANCE.convertValue(value, ContentItem.class));
+            } else {
+                page.put(id, PageModelMapper.INSTANCE.convertValue(value, PageComponent.class));
+            }
+        });
+    }
+
     public Map<String, ContentItem> getContent() {
         return content;
     }
 
     public void setContent(Map<String, ContentItem> content) {
         this.content = content;
+    }
+
+    public Map<String, ContentItem> getDocuments() {
+        return documents;
     }
 
     public ContentRef getRoot() {

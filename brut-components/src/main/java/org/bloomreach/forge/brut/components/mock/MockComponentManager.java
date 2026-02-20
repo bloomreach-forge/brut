@@ -32,22 +32,17 @@ public class MockComponentManager implements ComponentManager {
         return new String[0];
     }
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
+    /** @deprecated Use {@link #setServletContext(ServletContext)} instead. */
+    @Deprecated(since = "5.0", forRemoval = true)
     public void setServletConfig(ServletConfig servletConfig) {
         this.servletConfig = servletConfig;
         if (servletConfig != null) {
             this.servletContext = servletConfig.getServletContext();
         }
-
     }
 
-    /**
-     * @deprecated
-     */
-    @Deprecated
+    /** @deprecated Use {@link #getServletContext()} instead. */
+    @Deprecated(since = "5.0", forRemoval = true)
     public ServletConfig getServletConfig() {
         return this.servletConfig;
     }

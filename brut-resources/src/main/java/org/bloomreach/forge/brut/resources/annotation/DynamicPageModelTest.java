@@ -21,7 +21,6 @@ import org.bloomreach.forge.brut.resources.util.RequestBuilder;
 import org.bloomreach.forge.brut.resources.util.RepositorySession;
 
 import javax.jcr.Repository;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,49 +58,12 @@ public class DynamicPageModelTest extends AbstractPageModelTest implements Dynam
     }
 
     @Override
-    public void init() {
-        super.init();
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
-
-    @Override
-    public MockHstRequest getHstRequest() {
-        return super.getHstRequest();
-    }
-
-    @Override
-    public String invokeFilter() {
-        return super.invokeFilter();
-    }
-
-    @Override
-    public void setupForNewRequest() {
-        super.setupForNewRequest();
-    }
-
-    @Override
     public RequestBuilder request() {
         return new RequestBuilder(
                 getHstRequest(),
                 this::invokeFilter,
                 this::getResponseStatus
         );
-    }
-
-    private int getResponseStatus() {
-        if (hstResponse == null) {
-            return 200;
-        }
-        try {
-            Method getStatus = hstResponse.getClass().getMethod("getStatus");
-            return (int) getStatus.invoke(hstResponse);
-        } catch (Exception e) {
-            return 200;
-        }
     }
 
     @Override

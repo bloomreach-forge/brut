@@ -20,12 +20,29 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+// Method references resolved once at class-load time: deterministic failure point,
+// no per-test getDeclaredMethod() cost, and no repeated module-system checks.
+
 import static org.hippoecm.hst.utils.ParameterUtils.PARAMETERS_INFO_ATTRIBUTE;
 
 
 public class SimpleComponentTest {
 
     public static final String COMPONENT_REFERENCE_NAMESPACE = "r1_r2";
+
+    private static final Method REQUEST_CONTEXT_SET;
+    private static final Method REQUEST_CONTEXT_CLEAR;
+
+    static {
+        try {
+            REQUEST_CONTEXT_SET = RequestContextProvider.class.getDeclaredMethod("set", HstRequestContext.class);
+            REQUEST_CONTEXT_SET.setAccessible(true);
+            REQUEST_CONTEXT_CLEAR = RequestContextProvider.class.getDeclaredMethod("clear");
+            REQUEST_CONTEXT_CLEAR.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private static DelegatingComponentManager delegatingComponentManager = new DelegatingComponentManager();
 
@@ -128,18 +145,12 @@ public class SimpleComponentTest {
         requestContext.setResolvedSiteMapItem(resolvedSiteMapItem);
     }
 
-    private void setRequestContextProvider() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method set = RequestContextProvider.class.getDeclaredMethod("set", HstRequestContext.class);
-        set.setAccessible(true);
-        set.invoke(null, requestContext);
-        set.setAccessible(false);
+    private void setRequestContextProvider() throws InvocationTargetException, IllegalAccessException {
+        REQUEST_CONTEXT_SET.invoke(null, requestContext);
     }
 
-    private void clearRequestContextProvider() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Method set = RequestContextProvider.class.getDeclaredMethod("clear");
-        set.setAccessible(true);
-        set.invoke(null);
-        set.setAccessible(false);
+    private void clearRequestContextProvider() throws InvocationTargetException, IllegalAccessException {
+        REQUEST_CONTEXT_CLEAR.invoke(null);
     }
 
     private void setHstLinkCreator(HstLinkCreator hstLinkCreator) {

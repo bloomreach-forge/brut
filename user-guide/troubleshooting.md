@@ -2,8 +2,8 @@
 
 <!-- AI-METADATA
 test-types: [component, pagemodel, jaxrs]
-patterns: [debugging, errors, fixes]
-keywords: [troubleshooting, error, null, exception, setup, debug, logging]
+patterns: [debugging, errors, fixes, diagnostics, assertions]
+keywords: [troubleshooting, error, null, exception, setup, debug, logging, diagnostics, PageModelAssert, ConfigurationDiagnostics]
 difficulty: all-levels
 -->
 
@@ -94,6 +94,54 @@ void setUp() throws RepositoryException {
             "/content/documents", "hippostd:folder");
 }
 ```
+
+### Intermittent Failures or Data Corruption With Parallel Execution
+
+**Symptom:** Tests pass individually but fail randomly when JUnit 5 parallel execution is enabled; `InvalidItemStateException`, `NullPointerException` on mock objects, or wrong response data
+
+**Cause:** Method-level concurrent execution (`@Execution(CONCURRENT)`) is not supported. All test methods in a class share one `DynamicComponentTest` instance, one JCR session, and non-thread-safe mock objects.
+
+**Fix:** Only enable class-level parallelism. In `junit-platform.properties`:
+
+```properties
+junit.jupiter.execution.parallel.enabled = true
+junit.jupiter.execution.parallel.mode.default = same_thread        # methods: sequential
+junit.jupiter.execution.parallel.mode.classes.default = concurrent  # classes: parallel
+```
+
+Never set `junit.jupiter.execution.parallel.mode.default = concurrent` for BRUT test classes.
+
+### WARN Messages From RuntimeTypeStubber
+
+**Symptom:** Log output contains WARN messages like `Stubbing missing namespace 'myproject' as permissive` or `Registering stub node type 'myproject:MyBean'`
+
+**Cause:** BRUT encountered a JCR namespace or node type that is referenced in your beans or content but not registered in any CND file. These messages are intentionally at WARN level — stubs allow tests to run but may mask type validation issues.
+
+**Fix options:**
+1. Add the missing namespace/node type to your project's CND file (recommended for production types).
+2. Register the type explicitly in the test: `brxm.registerNodeType("myproject:MyBean")`.
+3. If the stub is intentional (e.g. a third-party type you don't own), suppress the specific logger in `logback-test.xml`:
+```xml
+<logger name="org.bloomreach.forge.brut.resources.bootstrap.RuntimeTypeStubber" level="INFO"/>
+```
+
+### Test Not Picking Up YAML Changes in IntelliJ
+
+**Symptom:** Editing a YAML file and re-running a test in IntelliJ still uses the old content, as if the change never happened. Running `mvn test` works correctly.
+
+**Cause:** IntelliJ's incremental build only recompiles changed `.java` files. A YAML edit alone does not trigger the resource copy step, so `target/test-classes` keeps the stale file.
+
+**Fix (recommended — applies globally):**
+
+`⌘,` → search **"Maven"** → **Build Tools → Maven → Runner** → enable **"Delegate IDE build/run actions to Maven"**
+
+IntelliJ will then invoke `mvn test` under the hood, which always runs `process-test-resources` before executing tests.
+
+**Fix (per run configuration):**
+
+1. Run the test once so the configuration exists
+2. Top toolbar → run config dropdown → **Edit Configurations...**
+3. Select your test config → **Before launch** section → **+** → **Build** → OK
 
 ---
 
@@ -222,6 +270,9 @@ What are you testing?
 | `NoClassDefFoundError` | Missing bean package | Add to `beanPackages` parameter |
 | `UnsupportedOperationException` | Method not mocked | Mock the component parameter interface |
 | `InvalidItemStateException` | Session not saved | Call `brxm.recalculateRepositoryPaths()` after import |
+| Test ignores YAML edits in IntelliJ | IntelliJ skips resource copy on incremental build | Delegate builds to Maven or add a Build step to the run config |
+| Random failures with parallel execution | Method-level concurrent execution enabled | Use class-level parallel only; never set `parallel.mode.default=concurrent` for BRUT tests |
+| WARN from `RuntimeTypeStubber` | Missing CND namespace or node type | Add type to CND or call `registerNodeType()`; stub is permissive but warns |
 
 ---
 
@@ -310,6 +361,131 @@ void setUp() {
     component.init(null, brxm.getComponentConfiguration());
 }
 ```
+
+---
+
+---
+
+## Diagnostics API
+
+BRUT provides structured diagnostics that replace bare `AssertionError` failures with actionable output pointing to the exact YAML file or configuration entry that needs fixing.
+
+### `PageModelAssert` — Fluent Assertions
+
+Drop-in replacement for `assertTrue`/`assertNotNull` on `PageModelResponse`:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.PageModelAssert;
+
+@Test
+void testNewsPage() throws Exception {
+    PageModelResponse pageModel = brxm.request()
+        .get("/site/resourceapi/news")
+        .executeAsPageModel();
+
+    // Each step fails with targeted recommendations if the condition isn't met
+    PageModelAssert.assertThat(pageModel, "/news", "mysite")
+        .hasPage("newsoverview")
+        .hasComponent("NewsList")
+        .containerNotEmpty("main");
+}
+```
+
+Failure example for `hasPage("newsoverview")`:
+```
+[ERROR] Expected page 'newsoverview' but got 'pagenotfound'
+
+RECOMMENDATIONS:
+   • Add sitemap entry in: hst/configurations/mysite/sitemap.yaml for path: /news
+   • Ensure sitemap entry points to: hst:pages/newsoverview
+   • Create page configuration in: hst/configurations/mysite/pages/newsoverview.yaml
+   • Example sitemap entry:
+     /news:
+       jcr:primaryType: hst:sitemapitem
+       hst:componentconfigurationid: hst:pages/newsoverview
+```
+
+Failure example for `hasComponent("NewsList")`:
+```
+[ERROR] Component 'NewsList' not found in PageModel
+
+RECOMMENDATIONS:
+   • Available components in PageModel: footer, header, homepage, main
+   • Verify component name spelling and case sensitivity
+   • Check container references (hst:referencecomponent paths)
+```
+
+**All assertion methods:**
+
+| Method | What it checks | Diagnostic on failure |
+|--------|---------------|----------------------|
+| `hasPage(name)` | Root component name matches | Sitemap + page config YAML guidance |
+| `hasComponent(name)` | Component exists by name | Lists all available component names |
+| `containerNotEmpty(name)` | Container has children | Workspace reference + child component guidance |
+| `containerHasMinChildren(name, n)` | At least `n` children | Child count vs expected |
+| `hasContent()` | `content` or `documents` map is non-empty | Generic content check |
+| `componentHasModel(comp, model)` | Component has named model | Model name + component context |
+| `getComponent(name)` | Asserts + returns `PageComponent` | Same as `hasComponent` |
+
+**Factory methods:**
+```java
+// With request path and channel (recommended — gives better sitemap advice)
+PageModelAssert.assertThat(pageModel, "/news", "mysite")
+
+// Without context (path defaults to "/", channel to "unknown")
+PageModelAssert.assertThat(pageModel)
+```
+
+### `PageModelDiagnostics` — Manual Diagnostic Calls
+
+Use when you want the diagnostic result without immediately failing:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.PageModelDiagnostics;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticSeverity;
+
+DiagnosticResult result = PageModelDiagnostics.diagnoseComponentNotFound(
+    "NewsList", "/site/resourceapi/news", pageModel);
+
+if (result.severity() == DiagnosticSeverity.ERROR) {
+    log.warn("Diagnostic: {}", result);  // Log rather than fail
+}
+```
+
+Available methods:
+
+| Method | Use when |
+|--------|----------|
+| `diagnosePageNotFound(page, path, pm)` | Root component doesn't match expected name |
+| `diagnoseComponentNotFound(name, uri, pm)` | `findComponentByName` returns empty |
+| `diagnoseEmptyContainer(name, pm)` | `getChildComponents` returns empty list |
+| `diagnoseEmptyResponse(uri)` | Page Model API returns empty string |
+
+### `ConfigurationDiagnostics` — Bootstrap Failure Diagnostics
+
+Wraps exceptions from `ConfigService` bootstrap to give targeted YAML/CND recommendations:
+
+```java
+import org.bloomreach.forge.brut.resources.diagnostics.ConfigurationDiagnostics;
+
+try {
+    repository.init();
+} catch (Exception e) {
+    DiagnosticResult result = ConfigurationDiagnostics.diagnoseConfigurationError(e);
+    throw new RuntimeException(result.toString(), e);
+}
+```
+
+Recognises and explains:
+
+| Exception type | Output |
+|----------------|--------|
+| `ParserException` | File name + line/column of the YAML syntax error |
+| `CircularDependencyException` | Which `after:` declarations cause the cycle |
+| `DuplicateNameException` | Conflicting node path across YAML files |
+| `ConfigurationRuntimeException` (property) | Property name, namespace, and node type |
+| `ConfigurationRuntimeException` (node type) | Type name and namespace prefix |
+| Any other exception | Generic recommendations + class name |
 
 ---
 

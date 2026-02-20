@@ -44,7 +44,7 @@ public final class RuntimeTypeStubber {
         String uri = "urn:brut:stub:" + prefix;
         try {
             session.getWorkspace().getNamespaceRegistry().registerNamespace(prefix, uri);
-            LOG.info("Stubbed missing namespace '{}' -> '{}' for delivery-tier tests. " +
+            LOG.warn("Stubbed missing namespace '{}' -> '{}' for delivery-tier tests. " +
                 "Disable with -D{}=false", prefix, uri, STUB_MISSING_NAMESPACES_PROPERTY);
         } catch (NamespaceException e) {
             LOG.debug("Namespace '{}' already registered or conflict: {}", prefix, e.getMessage());
@@ -103,7 +103,7 @@ public final class RuntimeTypeStubber {
 
         try {
             CndImporter.registerNodeTypes(new StringReader(cnd), session);
-            LOG.info("Stubbed missing node type '{}' for delivery-tier tests. " +
+            LOG.warn("Stubbed missing node type '{}' for delivery-tier tests. " +
                 "Disable with -D{}=false", qualifiedName, STUB_MISSING_NODE_TYPES_PROPERTY);
         } catch (Exception e) {
             LOG.debug("Failed to register stub node type '{}': {}", qualifiedName, e.getMessage());

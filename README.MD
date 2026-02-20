@@ -5,8 +5,8 @@
 <!-- AI-METADATA
 framework: brxm-testing
 test-types: [component, pagemodel, jaxrs]
-patterns: [annotation-based, field-injection, mock-repository]
-keywords: [brxm, hst, unit-test, component, pagemodel, jaxrs, rest, bloomreach]
+patterns: [annotation-based, field-injection, mock-repository, diagnostics]
+keywords: [brxm, hst, unit-test, component, pagemodel, jaxrs, rest, bloomreach, v1, v1.0, diagnostics, PageModelAssert, resolveModelContent]
 min-java: 17
 min-brxm: 16.0
 -->
@@ -26,6 +26,7 @@ Zero-config unit testing for BrXM HST components, JAX-RS APIs, and Page Model AP
 | Test authenticated users | [Authentication Patterns](user-guide/authentication-patterns.md) |
 | Create test content | [Stubbing Test Data](user-guide/stubbing-test-data.md) |
 | Fix a failing test | [Troubleshooting Guide](user-guide/troubleshooting.md) |
+| Get actionable test failure messages | [Diagnostics API](user-guide/troubleshooting.md#diagnostics-api) |
 | See common patterns | [Common Patterns](user-guide/common-patterns.md) |
 | Understand architecture | [Architecture](user-guide/architecture.md) |
 
@@ -33,6 +34,7 @@ Zero-config unit testing for BrXM HST components, JAX-RS APIs, and Page Model AP
 
 | BRUT Version | brXM Version | Java | JUnit |
 |--------------|--------------|------|-------|
+| 5.3.x | 16.7+ | 17+ | 5.x |
 | 5.2.x | 16.7+ | 17+ | 5.x |
 | 5.1.x | 16.x | 17+ | 5.x |
 | 5.0.x | 16.x | 17+ | 5.x |
@@ -52,7 +54,7 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
 **Key Benefits:**
 - ✅ **66-74% Less Code** - Annotation-based API eliminates boilerplate
 - ✅ **Production Config** - Load real HCM modules into tests
-- ✅ **Fast Feedback** - Clear error messages with fix suggestions
+- ✅ **Fast Feedback** - Diagnostic assertions pinpoint missing YAML config on failure
 - ✅ **No Inheritance** - Field injection instead of extending base classes
 - ✅ **JUnit 5 Native** - Modern testing patterns
 
@@ -67,7 +69,7 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
 
 ```xml
 <properties>
-    <brut.version>5.2.0</brut.version>
+    <brut.version>5.3.0</brut.version>
 </properties>
 ```
 
@@ -122,20 +124,33 @@ BRUT 5.1.0+ provides zero-config annotation-based testing with automatic setup a
 
 #### Page Model API Test
 ```java
-@BrxmPageModelTest(
-    loadProjectContent = true  // Uses real HCM config from your project
-)
+@BrxmPageModelTest(loadProjectContent = true)
 public class MyPageModelTest {
     private DynamicPageModelTest brxm;
 
     @Test
-    void testComponentRendering() throws IOException {
-        brxm.getHstRequest().setRequestURI("/site/resourceapi/news");
-        brxm.getHstRequest().setQueryString("_hn:type=component-rendering&_hn:ref=r5_r1_r1");
-        String response = brxm.invokeFilter();
+    void testPageStructure() throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
 
-        JsonNode json = new ObjectMapper().readTree(response);
-        assertTrue(json.get("page").size() > 0);
+        // Works with both v1.0 (/page/ refs) and v1.1 (/content/ refs) response formats
+        PageComponent newsList = pageModel.findComponentByName("NewsList").orElseThrow();
+        List<ArticleData> articles = pageModel.resolveModelContentList(newsList, "items", ArticleData.class);
+        assertFalse(articles.isEmpty());
+    }
+
+    @Test
+    void testWithDiagnostics() throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
+
+        // Fails with sitemap/config recommendations instead of a bare AssertionError
+        PageModelAssert.assertThat(pageModel, "/news", "mysite")
+            .hasPage("newsoverview")
+            .hasComponent("NewsList")
+            .containerNotEmpty("main");
     }
 }
 ```
@@ -167,7 +182,7 @@ public class MyJaxrsTest {
 | **Field Injection** | ✅ No inheritance | ❌ Must extend base class |
 | **JUnit 5 Native** | ✅ Extension-based | ⚠️ Requires @TestInstance |
 | **Production Config** | ✅ ConfigServiceRepository | ⚠️ Manual setup |
-| **Thread-Safe** | ✅ Yes | ✅ Yes |
+| **Parallel Execution** | ⚠️ Class-level only | ⚠️ Class-level only |
 
 ### When to Configure Manually
 
@@ -320,7 +335,7 @@ public class FluentApiTest {
     }
 }
 
-// Page Model API with PageModelResponse utilities
+// Page Model API — navigate structure and resolve document references
 @BrxmPageModelTest(loadProjectContent = true)
 public class PageModelTest {
     private DynamicPageModelTest brxm;
@@ -331,9 +346,14 @@ public class PageModelTest {
             .get("/site/resourceapi/")
             .executeAsPageModel();
 
+        // Navigate structure
         PageComponent root = pageModel.getRootComponent();
         PageComponent header = pageModel.findComponentByName("header").orElseThrow();
         List<PageComponent> children = pageModel.getChildComponents(root);
+
+        // Resolve document references — works with v1.0 (/page/ refs) and v1.1 (/content/ refs)
+        Optional<BannerData> banner = pageModel.resolveModelContent(header, "document", BannerData.class);
+        List<ArticleData> articles = pageModel.resolveModelContentList(header, "items", ArticleData.class);
     }
 }
 ```
@@ -466,37 +486,11 @@ Override roots with `-Dbrut.configservice.pruneConfigRoots=/hippo:configuration/
 use `-Dbrut.configservice.pruneConfigRoots=*` to prune any unreachable root, or disable pruning with
 `-Dbrut.configservice.pruneFrontendConfig=false`.
 
-### Production-Parity Configuration
-
-BRUT 5.1.0+ includes `ConfigServiceRepository` for loading real brXM configuration in tests:
-
-```java
-// Uses brXM's ConfigService to load HCM modules (YAML + CND)
-@BrxmPageModelTest(
-    beanPackages = {"org.example.beans"}
-)
-public class MyTest {
-    private DynamicPageModelTest brxm;
-
-    @Test
-    void testWithProductionConfig() {
-        // Repository bootstrapped with production HCM config
-        // No manual YAML imports needed!
-    }
-}
-```
-
-**Benefits:**
-- ✅ Same config format as production (HCM modules)
-- ✅ No duplicate YAML files for tests
-- ✅ Explicit module loading (no classpath pollution)
-- ✅ Works with both PageModel and JAX-RS tests
-
-See [ConfigServiceRepository Documentation](user-guide/config-service-repository.md) for details.
-
 ## Documentation
 
 - **[Quick Reference Guide](user-guide/quick-reference.md)** - Fast lookup for common patterns
+- **[Common Patterns](user-guide/common-patterns.md)** - Recipes and idioms
+- **[Troubleshooting & Diagnostics](user-guide/troubleshooting.md)** - Fixes and diagnostic API
 - **[Architecture](user-guide/architecture.md)** - How BRUT works internally
 - **[ConfigService Guide](user-guide/config-service-repository.md)** - Production-parity configuration
 - **[Release Notes](release-notes.md)** - Version history and features
@@ -540,10 +534,12 @@ This module provides testing infrastructure for HST pipelines (JAX-RS REST, Page
 * ✅ **Annotation-based API** - Zero-config with `@BrxmPageModelTest` and `@BrxmJaxrsTest`
 * ✅ **Production-parity config** - ConfigServiceRepository loads real HCM modules
 * ✅ **Convention over configuration** - Auto-detects bean paths, HST root
+* ✅ **v1.0 + v1.1 Page Model API** - Documents and imagesets resolve correctly in both formats
+* ✅ **Ergonomic content resolution** - `resolveModelContent` / `resolveModelContentList` replace manual pipelines
+* ✅ **Diagnostic assertions** - `PageModelAssert` surfaces YAML config recommendations on failure
 * ✅ **Field injection** - No inheritance required
-* ✅ **Thread-safe** for parallel test execution
+* ⚠️ **Class-level parallel** supported; method-level concurrent execution (`@Execution(CONCURRENT)`) is not supported
 * ✅ **RequestContextProvider.get()** works in JAX-RS resources
-* ✅ Full exception stack traces for debugging
 * ⚠️ Legacy abstract classes still supported (see below)
 
 ### Legacy Approach: Abstract Classes

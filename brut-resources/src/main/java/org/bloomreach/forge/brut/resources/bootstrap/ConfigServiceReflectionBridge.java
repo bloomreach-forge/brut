@@ -20,6 +20,10 @@ import java.util.Set;
  * are needed for test environment bootstrap. This class encapsulates the reflection
  * logic needed to access these methods.
  * <p>
+ * Method references are resolved once at class-load time to avoid per-invocation
+ * getDeclaredMethod() overhead and to surface Java module-system failures deterministically
+ * at class load rather than at runtime per test.
+ * <p>
  * <strong>Methods accessed via reflection:</strong>
  * <ul>
  *   <li>applyNamespacesAndNodeTypes(ConfigurationModel, ConfigurationModel, Session)</li>
@@ -32,6 +36,32 @@ public final class ConfigServiceReflectionBridge {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigServiceReflectionBridge.class);
     private static final int MAX_ITEM_EXISTS_RETRIES = 10;
+
+    static final Method APPLY_NAMESPACES_METHOD;
+    static final Method COMPUTE_WRITE_DELTA_METHOD;
+
+    static {
+        try {
+            APPLY_NAMESPACES_METHOD = ConfigurationConfigService.class.getDeclaredMethod(
+                "applyNamespacesAndNodeTypes",
+                org.onehippo.cm.model.ConfigurationModel.class,
+                org.onehippo.cm.model.ConfigurationModel.class,
+                Session.class
+            );
+            APPLY_NAMESPACES_METHOD.setAccessible(true);
+
+            COMPUTE_WRITE_DELTA_METHOD = ConfigurationConfigService.class.getDeclaredMethod(
+                "computeAndWriteDelta",
+                org.onehippo.cm.model.ConfigurationModel.class,
+                org.onehippo.cm.model.ConfigurationModel.class,
+                Session.class,
+                boolean.class
+            );
+            COMPUTE_WRITE_DELTA_METHOD.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private ConfigServiceReflectionBridge() {
         // Utility class
@@ -51,16 +81,7 @@ public final class ConfigServiceReflectionBridge {
                                                          ConfigurationModelImpl update,
                                                          Session session) throws Exception {
         try {
-            Method method = ConfigurationConfigService.class.getDeclaredMethod(
-                "applyNamespacesAndNodeTypes",
-                org.onehippo.cm.model.ConfigurationModel.class,
-                org.onehippo.cm.model.ConfigurationModel.class,
-                Session.class
-            );
-            method.setAccessible(true);
-            method.invoke(configService, baseline, update, session);
-            method.setAccessible(false);
-
+            APPLY_NAMESPACES_METHOD.invoke(configService, baseline, update, session);
             LOG.debug("Successfully invoked applyNamespacesAndNodeTypes via reflection");
         } catch (Exception e) {
             LOG.error("Failed to invoke applyNamespacesAndNodeTypes via reflection", e);
@@ -84,17 +105,7 @@ public final class ConfigServiceReflectionBridge {
                                                   Session session,
                                                   boolean forceApply) throws Exception {
         try {
-            Method method = ConfigurationConfigService.class.getDeclaredMethod(
-                "computeAndWriteDelta",
-                org.onehippo.cm.model.ConfigurationModel.class,
-                org.onehippo.cm.model.ConfigurationModel.class,
-                Session.class,
-                boolean.class
-            );
-            method.setAccessible(true);
-            method.invoke(configService, baseline, update, session, forceApply);
-            method.setAccessible(false);
-
+            COMPUTE_WRITE_DELTA_METHOD.invoke(configService, baseline, update, session, forceApply);
             LOG.debug("Successfully invoked computeAndWriteDelta via reflection");
         } catch (Exception e) {
             LOG.error("Failed to invoke computeAndWriteDelta via reflection", e);
@@ -135,7 +146,11 @@ public final class ConfigServiceReflectionBridge {
                 }
                 removedPaths.add(existingPath);
                 attempts++;
-                LOG.info("Removed existing node {} after ItemExistsException; retrying ConfigService delta.", existingPath);
+                // Root cause: BRUT passes an empty baseline; the delta engine sees repository.xml-bootstrapped
+                // nodes as "new" and tries to create them again. The proper fix is to pass the actual
+                // hippo:baseline from the repository. This reactive removal is a backwards-compat fallback.
+                LOG.warn("Removed existing node {} after ItemExistsException (attempt {}/{}); retrying ConfigService delta.",
+                    existingPath, attempts, MAX_ITEM_EXISTS_RETRIES);
             } catch (Exception e) {
                 throw new RepositoryException("Failed to compute configuration delta", e);
             }

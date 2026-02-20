@@ -3,6 +3,9 @@ package org.bloomreach.forge.brut.resources.bootstrap;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.bloomreach.forge.brut.common.project.ProjectSettings;
+import org.bloomreach.forge.brut.resources.diagnostics.ConfigurationDiagnostics;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticResult;
+import org.bloomreach.forge.brut.resources.diagnostics.DiagnosticSeverity;
 import org.onehippo.cm.engine.ConfigurationConfigService;
 import org.onehippo.cm.engine.JcrContentProcessor;
 import org.onehippo.cm.model.definition.ActionType;
@@ -45,6 +48,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Bootstrap strategy using brXM's ConfigurationConfigService.
@@ -78,6 +82,25 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigServiceBootstrapStrategy.class);
     private static final JcrContentProcessor CONTENT_PROCESSOR = new JcrContentProcessor();
+
+    /**
+     * JVM-scoped cache of built ConfigurationModels keyed by a fingerprint of the module
+     * descriptor paths and their last-modified timestamps.
+     * <p>
+     * The ConfigurationModelImpl is immutable after {@code build()}, so it is safe to share
+     * across test classes within the same JVM run. This eliminates repeated YAML parsing and
+     * model construction when multiple test classes share the same HCM modules.
+     * <p>
+     * Call {@link #clearModelCache()} in tests that modify module descriptors on disk.
+     */
+    static final ConcurrentHashMap<String, LoadedModules> MODEL_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * Clears the model cache. Intended for test isolation when module descriptors change.
+     */
+    static void clearModelCache() {
+        MODEL_CACHE.clear();
+    }
     private static final String HCM_MODULE_DESCRIPTOR = "META-INF/hcm-module.yaml";
     private static final String MINIMAL_FRAMEWORK_MODULE_RESOURCE =
         "org/bloomreach/forge/brut/resources/config-service/minimal-framework/hcm-module.yaml";
@@ -146,6 +169,14 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             ConfigurationConfigService configService = new ConfigurationConfigService();
 
             ConfigServiceReflectionBridge.invokeApplyNamespacesAndNodeTypes(configService, baseline, configModel, session);
+
+            // Proactively refresh before computing the delta: the Jackrabbit repository.xml
+            // bootstraps /hippo:configuration/* on startup, so there may be pending read-ahead
+            // state that would cause the delta engine to see those nodes as "new" and throw
+            // ItemExistsException. session.refresh(false) discards any uncommitted state and
+            // ensures the delta engine sees the real repository state. The retry loop in
+            // applyConfigDeltaWithRetries is a reactive fallback for any remaining conflicts.
+            session.refresh(false);
             ConfigServiceReflectionBridge.applyConfigDeltaWithRetries(configService, baseline, configModel, session);
 
             ensureMandatoryConfigChildren(session);
@@ -161,6 +192,15 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
         } catch (Exception e) {
             LOG.error("ConfigService bootstrap failed for project: {}", projectNamespace, e);
+
+            // Add diagnostic logging
+            DiagnosticResult diagnostic = ConfigurationDiagnostics.diagnoseConfigurationError(e);
+            if (diagnostic.severity() == DiagnosticSeverity.ERROR) {
+                LOG.error("\n{}", diagnostic);
+            } else if (diagnostic.severity() == DiagnosticSeverity.WARNING) {
+                LOG.warn("\n{}", diagnostic);
+            }
+
             throw new RepositoryException("Failed to bootstrap using ConfigurationConfigService", e);
         }
     }
@@ -253,11 +293,11 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             for (String suffix : paths) {
                 String fullPath = root + suffix;
                 if (!session.nodeExists(fullPath)) {
-                    LOG.info("Workspace diagnostic: missing {}", fullPath);
+                    LOG.debug("Workspace diagnostic: missing {}", fullPath);
                     continue;
                 }
                 Node node = session.getNode(fullPath);
-                LOG.info("Workspace diagnostic: {} (children: {})", fullPath, countChildNodes(node));
+                LOG.debug("Workspace diagnostic: {} (children: {})", fullPath, countChildNodes(node));
             }
         }
     }
@@ -288,7 +328,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
     private void ensureChildNode(Node parent, String name, String primaryType) throws RepositoryException {
         if (!parent.hasNode(name)) {
             parent.addNode(name, primaryType);
-            LOG.info("Injected missing node {} under {}", name, parent.getPath());
+            LOG.debug("Injected missing node {} under {}", name, parent.getPath());
         }
     }
 
@@ -381,6 +421,14 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             return new LoadedModules(new ConfigurationModelImpl().build(), List.of());
         }
 
+        String cacheKey = computeModelCacheKey(moduleDescriptors);
+        LoadedModules cached = MODEL_CACHE.get(cacheKey);
+        if (cached != null) {
+            LOG.debug("ConfigurationModel cache hit ({} module(s)); skipping YAML parse and model build",
+                moduleDescriptors.size());
+            return cached;
+        }
+
         LOG.info("Loading {} module(s) explicitly using ModuleReader (no classpath scanning)...",
             moduleDescriptors.size());
 
@@ -403,7 +451,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
                 continue;
             }
 
-            LOG.info("  Loading module from: {}", moduleDescriptor);
+            LOG.debug("  Loading module from: {}", moduleDescriptor);
             String moduleName = resolveRepositoryModuleName(moduleDescriptor, repositoryDataModule);
             String siteName = siteModuleNames.contains(moduleName) ? projectSiteName : null;
             if (siteName != null) {
@@ -411,7 +459,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             }
             ModuleImpl module = moduleReader.read(moduleDescriptor, false, siteName, null).getModule();
             modules.add(module);
-            LOG.info("  ✓ Loaded module from: {}", moduleDescriptor);
+            LOG.info("  Loaded module from: {}", moduleDescriptor);
         }
 
         List<String> allowedRoots = resolveAllowedConfigRoots();
@@ -427,11 +475,33 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
         addStubGroups(model, stubGroups);
         modules.forEach(model::addModule);
 
-        LOG.info("Building configuration model from {} module(s)...", modules.size());
+        LOG.debug("Building configuration model from {} module(s)...", modules.size());
         ConfigurationModelImpl builtModel = buildModelOnce(model, modules, stubGroups);
 
-        LOG.info("✓ Successfully built model with explicit modules only (framework modules NOT scanned)");
-        return new LoadedModules(builtModel, List.copyOf(modules));
+        LOG.debug("Successfully built model with explicit modules only (framework modules NOT scanned)");
+        LoadedModules result = new LoadedModules(builtModel, List.copyOf(modules));
+        MODEL_CACHE.put(cacheKey, result);
+        return result;
+    }
+
+    private String computeModelCacheKey(List<Path> descriptors) {
+        StringBuilder key = new StringBuilder();
+        List<Path> sorted = new ArrayList<>(descriptors);
+        sorted.sort(Comparator.naturalOrder());
+        for (Path p : sorted) {
+            Path abs = p.toAbsolutePath().normalize();
+            long lastModified = 0L;
+            try {
+                lastModified = Files.getLastModifiedTime(abs).toMillis();
+            } catch (IOException ignored) {
+                // use 0 if unavailable
+            }
+            if (key.length() > 0) {
+                key.append('|');
+            }
+            key.append(abs).append('@').append(lastModified);
+        }
+        return key.toString();
     }
 
     private Set<String> resolveSiteModuleNames(ProjectSettings settings) {
@@ -462,8 +532,8 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             LOG.debug("No minimal framework module resource found on classpath");
             return;
         }
-        LOG.info("Loading minimal framework module from: {}", modulePath);
-        LOG.info("Embedded minimal framework config is injected to satisfy core node types. " +
+        LOG.debug("Loading minimal framework module from: {}", modulePath);
+        LOG.debug("Embedded minimal framework config is injected to satisfy core node types. " +
             "Consider defining required primary types in project config for full parity.");
         ModuleImpl module = moduleReader.read(modulePath, false).getModule();
         modules.add(module);
@@ -565,7 +635,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
         // Fall back to classpath scanning only if no explicit modules provided
         ClassLoader classLoader = context.getClassLoader();
-        LOG.info("Finding test module descriptors (target/test-classes or build/resources/test)...");
+        LOG.debug("Finding test module descriptors (target/test-classes or build/resources/test)...");
 
         Enumeration<URL> resources = classLoader.getResources(HCM_MODULE_DESCRIPTOR);
         while (resources.hasMoreElements()) {
@@ -575,9 +645,9 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
                  moduleUrl.getPath().contains("/build/resources/test/"))) {
                 Path moduleDescriptorPath = Paths.get(moduleUrl.toURI());
                 descriptors.add(moduleDescriptorPath.toAbsolutePath().normalize());
-                LOG.info("✓ Found test module descriptor at: {}", moduleDescriptorPath);
+                LOG.info("Found test module descriptor at: {}", moduleDescriptorPath);
             } else {
-                LOG.debug("✗ Skipping framework/JAR module: {}", moduleUrl);
+                LOG.debug("Skipping framework/JAR module: {}", moduleUrl);
             }
         }
 
@@ -614,7 +684,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             ProjectImpl project = group.addProject(groupName + "-stub");
             project.addModule(groupName + "-stub");
             model.addGroup(group);
-            LOG.info("Added stub group '{}' to satisfy dependency ordering", groupName);
+            LOG.debug("Added stub group '{}' to satisfy dependency ordering", groupName);
         }
     }
 
@@ -836,7 +906,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             }
         }
         if (removed > 0) {
-            LOG.info("Removed {} config definition(s) under {}", removed, rootPrefix);
+            LOG.debug("Removed {} config definition(s) under {}", removed, rootPrefix);
         }
         return removed > 0;
     }

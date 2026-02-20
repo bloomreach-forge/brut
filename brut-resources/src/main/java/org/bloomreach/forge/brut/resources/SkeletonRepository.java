@@ -1,5 +1,6 @@
 package org.bloomreach.forge.brut.resources;
 
+import org.bloomreach.forge.brut.common.project.ProjectDiscovery;
 import org.bloomreach.forge.brut.common.repository.AbstractBrutRepository;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.slf4j.Logger;
@@ -13,7 +14,10 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SkeletonRepository extends AbstractBrutRepository {
 
@@ -58,12 +62,17 @@ public class SkeletonRepository extends AbstractBrutRepository {
     /**
      * Ensures that hst:content paths in HST site configurations exist in JCR.
      * Creates stub folders for any missing content paths to support getSiteContentBaseBean().
+     * Checks {@code /hst:hst} and the project-specific root resolved via {@link ProjectDiscovery}.
      */
     private void ensureContentPaths(Session session) {
         try {
-            // Check common HST root locations
-            String[] hstRoots = {"/hst:hst", "/hst:myproject"};
-            for (String hstRoot : hstRoots) {
+            Set<String> candidates = new LinkedHashSet<>();
+            candidates.add("/hst:hst");
+            String projectRoot = ProjectDiscovery.resolveHstRoot(Paths.get(System.getProperty("user.dir")));
+            if (projectRoot != null && !"/hst:hst".equals(projectRoot)) {
+                candidates.add(projectRoot);
+            }
+            for (String hstRoot : candidates) {
                 if (session.nodeExists(hstRoot)) {
                     ensureContentPathsUnder(session, session.getNode(hstRoot));
                 }

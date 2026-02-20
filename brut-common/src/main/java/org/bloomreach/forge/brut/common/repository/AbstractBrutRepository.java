@@ -23,8 +23,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
+import org.bloomreach.forge.brut.common.repository.utils.HippoPathUtils;
+
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
@@ -33,8 +34,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
-
-import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
 
 /**
  * Abstract base class for BRUT repository implementations.
@@ -86,9 +85,6 @@ public abstract class AbstractBrutRepository extends BrxmTestingRepository {
             ClassLoader cl = this.getClass().getClassLoader();
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(cl);
             Resource[] resources = resolver.getResources(pattern);
-            for (Resource resource : resources) {
-                LOG.debug("RESOURCE: {}", resource.getFilename());
-            }
             return resources;
         } catch (Exception e) {
             throw new RepositoryException(e);
@@ -140,42 +136,18 @@ public abstract class AbstractBrutRepository extends BrxmTestingRepository {
     }
 
     protected LinkedList<String> getPathsForNode(Node node, Node rootNode) throws RepositoryException {
-        LinkedList<String> paths = new LinkedList<>();
-        Node parentNode = node;
-        do {
-            parentNode = parentNode.getParent();
-            paths.add(parentNode.getIdentifier());
-        } while (!parentNode.isSame(rootNode));
-        return paths;
+        return HippoPathUtils.getPathsForNode(node, rootNode);
     }
 
-    @SuppressWarnings("unchecked")
     protected void calculateHippoPaths(Node node, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, node.getIdentifier());
-        setHippoPath(node, paths);
-        for (NodeIterator nodes = node.getNodes(); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            if (!subnode.isNodeType("hippo:handle")) {
-                if (!subnode.isNodeType("hippotranslation:translations")) {
-                    calculateHippoPaths(subnode, (LinkedList<String>) paths.clone());
-                }
-            } else {
-                setHandleHippoPaths(subnode, (LinkedList<String>) paths.clone());
-            }
-        }
+        HippoPathUtils.calculateHippoPaths(node, paths);
     }
 
     protected void setHippoPath(Node node, LinkedList<String> paths) throws RepositoryException {
-        node.setProperty(HIPPO_PATHS, paths.toArray(new String[0]));
+        HippoPathUtils.setHippoPath(node, paths);
     }
 
     protected void setHandleHippoPaths(Node handle, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, handle.getIdentifier());
-        for (NodeIterator nodes = handle.getNodes(handle.getName()); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            paths.add(0, subnode.getIdentifier());
-            setHippoPath(subnode, paths);
-            paths.remove(0);
-        }
+        HippoPathUtils.setHandleHippoPaths(handle, paths);
     }
 }

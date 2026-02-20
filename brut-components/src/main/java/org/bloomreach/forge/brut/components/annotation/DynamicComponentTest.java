@@ -1,5 +1,6 @@
 package org.bloomreach.forge.brut.components.annotation;
 
+import org.bloomreach.forge.brut.common.repository.BrxmTestingRepository;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.bloomreach.forge.brut.components.BaseComponentTest;
 import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
@@ -13,6 +14,7 @@ import org.hippoecm.hst.mock.core.request.MockResolvedSiteMapItem;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import java.net.URL;
 
 public class DynamicComponentTest extends BaseComponentTest {
@@ -60,6 +62,14 @@ public class DynamicComponentTest extends BaseComponentTest {
 
     public Node getRootNode() {
         return rootNode;
+    }
+
+    public BrxmTestingRepository getRepository() {
+        return super.getRepository();
+    }
+
+    public Session getSession() throws RepositoryException {
+        return rootNode != null ? rootNode.getSession() : null;
     }
 
     public HippoBean getHippoBean(String path) {
