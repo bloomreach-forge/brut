@@ -1,0 +1,44 @@
+id: brut
+name: Bloomreach Unit Testing Library
+version: 4.0.2
+description: Bloomreach Unit Testing Library for BrXM Delivery Tier
+repository:
+  url: https://github.com/bloomreach-forge/brut
+  branch: master
+publisher:
+  name: bloomreach-forge
+  type: community
+category: developer-tools
+pluginTier: forge-addon
+compatibility:
+  brxm:
+    min: "15.0.0"
+artifacts:
+- type: maven-lib
+  description: Core testing utilities and base classes
+  target: site/components
+  scope: test
+  maven:
+    groupId: org.bloomreach.forge.brut
+    artifactId: brut-common
+- type: maven-lib
+  description: HST component testing support
+  target: site/components
+  scope: test
+  maven:
+    groupId: org.bloomreach.forge.brut
+    artifactId: brut-components
+- type: maven-lib
+  description: JAX-RS and Page Model API testing support
+  target: site/components
+  scope: test
+  maven:
+    groupId: org.bloomreach.forge.brut
+    artifactId: brut-resources
+documentation:
+- type: site
+  url: https://bloomreach-forge.github.io/brut/
+installation:
+  target:
+  - site
+  verification: "Tests extend BaseComponentTest, AbstractPageModelTest, or AbstractJaxrsTest"
