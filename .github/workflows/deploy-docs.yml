@@ -59,7 +59,7 @@ jobs:
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
 
       - name: Build site
-        run: mvn -B site -Pgithub.pages -pl '!demo'
+        run: mvn -B site -Pgithub.pages
         env:
           BR_MAVEN_USERNAME: ${{ secrets.BR_MAVEN_USERNAME }}
           BR_MAVEN_PASSWORD: ${{ secrets.BR_MAVEN_PASSWORD }}
