@@ -48,7 +48,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         setupHstResponse();
     }
 
-    protected void setupForNewRequest() {
+    public void setupForNewRequest() {
         setupHstRequest();
         getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         getHstRequest().setMethod(HttpMethod.GET);
@@ -95,10 +95,6 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
             contributedDefinitions.add(0, pageModelAddonDefinition); //add pagemodel addon as first
             this.componentManager.setAddonModuleDefinitions(contributedDefinitions);
         }
-    }
-
-    public void destroy() {
-        super.destroy();
     }
 
     protected void testComponent(final String hstConfig, final String id, final String expectedResource, final Class componentClass, final Object paramInfo) {

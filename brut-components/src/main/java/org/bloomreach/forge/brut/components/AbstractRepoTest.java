@@ -1,6 +1,7 @@
 package org.bloomreach.forge.brut.components;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bloomreach.forge.brut.common.repository.utils.HippoPathUtils;
 import org.bloomreach.forge.brut.common.repository.utils.ImporterUtils;
 import org.bloomreach.forge.brut.common.repository.utils.NodeTypeUtils;
 import org.bloomreach.forge.brut.components.exception.SetupTeardownException;
@@ -30,9 +31,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.LinkedList;
-
-import static org.hippoecm.repository.api.HippoNodeType.HIPPO_PATHS;
 
 public abstract class AbstractRepoTest extends SimpleComponentTest {
 
@@ -296,7 +294,7 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         try {
             validateAbsolutePath(absolutePath);
             Node node = rootNode.getNode(absolutePath.substring(1));
-            calculateHippoPaths(node, getPathsForNode(node));
+            HippoPathUtils.calculateHippoPaths(node, HippoPathUtils.getPathsForNode(node, rootNode));
             if (save) {
                 rootNode.getSession().save();
             }
@@ -343,52 +341,13 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         }
     }
 
-    private LinkedList<String> getPathsForNode(Node node) throws RepositoryException {
-        LinkedList<String> paths = new LinkedList<>();
-        Node parentNode = node;
-        do {
-            parentNode = parentNode.getParent();
-            paths.add(parentNode.getIdentifier());
-        } while (!parentNode.isSame(rootNode));
-        return paths;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void calculateHippoPaths(Node node, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, node.getIdentifier());
-        setHippoPath(node, paths);
-        for (NodeIterator nodes = node.getNodes(); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            if (!subnode.isNodeType("hippo:handle")) {
-                if (!subnode.isNodeType("hippotranslation:translations")) {
-                    calculateHippoPaths(subnode, (LinkedList<String>) paths.clone());
-                }
-            } else {
-                setHandleHippoPaths(subnode, (LinkedList<String>) paths.clone());
-            }
-        }
-    }
-
-    private void setHippoPath(Node node, LinkedList<String> paths) throws RepositoryException {
-        node.setProperty(HIPPO_PATHS, paths.toArray(new String[paths.size()]));
-    }
-
-    private void setHandleHippoPaths(Node handle, LinkedList<String> paths) throws RepositoryException {
-        paths.add(0, handle.getIdentifier());
-        for (NodeIterator nodes = handle.getNodes(handle.getName()); nodes.hasNext(); ) {
-            Node subnode = nodes.nextNode();
-            paths.add(0, subnode.getIdentifier());
-            setHippoPath(subnode, paths);
-            paths.remove(0);
-        }
-    }
-
     /**
-     * Override this method if you are importing cnds instead of manual registration!
+     * Registers base node types required for the test repository.
+     * Override {@link #shouldRegisterBaseNodeTypes()} to return {@code false} when using
+     * CND imports instead of manual registration, so that this method is skipped.
      *
-     * @throws Exception
+     * @throws Exception if node type registration fails
      */
-
     protected void registerBaseNodeTypes() throws Exception {
         registerNodeType("frontend:application");
         registerNodeType("frontend:pluginconfig");

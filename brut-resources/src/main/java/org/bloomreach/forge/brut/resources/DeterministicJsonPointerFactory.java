@@ -15,10 +15,6 @@ public class DeterministicJsonPointerFactory extends JsonPointerFactoryImpl {
         return factory;
     }
 
-    private static void set(DeterministicJsonPointerFactory jsonPointerFactory) {
-        tlDeterministicJsonPointerFactoryHolder.set(jsonPointerFactory);
-    }
-
     private long id = 0;
 
     public static void reset() {

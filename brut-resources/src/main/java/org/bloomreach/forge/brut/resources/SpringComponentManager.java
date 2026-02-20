@@ -9,11 +9,6 @@ public class SpringComponentManager extends org.hippoecm.hst.site.container.Spri
     private List<String> configurationResources = Arrays.asList(DEFAULT_SPRING_LOCATION_PATTERN);
 
     @Override
-    public void initialize() {
-        super.initialize();
-    }
-
-    @Override
     public String[] getConfigurationResources() {
         return configurationResources.toArray(new String[0]);
     }

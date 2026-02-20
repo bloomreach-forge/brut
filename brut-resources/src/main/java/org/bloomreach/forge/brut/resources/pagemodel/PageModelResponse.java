@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Main wrapper for PageModel API responses.
@@ -122,7 +121,7 @@ public class PageModelResponse {
         return parent.getChildren().stream()
                 .map(this::resolveComponent)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -152,7 +151,7 @@ public class PageModelResponse {
         }
         return page.values().stream()
                 .filter(c -> type.equals(c.getType()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

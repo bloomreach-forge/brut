@@ -176,7 +176,7 @@ public abstract class AbstractResourceTest {
      * Invokes the HST filter and returns response content.
      * Sets RequestContextProvider ThreadLocal for JAX-RS resources to access.
      */
-    protected String invokeFilter() {
+    public String invokeFilter() {
         setupHstResponse();
         performValidation();
 
@@ -233,6 +233,18 @@ public abstract class AbstractResourceTest {
             REQUEST_CONTEXT_CLEAR.invoke(null);
         } catch (IllegalAccessException | InvocationTargetException e) {
             LOGGER.warn("Failed to clear RequestContextProvider", e);
+        }
+    }
+
+    protected int getResponseStatus() {
+        if (hstResponse == null) {
+            return 200;
+        }
+        try {
+            Method getStatus = hstResponse.getClass().getMethod("getStatus");
+            return (int) getStatus.invoke(hstResponse);
+        } catch (Exception e) {
+            return 200;
         }
     }
 

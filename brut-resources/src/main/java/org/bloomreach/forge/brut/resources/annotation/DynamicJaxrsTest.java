@@ -17,12 +17,10 @@ package org.bloomreach.forge.brut.resources.annotation;
 
 import org.bloomreach.forge.brut.common.repository.MockAuthenticationConfig;
 import org.bloomreach.forge.brut.resources.AbstractJaxrsTest;
-import org.bloomreach.forge.brut.resources.MockHstRequest;
 import org.bloomreach.forge.brut.resources.util.RequestBuilder;
 import org.bloomreach.forge.brut.resources.util.RepositorySession;
 
 import javax.jcr.Repository;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,26 +58,6 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest implements DynamicTest {
     }
 
     @Override
-    public void init() {
-        super.init();
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
-
-    @Override
-    public MockHstRequest getHstRequest() {
-        return super.getHstRequest();
-    }
-
-    @Override
-    public String invokeFilter() {
-        return super.invokeFilter();
-    }
-
-    @Override
     public void setupForNewRequest() {
         MockAuthenticationConfig.reset();
         super.setupForNewRequest();
@@ -92,18 +70,6 @@ public class DynamicJaxrsTest extends AbstractJaxrsTest implements DynamicTest {
                 this::invokeFilter,
                 this::getResponseStatus
         );
-    }
-
-    private int getResponseStatus() {
-        if (hstResponse == null) {
-            return 200;
-        }
-        try {
-            Method getStatus = hstResponse.getClass().getMethod("getStatus");
-            return (int) getStatus.invoke(hstResponse);
-        } catch (Exception e) {
-            return 200;
-        }
     }
 
     @Override

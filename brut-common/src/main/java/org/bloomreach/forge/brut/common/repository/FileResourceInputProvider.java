@@ -14,7 +14,7 @@ import java.nio.file.Files;
 
 public class FileResourceInputProvider implements ResourceInputProvider {
 
-    private String yamlFilePath;
+    private final String yamlFilePath;
 
     public FileResourceInputProvider(String yamlFilePath) {
         this.yamlFilePath = yamlFilePath;

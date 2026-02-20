@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 /**
  * Abstract base class for testing JAX-RS resources with the HST container.
@@ -131,7 +130,7 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         if (contributeAddonModulePaths() != null) {
             List<ModuleDefinition> moduleDefinitions = contributeAddonModulePaths().stream()
                     .map(Utils::loadAddonModule)
-                    .collect(Collectors.toList());
+                    .toList();
             this.componentManager.setAddonModuleDefinitions(moduleDefinitions);
         }
     }
