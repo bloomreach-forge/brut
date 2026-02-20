@@ -17,10 +17,7 @@ class ComponentConfigResolver {
         List<String> packages = annotation.beanPackages().length > 0
             ? List.of(annotation.beanPackages())
             : ProjectDiscovery.resolveBeanPackages(
-                testClass,
-                ProjectDiscovery.BeanPackageOrder.BEANS_FIRST,
-                true
-            );
+                testClass, ProjectDiscovery.BeanPackageOrder.BEANS_FIRST, true);
 
         List<String> patterns = new ArrayList<>(CORE_BEAN_PATTERNS);
         patterns.addAll(ProjectDiscovery.toClasspathPatterns(packages, true, false));

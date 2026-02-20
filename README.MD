@@ -182,7 +182,7 @@ public class MyJaxrsTest {
 | **Field Injection** | ✅ No inheritance | ❌ Must extend base class |
 | **JUnit 5 Native** | ✅ Extension-based | ⚠️ Requires @TestInstance |
 | **Production Config** | ✅ ConfigServiceRepository | ⚠️ Manual setup |
-| **Thread-Safe** | ✅ Yes | ✅ Yes |
+| **Parallel Execution** | ⚠️ Class-level only | ⚠️ Class-level only |
 
 ### When to Configure Manually
 
@@ -538,7 +538,7 @@ This module provides testing infrastructure for HST pipelines (JAX-RS REST, Page
 * ✅ **Ergonomic content resolution** - `resolveModelContent` / `resolveModelContentList` replace manual pipelines
 * ✅ **Diagnostic assertions** - `PageModelAssert` surfaces YAML config recommendations on failure
 * ✅ **Field injection** - No inheritance required
-* ✅ **Thread-safe** for parallel test execution
+* ⚠️ **Class-level parallel** supported; method-level concurrent execution (`@Execution(CONCURRENT)`) is not supported
 * ✅ **RequestContextProvider.get()** works in JAX-RS resources
 * ⚠️ Legacy abstract classes still supported (see below)
 

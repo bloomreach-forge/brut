@@ -55,6 +55,16 @@
           <skip>true</skip>
         </configuration>
       </plugin>
+      <!-- Disable AP discovery when compiling brut-common itself to avoid
+           bootstrapping error: the processor class isn't compiled yet when
+           javac tries to load it from the services file. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <proc>none</proc>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

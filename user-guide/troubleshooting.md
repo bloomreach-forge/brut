@@ -95,6 +95,54 @@ void setUp() throws RepositoryException {
 }
 ```
 
+### Intermittent Failures or Data Corruption With Parallel Execution
+
+**Symptom:** Tests pass individually but fail randomly when JUnit 5 parallel execution is enabled; `InvalidItemStateException`, `NullPointerException` on mock objects, or wrong response data
+
+**Cause:** Method-level concurrent execution (`@Execution(CONCURRENT)`) is not supported. All test methods in a class share one `DynamicComponentTest` instance, one JCR session, and non-thread-safe mock objects.
+
+**Fix:** Only enable class-level parallelism. In `junit-platform.properties`:
+
+```properties
+junit.jupiter.execution.parallel.enabled = true
+junit.jupiter.execution.parallel.mode.default = same_thread        # methods: sequential
+junit.jupiter.execution.parallel.mode.classes.default = concurrent  # classes: parallel
+```
+
+Never set `junit.jupiter.execution.parallel.mode.default = concurrent` for BRUT test classes.
+
+### WARN Messages From RuntimeTypeStubber
+
+**Symptom:** Log output contains WARN messages like `Stubbing missing namespace 'myproject' as permissive` or `Registering stub node type 'myproject:MyBean'`
+
+**Cause:** BRUT encountered a JCR namespace or node type that is referenced in your beans or content but not registered in any CND file. These messages are intentionally at WARN level — stubs allow tests to run but may mask type validation issues.
+
+**Fix options:**
+1. Add the missing namespace/node type to your project's CND file (recommended for production types).
+2. Register the type explicitly in the test: `brxm.registerNodeType("myproject:MyBean")`.
+3. If the stub is intentional (e.g. a third-party type you don't own), suppress the specific logger in `logback-test.xml`:
+```xml
+<logger name="org.bloomreach.forge.brut.resources.bootstrap.RuntimeTypeStubber" level="INFO"/>
+```
+
+### Test Not Picking Up YAML Changes in IntelliJ
+
+**Symptom:** Editing a YAML file and re-running a test in IntelliJ still uses the old content, as if the change never happened. Running `mvn test` works correctly.
+
+**Cause:** IntelliJ's incremental build only recompiles changed `.java` files. A YAML edit alone does not trigger the resource copy step, so `target/test-classes` keeps the stale file.
+
+**Fix (recommended — applies globally):**
+
+`⌘,` → search **"Maven"** → **Build Tools → Maven → Runner** → enable **"Delegate IDE build/run actions to Maven"**
+
+IntelliJ will then invoke `mvn test` under the hood, which always runs `process-test-resources` before executing tests.
+
+**Fix (per run configuration):**
+
+1. Run the test once so the configuration exists
+2. Top toolbar → run config dropdown → **Edit Configurations...**
+3. Select your test config → **Before launch** section → **+** → **Build** → OK
+
 ---
 
 ## Runtime Issues
@@ -222,6 +270,9 @@ What are you testing?
 | `NoClassDefFoundError` | Missing bean package | Add to `beanPackages` parameter |
 | `UnsupportedOperationException` | Method not mocked | Mock the component parameter interface |
 | `InvalidItemStateException` | Session not saved | Call `brxm.recalculateRepositoryPaths()` after import |
+| Test ignores YAML edits in IntelliJ | IntelliJ skips resource copy on incremental build | Delegate builds to Maven or add a Build step to the run config |
+| Random failures with parallel execution | Method-level concurrent execution enabled | Use class-level parallel only; never set `parallel.mode.default=concurrent` for BRUT tests |
+| WARN from `RuntimeTypeStubber` | Missing CND namespace or node type | Add type to CND or call `registerNodeType()`; stub is permissive but warns |
 
 ---
 

@@ -34,9 +34,9 @@
 
 ### 5.3.0
 
-**Page Model API v1.0 Document Resolution + Ergonomic Content API**
+**Page Model API v1.0 Document Resolution + Ergonomic Content API + Test Performance**
 
-This release fixes silent data loss when parsing Page Model API v1.0 responses and adds helper methods that replace 4-step stream pipelines with single calls.
+This release fixes silent data loss when parsing Page Model API v1.0 responses, adds helper methods that replace 4-step stream pipelines with single calls, and significantly reduces test-suite startup overhead through JCR repository sharing.
 
 #### Bug Fixes
 
@@ -131,6 +131,30 @@ RECOMMENDATIONS:
 
 **`DiagnosticSeverity`** — `SUCCESS`, `INFO`, `WARNING`, `ERROR`.
 
+#### Performance Improvements
+
+* **JCR repository sharing** — `BrxmComponentTestExtension` now reuses a single `BrxmTestingRepository` across all test classes that share the same configuration fingerprint (bean packages, test resource path, content YAML, and content root). Jackrabbit is bootstrapped once per fingerprint and shut down once at the end of the suite via a JUnit 5 `CloseableResource` in the root store. Each test class still opens its own JCR session and gets a fresh set of mock objects.
+
+* **ConfigurationModel caching** — `ConfigServiceBootstrapStrategy` caches the built `ConfigurationModel` keyed by the SHA-256 fingerprint of its source files. Subsequent test classes with the same HCM modules skip the full `ConfigService` parse step, avoiding repeated YAML/CND processing.
+
+* **Node type registration guard** — `BaseComponentTest.shouldRegisterBaseNodeTypes()` delegates to `BrxmTestingRepository.recordInitialization("__baseNodeTypes__")`. On a shared repository the ~50 `hasNodeType()` calls that previously ran at the start of every test class now run at most once per repository.
+
+* **`BrxmTestingRepository.recordInitialization(key)`** — New first-caller-wins gate. Returns `true` the first time a key is seen (proceed with the operation) and `false` on subsequent calls (skip). Used internally by `BaseComponentTest` for both node-type registration and skeleton YAML import.
+
+* **`BaseComponentTest.setRepository(BrxmTestingRepository)`** — New API that allows a pre-bootstrapped repository to be injected before `setup()` is called. The extension uses this to share a single repository instance across test classes.
+
+* **RuntimeTypeStubber log level** — Stub-specific messages in `RuntimeTypeStubber` raised back from INFO/DEBUG to WARN (reverting the normalization applied in 5.2.0 for these messages only). These stubs indicate missing node type definitions in the project's CND files and warrant developer attention.
+
+#### Parallel Execution Contract
+
+Class-level parallel execution (multiple test classes running concurrently) is supported with the following caveats:
+
+- Each class receives its own JCR session, `DynamicComponentTest` instance, and mock objects.
+- `getOrComputeIfAbsent()` in the JUnit 5 root store guarantees a single bootstrap per fingerprint.
+- `BrxmTestingRepository.appliedInitKeys` uses a `Collections.synchronizedSet` — individual `add()` calls are atomic, but callers should not assume the associated operation is complete immediately after another thread's `add()` returns `false`.
+
+**Method-level parallel execution** (`@Execution(CONCURRENT)` on test methods within the same class) is **not supported**. All methods in a class share a single `DynamicComponentTest` instance, a single JCR session, and non-thread-safe mock objects. Enabling method-level concurrency will cause data corruption and intermittent failures.
+
 ### 5.2.0
 
 **brXM 16.7.0 Compatibility & Security Hardening**
@@ -149,7 +173,7 @@ This release upgrades the brXM parent POM to 16.7.0 and includes breaking change
 #### Improvements
 
 * **Fork PR handling** — CI detects fork PRs and skips the build with a notice, instead of failing with 401 Unauthorized on the private Maven repository.
-* **Log level normalization** — Operational messages from `ConfigServiceBootstrapStrategy`, `RuntimeTypeStubber`, `JcrNodeSynchronizer`, `ConfigServiceReflectionBridge`, and `SiteContentBaseResolverValve` downgraded from WARN to INFO/DEBUG. These are expected conditions during test bootstrap, not warnings.
+* **Log level normalization** — Operational messages from `ConfigServiceBootstrapStrategy`, `JcrNodeSynchronizer`, `ConfigServiceReflectionBridge`, and `SiteContentBaseResolverValve` downgraded from WARN to INFO/DEBUG. These are expected conditions during test bootstrap, not warnings. Note: `RuntimeTypeStubber` messages were temporarily downgraded here but raised back to WARN in 5.3.0, as stubs indicate potentially missing CND definitions.
 * **Log noise reduction** — `VirtualHostsService` (duplicate mount alias errors) suppressed; `HstDelegateeFilterBean` reduced from ALL to WARN.
 * **Javadoc scope warnings** — `@BrxmComponentTest`, `@BrxmJaxrsTest`, and `@BrxmPageModelTest` annotations now document the `<scope>test</scope>` requirement and the consequences of omitting it.
 
@@ -305,7 +329,7 @@ protected List<String> contributeSpringConfigurationLocations() {
 ```
 
 **Documentation:**
-- See `docs/config-service-repository.md` for detailed usage guide
+- See `user-guide/config-service-repository.md` for detailed usage guide
 - Example integration tests in `demo/site/components/src/test/java/org/example/`
 
 **Architecture:**
@@ -569,7 +593,7 @@ This release focuses on enabling reliable testing with multiple test methods and
 **Key Improvements:**
 
 * **JUnit 4 `@Before` pattern support** - Component manager now properly shared across test instances while maintaining per-test isolation
-* **Thread-safe initialization** - ReentrantLock-based synchronization prevents race conditions in parallel test execution
+* **Servlet context registration** - `ReentrantLock`-based synchronization prevents duplicate `HippoWebappContext` registration when multiple test classes run sequentially
 * **RequestContextProvider support** - JAX-RS resources can now access `RequestContextProvider.get()` with proper ThreadLocal management
 * **Null-safety and error handling** - Defensive checks throughout with clear error messages for initialization issues
 * **Exception visibility** - Full stack traces logged and propagated for easier debugging

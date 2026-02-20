@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import javax.jcr.ItemExistsException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,6 +42,39 @@ class ConfigServiceReflectionBridgeTest {
             Exception wrapperEx = new RuntimeException("Wrapper", innerEx);
             String result = ConfigServiceReflectionBridge.extractItemExistsPath(wrapperEx);
             assertEquals("/nested/path", result);
+        }
+    }
+
+    @Nested
+    class CachedMethodFields {
+
+        @Test
+        void applyNamespacesMethod_isCachedStaticFinal() throws Exception {
+            Field f = ConfigServiceReflectionBridge.class.getDeclaredField("APPLY_NAMESPACES_METHOD");
+            f.setAccessible(true);
+            assertTrue(Modifier.isStatic(f.getModifiers()), "APPLY_NAMESPACES_METHOD must be static");
+            assertTrue(Modifier.isFinal(f.getModifiers()), "APPLY_NAMESPACES_METHOD must be final");
+            assertNotNull(f.get(null), "APPLY_NAMESPACES_METHOD must not be null at class load");
+        }
+
+        @Test
+        void computeWriteDeltaMethod_isCachedStaticFinal() throws Exception {
+            Field f = ConfigServiceReflectionBridge.class.getDeclaredField("COMPUTE_WRITE_DELTA_METHOD");
+            f.setAccessible(true);
+            assertTrue(Modifier.isStatic(f.getModifiers()), "COMPUTE_WRITE_DELTA_METHOD must be static");
+            assertTrue(Modifier.isFinal(f.getModifiers()), "COMPUTE_WRITE_DELTA_METHOD must be final");
+            assertNotNull(f.get(null), "COMPUTE_WRITE_DELTA_METHOD must not be null at class load");
+        }
+
+        @Test
+        @SuppressWarnings("deprecation")
+        void applyNamespacesMethod_isAccessible() throws Exception {
+            Field f = ConfigServiceReflectionBridge.class.getDeclaredField("APPLY_NAMESPACES_METHOD");
+            f.setAccessible(true);
+            Method m = (Method) f.get(null);
+            // isAccessible() is deprecated since Java 9 but is the only way to query the flag
+            // without providing an instance (canAccess(null) throws for non-static methods).
+            assertTrue(m.isAccessible(), "Cached method must have setAccessible(true) applied");
         }
     }
 

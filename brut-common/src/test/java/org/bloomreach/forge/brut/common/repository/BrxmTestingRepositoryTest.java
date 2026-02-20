@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.bloomreach.forge.brut.common.repository.utils.NodeTypeUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BrxmTestingRepositoryTest {
 
@@ -49,6 +51,25 @@ public class BrxmTestingRepositoryTest {
             assertEquals(1, nodes.getSize());
             assertEquals(NODE_NAME, nodes.nextNode().getName());
         }
+    }
+
+    @Test
+    void close_whenManaged_doesNotShutdown() throws Exception {
+        BrxmTestingRepository repo = new BrxmTestingRepository();
+        repo.setManaged(true);
+        repo.close();
+        Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        assertNotNull(session);
+        session.logout();
+        repo.forceClose();
+    }
+
+    @Test
+    void forceClose_alwaysShutdowns() throws Exception {
+        BrxmTestingRepository repo = new BrxmTestingRepository();
+        repo.setManaged(true);
+        repo.forceClose();
+        assertThrows(Exception.class, () -> repo.login(new SimpleCredentials("admin", "admin".toCharArray())));
     }
 
     private void addSampleNode(Session session) throws RepositoryException {
