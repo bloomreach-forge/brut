@@ -1,6 +1,7 @@
 org.bloomreach.forge.brut.common.exception
 org.bloomreach.forge.brut.common.junit
 org.bloomreach.forge.brut.common.logging
+org.bloomreach.forge.brut.common.processor
 org.bloomreach.forge.brut.common.project
 org.bloomreach.forge.brut.common.project.strategy
 org.bloomreach.forge.brut.common.repository
@@ -12,5 +13,6 @@ org.bloomreach.forge.brut.components.mock
 org.bloomreach.forge.brut.resources
 org.bloomreach.forge.brut.resources.annotation
 org.bloomreach.forge.brut.resources.bootstrap
+org.bloomreach.forge.brut.resources.diagnostics
 org.bloomreach.forge.brut.resources.pagemodel
 org.bloomreach.forge.brut.resources.util

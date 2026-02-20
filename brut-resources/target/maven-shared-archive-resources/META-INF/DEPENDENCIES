@@ -1,0 +1,627 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+BRUT Rest Resources Tester
+
+
+From: 'an unknown organization'
+
+  - Adobe XMPCore (https://www.adobe.com/devnet/xmp/library/eula-xmp-library-java.html) com.adobe.xmp:xmpcore:bundle:6.1.11
+    License: The BSD 3-Clause License (BSD3)  (https://opensource.org/licenses/BSD-3-Clause)
+
+  - com.drewnoakes:metadata-extractor (https://drewnoakes.com/code/exif/) com.drewnoakes:metadata-extractor:jar:2.19.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - juniversalchardet (https://github.com/albfernandez/juniversalchardet) com.github.albfernandez:juniversalchardet:jar:2.5.0
+    License: Mozilla Public License Version 1.1  (https://www.mozilla.org/en-US/MPL/1.1/)
+    License: GENERAL PUBLIC LICENSE, version 3 (GPL-3.0)  (http://www.gnu.org/licenses/gpl.txt)
+    License: GNU LESSER GENERAL PUBLIC LICENSE, version 3 (LGPL-3.0)  (http://www.gnu.org/licenses/lgpl.txt)
+
+  - Caffeine cache (https://github.com/ben-manes/caffeine) com.github.ben-manes.caffeine:caffeine:jar:3.2.3
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - curvesapi (https://github.com/virtuald/curvesapi) com.github.virtuald:curvesapi:jar:1.08
+    License: BSD License  (http://opensource.org/licenses/BSD-3-Clause)
+
+  - Guava InternalFutureFailureAccess and InternalFutures (https://github.com/google/guava/failureaccess) com.google.guava:failureaccess:jar:1.0.3
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Guava: Google Core Libraries for Java (https://github.com/google/guava) com.google.guava:guava:bundle:33.5.0-jre
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Guava ListenableFuture only (https://github.com/google/guava/listenablefuture) com.google.guava:listenablefuture:jar:9999.0-empty-to-avoid-conflict-with-guava
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - J2ObjC Annotations (https://github.com/google/j2objc/) com.google.j2objc:j2objc-annotations:jar:3.1
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - dd-plist (http://www.github.com/3breadt/dd-plist) com.googlecode.plist:dd-plist:jar:1.28
+    License: MIT License  (http://opensource.org/licenses/mit)
+
+  - JSON library from Android SDK (http://developer.android.com/sdk) com.vaadin.external.google:android-json:jar:0.0.20131108.vaadin1
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+
+  - picocli (https://picocli.info) info.picocli:picocli:jar:4.7.7
+    License: The Apache Software License, version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - ClassGraph (https://github.com/classgraph/classgraph) io.github.classgraph:classgraph:jar:4.8.184
+    License: The MIT License (MIT)  (http://opensource.org/licenses/MIT)
+
+  - micrometer-commons (https://github.com/micrometer-metrics/micrometer) io.micrometer:micrometer-commons:jar:1.14.14
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - micrometer-observation (https://github.com/micrometer-metrics/micrometer) io.micrometer:micrometer-observation:jar:1.14.14
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - swagger-annotations-jakarta (https://github.com/swagger-api/swagger-core/modules/swagger-annotations-jakarta) io.swagger.core.v3:swagger-annotations-jakarta:jar:2.2.41
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+  - swagger-core-jakarta (https://github.com/swagger-api/swagger-core/modules/swagger-core-jakarta) io.swagger.core.v3:swagger-core-jakarta:jar:2.2.41
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+  - swagger-integration-jakarta (https://github.com/swagger-api/swagger-core/modules/swagger-integration-jakarta) io.swagger.core.v3:swagger-integration-jakarta:jar:2.2.41
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+  - swagger-jaxrs2-jakarta (https://github.com/swagger-api/swagger-core/modules/swagger-jaxrs2-jakarta) io.swagger.core.v3:swagger-jaxrs2-jakarta:jar:2.2.41
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+  - swagger-models-jakarta (https://github.com/swagger-api/swagger-core/modules/swagger-models-jakarta) io.swagger.core.v3:swagger-models-jakarta:jar:2.2.41
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+  - Byte Buddy (without dependencies) (https://bytebuddy.net/byte-buddy) net.bytebuddy:byte-buddy:jar:1.18.2
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - HtmlCleaner (http://htmlcleaner.sourceforge.net/) net.sourceforge.htmlcleaner:htmlcleaner:bundle:2.29
+    License: BSD License  (http://www.opensource.org/licenses/bsd-license.php)
+
+  - org.apiguardian:apiguardian-api (https://github.com/apiguardian-team/apiguardian) org.apiguardian:apiguardian-api:jar:1.1.2
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - AspectJ Weaver (https://www.eclipse.org/aspectj/) org.aspectj:aspectjweaver:jar:1.9.25.1
+    License: Eclipse Public License - v 2.0  (https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt)
+
+  - Bouncy Castle JavaMail Jakarta S/MIME APIs (https://www.bouncycastle.org/download/bouncy-castle-java/) org.bouncycastle:bcjmail-jdk18on:jar:1.81
+    License: Bouncy Castle Licence  (https://www.bouncycastle.org/licence.html)
+
+  - Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/download/bouncy-castle-java/) org.bouncycastle:bcpkix-jdk18on:jar:1.81
+    License: Bouncy Castle Licence  (https://www.bouncycastle.org/licence.html)
+
+  - Bouncy Castle Provider (https://www.bouncycastle.org/download/bouncy-castle-java/) org.bouncycastle:bcprov-jdk18on:jar:1.81
+    License: Bouncy Castle Licence  (https://www.bouncycastle.org/licence.html)
+
+  - Bouncy Castle ASN.1 Extension and Utility APIs (https://www.bouncycastle.org/download/bouncy-castle-java/) org.bouncycastle:bcutil-jdk18on:jar:1.81
+    License: Bouncy Castle Licence  (https://www.bouncycastle.org/licence.html)
+
+  - org.brotli:dec (http://brotli.org/dec) org.brotli:dec:jar:0.1.2
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+
+  - JetBrains Java Annotations (https://github.com/JetBrains/java-annotations) org.jetbrains:annotations:jar:18.0.0
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - JSON in Java (https://github.com/douglascrockford/JSON-java) org.json:json:bundle:20250517
+    License: Public Domain  (https://github.com/stleary/JSON-java/blob/master/LICENSE)
+
+  - JSpecify annotations (http://jspecify.org/) org.jspecify:jspecify:jar:1.0.0
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - JUnit Jupiter API (https://junit.org/) org.junit.jupiter:junit-jupiter-api:jar:5.14.2
+    License: Eclipse Public License v2.0  (https://www.eclipse.org/legal/epl-v20.html)
+
+  - JUnit Platform Commons (https://junit.org/) org.junit.platform:junit-platform-commons:jar:1.14.2
+    License: Eclipse Public License v2.0  (https://www.eclipse.org/legal/epl-v20.html)
+
+  - jwarc (https://github.com/iipc/jwarc) org.netpreserve:jwarc:jar:0.32.0
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - org.opentest4j:opentest4j (https://github.com/ota4j-team/opentest4j) org.opentest4j:opentest4j:jar:1.3.0
+    License: The Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - quartz (https://www.quartz-scheduler.org/) org.quartz-scheduler:quartz:jar:2.5.2
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - JSONassert (https://github.com/skyscreamer/JSONassert) org.skyscreamer:jsonassert:jar:1.5.3
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - XZ for Java (https://tukaani.org/xz/java.html) org.tukaani:xz:jar:1.10
+    License: 0BSD 
+
+  - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml) org.yaml:snakeyaml:bundle:2.5
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'Apache Software Foundation' (https://apache.org)
+
+  - Apache Groovy (https://groovy-lang.org) org.codehaus.groovy:groovy:jar:3.0.25
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'Apache Software Foundation' (https://www.apache.org/)
+
+  - Apache POI - Common (https://poi.apache.org/) org.apache.poi:poi:jar:5.4.1
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache POI - API based on OPC and OOXML schemas (https://poi.apache.org/) org.apache.poi:poi-ooxml:jar:5.4.1
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache POI (https://poi.apache.org/) org.apache.poi:poi-ooxml-lite:jar:5.4.1
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache POI (https://poi.apache.org/) org.apache.poi:poi-scratchpad:jar:5.4.1
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'Bloomreach' (https://www.bloomreach.com)
+
+  - BRUT Common (https://code.onehippo.org/prof-services/brxm-unit-tester/brut-common) org.bloomreach.forge.brut:brut-common:jar:5.3.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Hippo Configuration Management API (https://xmdocumentation.bloomreach.com/hippo-configuration-management/hippo-configuration-management-api) org.onehippo.cms:hippo-configuration-management-api:jar:16.7.0
+
+  - Hippo Configuration Management Model (https://xmdocumentation.bloomreach.com/hippo-configuration-management/hippo-configuration-management-model) org.onehippo.cms:hippo-configuration-management-model:jar:16.7.0
+
+  - CMS Node Types (https://xmdocumentation.bloomreach.com/hippo-cms/hippo-cms-types) org.onehippo.cms7:hippo-cms-types:jar:16.7.0
+
+  - Hippo CMS Commons (https://xmdocumentation.bloomreach.com/hippo-cms7-commons) org.onehippo.cms7:hippo-cms7-commons:jar:16.7.0
+
+  - Hippo CMS Utilities (https://xmdocumentation.bloomreach.com/hippo-cms7-utilities) org.onehippo.cms7:hippo-cms7-utilities:jar:16.7.0
+
+  - Hippo Essentials HST Component Library (https://xmdocumentation.bloomreach.com/hippo-essentials-components/hippo-essentials-components-hst) org.onehippo.cms7:hippo-essentials-components-hst:jar:16.7.0
+
+  - Hippo Essentials Plugin SDK API (https://xmdocumentation.bloomreach.com/hippo-cms7-release/hippo-essentials/hippo-essentials-plugin-sdk/hippo-essentials-plugin-sdk-api) org.onehippo.cms7:hippo-essentials-plugin-sdk-api:jar:16.7.0
+
+  - Hippo Plugin Gallery Picker (https://xmdocumentation.bloomreach.com/hippo-plugin-gallerypicker-parent/hippo-plugin-gallerypicker) org.onehippo.cms7:hippo-plugin-gallerypicker:jar:16.7.0
+
+  - Repository API (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-api) org.onehippo.cms7:hippo-repository-api:jar:16.7.0
+
+  - Repository Builtin workflow (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-builtin) org.onehippo.cms7:hippo-repository-builtin:jar:16.7.0
+
+  - Repository Default Configuration (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-config) org.onehippo.cms7:hippo-repository-config:jar:16.7.0
+
+  - Repository Connector (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-connector) org.onehippo.cms7:hippo-repository-connector:jar:16.7.0
+
+  - Repository Engine (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-engine) org.onehippo.cms7:hippo-repository-engine:jar:16.7.0
+
+  - Repository Provider Module Interface (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-provider) org.onehippo.cms7:hippo-repository-provider:jar:16.7.0
+
+  - Repository Tika Config Provider (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-tika) org.onehippo.cms7:hippo-repository-tika:jar:16.7.0
+
+  - Repository Utilities (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-utilities) org.onehippo.cms7:hippo-repository-utilities:jar:16.7.0
+
+  - Repository workflow implementations (https://xmdocumentation.bloomreach.com/hippo-repository/hippo-repository-workflow) org.onehippo.cms7:hippo-repository-workflow:jar:16.7.0
+
+  - Hippo CMS Services (https://xmdocumentation.bloomreach.com/hippo-services) org.onehippo.cms7:hippo-services:jar:16.7.0
+
+  - Hippo CMS Services - contenttype (https://xmdocumentation.bloomreach.com/hippo-services-contenttype) org.onehippo.cms7:hippo-services-contenttype:jar:16.7.0
+
+  - Hippo CMS Services - eventbus (https://xmdocumentation.bloomreach.com/hippo-services-eventbus) org.onehippo.cms7:hippo-services-eventbus:jar:16.7.0
+
+  - Hippo Site Toolkit API (https://xmdocumentation.bloomreach.com/hst/hst-api) org.onehippo.cms7.hst:hst-api:jar:16.7.0
+
+  - Hippo Site Toolkit Client (https://xmdocumentation.bloomreach.com/hst/hst-client) org.onehippo.cms7.hst:hst-client:jar:16.7.0
+
+  - Hippo Site Toolkit Commons (https://xmdocumentation.bloomreach.com/hst/hst-commons) org.onehippo.cms7.hst:hst-commons:jar:16.7.0
+
+  - Hippo Site Toolkit Content Beans (https://xmdocumentation.bloomreach.com/hst/hst-content-beans) org.onehippo.cms7.hst:hst-content-beans:jar:16.7.0
+
+  - Hippo Site Toolkit Mock (https://xmdocumentation.bloomreach.com/hst/hst-mock) org.onehippo.cms7.hst:hst-mock:jar:16.7.0
+
+  - Hippo Site Toolkit Platform API (https://xmdocumentation.bloomreach.com/hst/hst-platform-api) org.onehippo.cms7.hst:hst-platform-api:jar:16.7.0
+
+  - Hippo Site Toolkit Client Module Page Composer (https://xmdocumentation.bloomreach.com/hst/client-modules/hst-page-composer) org.onehippo.cms7.hst.client-modules:hst-page-composer:jar:16.7.0
+
+  - Hippo Site Toolkit Core Component (https://xmdocumentation.bloomreach.com/hst/components/hst-core) org.onehippo.cms7.hst.components:hst-core:jar:16.7.0
+
+  - Hippo Site Toolkit JAX-RS Services Component (https://xmdocumentation.bloomreach.com/hst/components/hst-jaxrs) org.onehippo.cms7.hst.components:hst-jaxrs:jar:16.7.0
+
+  - Hippo Site Toolkit Platform Component (https://xmdocumentation.bloomreach.com/hst/components/hst-platform) org.onehippo.cms7.hst.components:hst-platform:jar:16.7.0
+
+  - Hippo Site Toolkit ResourceBundle Component (https://xmdocumentation.bloomreach.com/hst/components/hst-resourcebundle) org.onehippo.cms7.hst.components:hst-resourcebundle:jar:16.7.0
+
+  - Hippo Site Toolkit ResourceBundle CND (https://xmdocumentation.bloomreach.com/hst/components/hst-resourcebundle-cnd) org.onehippo.cms7.hst.components:hst-resourcebundle-cnd:jar:16.7.0
+
+  - Hippo Site Toolkit Content Rewriter Component (https://xmdocumentation.bloomreach.com/hst/components/hst-rewriter) org.onehippo.cms7.hst.components:hst-rewriter:jar:16.7.0
+
+  - Hippo Site Toolkit JCR Session Pool Component (https://xmdocumentation.bloomreach.com/hst/components/hst-session-pool) org.onehippo.cms7.hst.components:hst-session-pool:jar:16.7.0
+
+  - Hippo Site Toolkit Page Model API Common (https://xmdocumentation.bloomreach.com/hst/pagemodelapi/hst-pagemodelapi-common) org.onehippo.cms7.hst.pagemodelapi:hst-pagemodelapi-common:jar:16.7.0
+
+  - Hippo Site Toolkit Page Model API Version 1.0 (https://xmdocumentation.bloomreach.com/hst/pagemodelapi/hst-pagemodelapi-v10) org.onehippo.cms7.hst.pagemodelapi:hst-pagemodelapi-v10:jar:16.7.0
+
+  - Hippo Site Toolkit CND Addon Resources (https://xmdocumentation.bloomreach.com/hst/toolkit-resources/addon/toolkit-cnd/hst-addon-cnd) org.onehippo.cms7.hst.toolkit-resources.addon.toolkit-cnd:hst-addon-cnd:jar:16.7.0
+
+
+From: 'Connect2id Ltd.' (https://connect2id.com)
+
+  - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt) com.nimbusds:nimbus-jose-jwt:jar:10.6
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'Dough Lea' (http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html)
+
+  - Dough Lea's util.concurrent package  concurrent:concurrent:jar:1.3.4
+    License: Public domain, Sun Microsoystems  (>http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html)
+
+
+From: 'Eclipse Foundation' (https://www.eclipse.org)
+
+  - istack common utility code runtime (https://projects.eclipse.org/projects/ee4j/istack-commons/istack-commons-runtime) com.sun.istack:istack-commons-runtime:jar:4.1.2
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+  - Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca) jakarta.annotation:jakarta.annotation-api:jar:2.1.1
+    License: EPL 2.0  (http://www.eclipse.org/legal/epl-2.0)
+    License: GPL2 w/ CPE  (https://www.gnu.org/software/classpath/license.html)
+
+  - Jakarta Expression Language API (https://projects.eclipse.org/projects/ee4j.el) jakarta.el:jakarta.el-api:jar:5.0.0
+    License: Eclipse Public License v. 2.0  (https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt)
+    License: GNU General Public License, version 2 with the GNU Classpath Exception  (https://www.gnu.org/software/classpath/license.html)
+
+  - Jakarta Dependency Injection (https://github.com/eclipse-ee4j/injection-api) jakarta.inject:jakarta.inject-api:jar:2.0.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jakarta Standard Tag Library API (https://projects.eclipse.org/projects/ee4j.jstl) jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:jar:3.0.0
+    License: EPL 2.0  (http://www.eclipse.org/legal/epl-2.0)
+    License: GPL2 w/ CPE  (https://www.gnu.org/software/classpath/license.html)
+
+  - Jakarta Bean Validation API (https://beanvalidation.org) jakarta.validation:jakarta.validation-api:jar:3.0.2
+    License: Apache License 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jakarta XML Binding API (https://github.com/jakartaee/jaxb-api/jakarta.xml.bind-api) jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.2
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+  - Jakarta SOAP with Attachments API (https://github.com/jakartaee/saaj-api) jakarta.xml.soap:jakarta.xml.soap-api:jar:3.0.2
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+  - Jakarta XML Web Services API (https://github.com/jakartaee/jax-ws-api) jakarta.xml.ws:jakarta.xml.ws-api:jar:4.0.2
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+  - JAXB Core (https://eclipse-ee4j.github.io/jaxb-ri/) org.glassfish.jaxb:jaxb-core:jar:4.0.6
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+  - JAXB Runtime (https://eclipse-ee4j.github.io/jaxb-ri/) org.glassfish.jaxb:jaxb-runtime:jar:4.0.6
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+  - TXW2 Runtime (https://eclipse-ee4j.github.io/jaxb-ri/) org.glassfish.jaxb:txw2:jar:4.0.6
+    License: Eclipse Distribution License - v 1.0  (http://www.eclipse.org/org/documents/edl-v10.php)
+
+
+From: 'Eclipse Foundation' (https://www.eclipse.org/org/foundation/)
+
+  - Jakarta RESTful WS API (https://github.com/eclipse-ee4j/jaxrs-api) jakarta.ws.rs:jakarta.ws.rs-api:bundle:3.1.0
+    License: EPL-2.0  (http://www.eclipse.org/legal/epl-2.0)
+    License: GPL-2.0-with-classpath-exception  (https://www.gnu.org/software/classpath/license.html)
+
+
+From: 'FasterXML' (http://fasterxml.com)
+
+  - Woodstox (https://github.com/FasterXML/woodstox) com.fasterxml.woodstox:woodstox-core:bundle:7.1.1
+    License: The Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'FasterXML' (http://fasterxml.com/)
+
+  - Jackson-annotations (https://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-annotations:jar:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackson-core (https://github.com/FasterXML/jackson-core) com.fasterxml.jackson.core:jackson-core:jar:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - jackson-databind (https://github.com/FasterXML/jackson) com.fasterxml.jackson.core:jackson-databind:jar:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackson-dataformat-YAML (https://github.com/FasterXML/jackson-dataformats-text) com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jsr310) com.fasterxml.jackson.datatype:jackson-datatype-jsr310:bundle:2.19.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackson Jakarta-RS: base (https://github.com/FasterXML/jackson-jakarta-rs-providers/jackson-jakarta-rs-base) com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-base:bundle:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackson Jakarta-RS: JSON (https://github.com/FasterXML/jackson-jakarta-rs-providers/jackson-jakarta-rs-json-provider) com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider:bundle:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackson module: Jakarta XML Bind Annotations (jakarta.xml.bind) (https://github.com/FasterXML/jackson-modules-base) com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations:bundle:2.19.4
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'fasterxml.com' (http://fasterxml.com)
+
+  - Stax2 API (http://github.com/FasterXML/stax2-api) org.codehaus.woodstox:stax2-api:bundle:4.2.2
+    License: The BSD 2-Clause License  (http://www.opensource.org/licenses/bsd-license.php)
+
+
+From: 'Google LLC' (https://www.google.com)
+
+  - error-prone annotations (https://errorprone.info/error_prone_annotations) com.google.errorprone:error_prone_annotations:jar:2.41.0
+    License: Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'jai-imageio GitHub group' (https://github.com/jai-imageio/)
+
+  - Java Advanced Imaging Image I/O Tools API core (standalone) (https://github.com/jai-imageio/jai-imageio-core) com.github.jai-imageio:jai-imageio-core:bundle:1.4.0
+    License: BSD 3-clause License w/nuclear disclaimer  (LICENSE.txt)
+
+
+From: 'JDOM' (http://www.jdom.org)
+
+  - JDOM (http://www.jdom.org) org.jdom:jdom2:jar:2.0.6.1
+    License: Similar to Apache License but with the acknowledgment clause removed  (https://raw.github.com/hunterhacker/jdom/master/LICENSE.txt)
+
+
+From: 'Jonathan Hedley' (https://jhedley.com/)
+
+  - jsoup Java HTML Parser (https://jsoup.org/) org.jsoup:jsoup:jar:1.21.2
+    License: The MIT License  (https://jsoup.org/license)
+
+
+From: 'ObjectWeb' (http://www.objectweb.org/)
+
+  - ASM Core (http://asm.objectweb.org/asm/) org.ow2.asm:asm:jar:5.2
+    License: BSD  (http://asm.objectweb.org/license.html)
+
+
+From: 'Shigeru Chiba, www.javassist.org'
+
+  - Javassist (https://www.javassist.org/) org.javassist:javassist:bundle:3.30.2-GA
+    License: MPL 1.1  (https://www.mozilla.org/en-US/MPL/1.1/)
+    License: LGPL 2.1  (https://www.gnu.org/licenses/lgpl-2.1.html)
+    License: Apache License 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+
+From: 'Spring IO' (https://spring.io/projects/spring-framework)
+
+  - Spring AOP (https://github.com/spring-projects/spring-framework) org.springframework:spring-aop:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Beans (https://github.com/spring-projects/spring-framework) org.springframework:spring-beans:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Context (https://github.com/spring-projects/spring-framework) org.springframework:spring-context:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Context Support (https://github.com/spring-projects/spring-framework) org.springframework:spring-context-support:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Core (https://github.com/spring-projects/spring-framework) org.springframework:spring-core:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Expression Language (SpEL) (https://github.com/spring-projects/spring-framework) org.springframework:spring-expression:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Commons Logging Bridge (https://github.com/spring-projects/spring-framework) org.springframework:spring-jcl:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring TestContext Framework (https://github.com/spring-projects/spring-framework) org.springframework:spring-test:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Web (https://github.com/spring-projects/spring-framework) org.springframework:spring-web:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+  - Spring Web MVC (https://github.com/spring-projects/spring-framework) org.springframework:spring-webmvc:jar:6.2.15
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0)
+
+
+From: 'The Apache Software Foundation' (http://pdfbox.apache.org)
+
+  - PDFBox JBIG2 ImageIO plugin (https://www.apache.org/jbig2-imageio/) org.apache.pdfbox:jbig2-imageio:jar:3.0.4
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache JempBox (http://www.apache.org/pdfbox-parent/jempbox/) org.apache.pdfbox:jempbox:bundle:1.8.17
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'The Apache Software Foundation' (http://www.apache.org)
+
+  - Apache Tika core (https://tika.apache.org/) org.apache.tika:tika-core:bundle:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+
+  - Apache Commons Collections (http://commons.apache.org/collections/) commons-collections:commons-collections:jar:3.2.2
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Commons DBCP (http://commons.apache.org/dbcp/) commons-dbcp:commons-dbcp:jar:1.4
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Commons Digester (http://commons.apache.org/digester/) commons-digester:commons-digester:jar:2.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Commons Pool (http://commons.apache.org/pool/) commons-pool:commons-pool:jar:1.6
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Math (http://commons.apache.org/proper/commons-math/) org.apache.commons:commons-math3:jar:3.6.1
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Commons Proxy (http://commons.apache.org/proxy/) org.apache.commons:commons-proxy:bundle:1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons SCXML (http://commons.apache.org/proper/commons-scxml/) org.apache.commons:commons-scxml2:jar:2.0-M1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Lucene Core (http://lucene.apache.org/java/lucene-parent/lucene-core) org.apache.lucene:lucene-core:jar:3.6.2
+    License: Apache 2  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'The Apache Software Foundation' (https://pdfbox.apache.org)
+
+  - Apache FontBox (http://pdfbox.apache.org/) org.apache.pdfbox:fontbox:bundle:3.0.5
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache PDFBox (https://www.apache.org/pdfbox-parent/pdfbox/) org.apache.pdfbox:pdfbox:bundle:3.0.5
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache PDFBox io (https://www.apache.org/pdfbox-parent/pdfbox-io/) org.apache.pdfbox:pdfbox-io:bundle:3.0.5
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache PDFBox tools (https://www.apache.org/pdfbox-parent/pdfbox-tools/) org.apache.pdfbox:pdfbox-tools:jar:3.0.6
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache XmpBox (https://www.apache.org/pdfbox-parent/xmpbox/) org.apache.pdfbox:xmpbox:bundle:3.0.5
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'The Apache Software Foundation' (https://www.apache.org)
+
+  - Apache Tika Apple parser module (https://tika.apache.org/tika-parser-apple-module/) org.apache.tika:tika-parser-apple-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika audiovideo parser module (https://tika.apache.org/tika-parser-audiovideo-module/) org.apache.tika:tika-parser-audiovideo-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika cad parser module (https://tika.apache.org/tika-parser-cad-module/) org.apache.tika:tika-parser-cad-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika code parser module (https://tika.apache.org/tika-parser-code-module/) org.apache.tika:tika-parser-code-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika crypto parser module (https://tika.apache.org/tika-parser-crypto-module/) org.apache.tika:tika-parser-crypto-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika digest commons (https://tika.apache.org/tika-parser-digest-commons/) org.apache.tika:tika-parser-digest-commons:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika font parser module (https://tika.apache.org/tika-parser-font-module/) org.apache.tika:tika-parser-font-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika html parser module (https://tika.apache.org/tika-parser-html-module/) org.apache.tika:tika-parser-html-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika image parser module (https://tika.apache.org/tika-parser-image-module/) org.apache.tika:tika-parser-image-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika mail commons (https://tika.apache.org/tika-parser-mail-commons/) org.apache.tika:tika-parser-mail-commons:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika mail parser module (https://tika.apache.org/tika-parser-mail-module/) org.apache.tika:tika-parser-mail-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika Microsoft parser module (https://tika.apache.org/tika-parser-microsoft-module/) org.apache.tika:tika-parser-microsoft-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika miscellaneous office format parser module (https://tika.apache.org/tika-parser-miscoffice-module/) org.apache.tika:tika-parser-miscoffice-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika news parser module (https://tika.apache.org/tika-parser-news-module/) org.apache.tika:tika-parser-news-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika OCR parser module (https://tika.apache.org/tika-parser-ocr-module/) org.apache.tika:tika-parser-ocr-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika PDF parser module (https://tika.apache.org/tika-parser-pdf-module/) org.apache.tika:tika-parser-pdf-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika package parser module (https://tika.apache.org/tika-parser-pkg-module/) org.apache.tika:tika-parser-pkg-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika text parser module (https://tika.apache.org/tika-parser-text-module/) org.apache.tika:tika-parser-text-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika WARC parser module (https://tika.apache.org/tika-parser-webarchive-module/) org.apache.tika:tika-parser-webarchive-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika XML parser module (https://tika.apache.org/tika-parser-xml-module/) org.apache.tika:tika-parser-xml-module:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika XMP commons (https://tika.apache.org/tika-parser-xmp-commons/) org.apache.tika:tika-parser-xmp-commons:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika ZIP commons (https://tika.apache.org/tika-parser-zip-commons/) org.apache.tika:tika-parser-zip-commons:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Tika standard parser package (https://tika.apache.org/tika-parsers/tika-parsers-standard/tika-parsers-standard-package/) org.apache.tika:tika-parsers-standard-package:jar:3.2.3
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'The Apache Software Foundation' (https://www.apache.org/)
+
+  - Apache Commons BeanUtils (https://commons.apache.org/proper/commons-beanutils) commons-beanutils:commons-beanutils:jar:1.11.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Codec (https://commons.apache.org/proper/commons-codec/) commons-codec:commons-codec:jar:1.19.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons IO (https://commons.apache.org/proper/commons-io/) commons-io:commons-io:jar:2.21.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Validator (https://commons.apache.org/proper/commons-validator/) commons-validator:commons-validator:jar:1.10.1
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Collections (https://commons.apache.org/proper/commons-collections/) org.apache.commons:commons-collections4:jar:4.5.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Compress (https://commons.apache.org/proper/commons-compress/) org.apache.commons:commons-compress:jar:1.28.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Configuration (https://commons.apache.org/proper/commons-configuration/) org.apache.commons:commons-configuration2:jar:2.13.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons JEXL (https://commons.apache.org/proper/commons-jexl/) org.apache.commons:commons-jexl3:jar:3.6.1
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Lang (https://commons.apache.org/proper/commons-lang/) org.apache.commons:commons-lang3:jar:3.20.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Commons Text (https://commons.apache.org/proper/commons-text) org.apache.commons:commons-text:jar:1.15.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache CXF Core (https://cxf.apache.org) org.apache.cxf:cxf-core:bundle:4.1.4
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache CXF Runtime JAX-RS Frontend (https://cxf.apache.org) org.apache.cxf:cxf-rt-frontend-jaxrs:bundle:4.1.4
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache CXF Runtime Security functionality (https://cxf.apache.org) org.apache.cxf:cxf-rt-security:bundle:4.1.4
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache CXF Runtime HTTP Transport (https://cxf.apache.org) org.apache.cxf:cxf-rt-transports-http:bundle:4.1.4
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache Jackrabbit API (http://jackrabbit.apache.org/jackrabbit-api/) org.apache.jackrabbit:jackrabbit-api:bundle:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit Core (http://jackrabbit.apache.org/jackrabbit-core/) org.apache.jackrabbit:jackrabbit-core:jar:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit Data (http://jackrabbit.apache.org/jackrabbit-data/) org.apache.jackrabbit:jackrabbit-data:bundle:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit JCR Commons (http://jackrabbit.apache.org/jackrabbit-jcr-commons/) org.apache.jackrabbit:jackrabbit-jcr-commons:bundle:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit JCR-RMI (http://jackrabbit.apache.org/jackrabbit-jcr-rmi/) org.apache.jackrabbit:jackrabbit-jcr-rmi:bundle:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit SPI (http://jackrabbit.apache.org/jackrabbit-spi/) org.apache.jackrabbit:jackrabbit-spi:bundle:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit SPI Commons (http://jackrabbit.apache.org/jackrabbit-spi-commons/) org.apache.jackrabbit:jackrabbit-spi-commons:bundle:2.21.19-h7
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Jackrabbit API (http://jackrabbit.apache.org/oak-jackrabbit-api/) org.apache.jackrabbit:oak-jackrabbit-api:bundle:1.48.0
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - Apache James :: Mime4j :: Core (http://james.apache.org/mime4j/apache-mime4j-core) org.apache.james:apache-mime4j-core:bundle:0.8.13
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+  - XmlSchema Core (https://ws.apache.org/commons/xmlschema20/xmlschema-core/) org.apache.ws.xmlschema:xmlschema-core:bundle:2.3.2
+    License: Apache-2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'XmlBeans' (https://xmlbeans.apache.org/)
+
+  - XmlBeans (https://xmlbeans.apache.org/) org.apache.xmlbeans:xmlbeans:jar:5.3.0
+    License: The Apache Software License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+From: 'Zaxxer.com' (https://github.com/brettwooldridge/SparseBitSet)
+
+  - SparseBitSet (https://github.com/brettwooldridge/SparseBitSet) com.zaxxer:SparseBitSet:jar:1.3
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
+
+

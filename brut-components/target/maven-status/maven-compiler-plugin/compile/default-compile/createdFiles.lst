@@ -1,0 +1,17 @@
+org/bloomreach/forge/brut/components/AbstractRepoTest.class
+org/bloomreach/forge/brut/components/exception/SetupTeardownException.class
+org/bloomreach/forge/brut/components/mock/MockMount.class
+org/bloomreach/forge/brut/components/mock/MockHstLinkCreator.class
+org/bloomreach/forge/brut/components/SimpleComponentTest.class
+org/bloomreach/forge/brut/components/annotation/DynamicComponentTest.class
+org/bloomreach/forge/brut/components/BaseComponentTest.class
+org/bloomreach/forge/brut/components/mock/DelegatingComponentManager.class
+org/bloomreach/forge/brut/components/mock/MockHstLink.class
+org/bloomreach/forge/brut/components/annotation/BrxmComponentTestExtension$SharedRepositoryEntry.class
+org/bloomreach/forge/brut/components/annotation/ComponentTestConfig.class
+org/bloomreach/forge/brut/components/annotation/NodeTypeScanner.class
+org/bloomreach/forge/brut/components/annotation/BrxmComponentTestExtension.class
+org/bloomreach/forge/brut/components/annotation/ComponentConfigResolver.class
+org/bloomreach/forge/brut/components/annotation/BrxmComponentTest.class
+org/bloomreach/forge/brut/components/mock/MockComponentManager.class
+org/bloomreach/forge/brut/components/mock/MockResolvedMount.class

@@ -1,0 +1,14 @@
+org/bloomreach/forge/brut/components/mock/MockHstLinkCreatorTest.class
+org/bloomreach/forge/brut/components/demo/EssentialsListComponentTest.class
+org/bloomreach/forge/brut/components/demo/domain/NewsPage.class
+org/bloomreach/forge/brut/components/mock/MockHstLinkTest.class
+org/bloomreach/forge/brut/components/annotation/ComponentTestConfigFingerprintTest$Dummy.class
+org/bloomreach/forge/brut/components/BaseComponentTestIdempotencyTest$TestableComponentTest.class
+org/bloomreach/forge/brut/components/HippoRepositrySpecificTests.class
+org/bloomreach/forge/brut/components/annotation/ComponentTestConfigFingerprintTest.class
+org/bloomreach/forge/brut/components/annotation/BrxmComponentTestExtensionLifecycleIT.class
+org/bloomreach/forge/brut/components/BaseComponentTestIdempotencyTest.class
+org/bloomreach/forge/brut/components/demo/domain/AnotherType.class
+org/bloomreach/forge/brut/components/mock/MockComponentManagerTest.class
+org/bloomreach/forge/brut/components/BaseComponentTestTest.class
+META-INF/brut-beans.list

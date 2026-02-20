@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+  <Appenders>
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss} %-5p [%C.%M():%L] %m%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <!--Loggers have to be explicitly added here-->
+    <Logger name="org.bloomreach.forge.brut.components.HippoRepositrySpecificTests" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.components.BaseComponentTestTest" level="info"/>
+    <Logger name="org.bloomreach.forge.brut.components.demo.EssentialsListComponentTest" level="info"/>
+    <Root level="warn">
+      <AppenderRef ref="console"/>
+    </Root>
+  </Loggers>
+</Configuration>

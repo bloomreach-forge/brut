@@ -1,0 +1,15 @@
+<rep='internal'>
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<hippo='http://www.onehippo.org/jcr/hippo/nt/2.0'>
+<hippotranslation='http://www.onehippo.org/jcr/hippotranslation/nt/1.0'>
+
+[hippotranslation:translations]
++ * (hippo:document) multiple
+
+[hippotranslation:translated] mixin
+- hippotranslation:id (string) mandatory
+- hippotranslation:locale (string) mandatory
+- hippotranslation:sourcelocale (string)
++ hippotranslation:translations (hippotranslation:translations) = hippotranslation:translations

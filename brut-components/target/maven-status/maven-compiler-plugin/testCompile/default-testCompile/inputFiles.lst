@@ -1,0 +1,11 @@
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/BaseComponentTestIdempotencyTest.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/BaseComponentTestTest.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/HippoRepositrySpecificTests.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/annotation/BrxmComponentTestExtensionLifecycleIT.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/annotation/ComponentTestConfigFingerprintTest.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/demo/EssentialsListComponentTest.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/demo/domain/AnotherType.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/demo/domain/NewsPage.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/mock/MockComponentManagerTest.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/mock/MockHstLinkCreatorTest.java
+/home/runner/work/brut/brut/brut-components/src/test/java/org/bloomreach/forge/brut/components/mock/MockHstLinkTest.java

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2008-2024 Bloomreach
+
+  Licensed under the Apache License, Version 2.0 (the  "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS"
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <!-- it is known that 'hstJmvEnabledUsers' should had been 'hstJvmEnabledUsers' but end-projects
+       rely on that it is called 'hstJmvEnabledUsers', hence keep as is.
+  -->
+  <bean id="hstJmvEnabledUsers" class="org.springframework.beans.factory.config.SetFactoryBean">
+    <property name="sourceSet">
+      <set>
+        <value>${default.repository.user.name}</value>
+        <value>${preview.repository.user.name}</value>
+        <value>${writable.repository.user.name}</value>
+        <value>${hstconfigreader.repository.user.name}</value>
+        <value>admin</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="javax.jcr.Credentials.admin" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="admin"/>
+    <property name="password" value="admin"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <bean id="javax.jcr.Credentials.default" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="admin"/>
+    <property name="password" value="admin"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <!-- default cred that can be used in delegating repository -->
+  <bean id="javax.jcr.Credentials.default.delegating" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="${default.repository.user.name}"/>
+    <property name="password" value="${default.repository.password}"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <bean id="javax.jcr.Credentials.preview" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="${preview.repository.user.name}"/>
+    <property name="separator" value="${repository.pool.user.name.separator}"/>
+    <property name="poolName" value="${preview.repository.pool.name}"/>
+    <property name="password" value="${preview.repository.password}"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <!-- preview cred that can be used in delegating repository -->
+  <bean id="javax.jcr.Credentials.preview.delegating" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="${preview.repository.user.name}"/>
+    <property name="password" value="${preview.repository.password}"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <bean id="javax.jcr.Credentials.writable" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="${writable.repository.user.name}"/>
+    <property name="separator" value="${repository.pool.user.name.separator}"/>
+    <property name="poolName" value="${writable.repository.pool.name}"/>
+    <property name="password" value="${writable.repository.password}"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <bean id="javax.jcr.Credentials.hstconfigreader" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="${hstconfigreader.repository.user.name}"/>
+    <property name="separator" value="${repository.pool.user.name.separator}"/>
+    <property name="poolName" value="${hstconfigreader.repository.pool.name}"/>
+    <property name="password" value="${hstconfigreader.repository.password}"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <!-- hstconfigreader cred that can be used in delegating repository -->
+  <bean id="javax.jcr.Credentials.hstconfigreader.delegating" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="admin"/>
+    <property name="password" value="admin"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <bean id="javax.jcr.Credentials.binaries" class="org.hippoecm.hst.core.jcr.SimpleCredentialsFactoryBean">
+    <property name="userId" value="${binaries.repository.user.name}"/>
+    <property name="separator" value="${repository.pool.user.name.separator}"/>
+    <property name="poolName" value="${binaries.repository.pool.name}"/>
+    <property name="password" value="${binaries.repository.password}"/>
+    <property name="hstJmvEnabledUsers" ref="hstJmvEnabledUsers"/>
+  </bean>
+
+  <bean id="cndResourcesPatterns" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <value>classpath*:hcm-config/hippo.cnd</value>
+        <value>classpath*:hcm-config/hippostd.cnd</value>
+        <value>classpath*:hcm-config/hippostdpubwf.cnd</value>
+        <value>classpath*:hcm-config/hipposys.cnd</value>
+        <value>classpath*:hcm-config/hipposysedit.cnd</value>
+        <value>classpath*:hcm-config/hippotranslation.cnd</value>
+        <value>classpath*:hcm-config/hst-types.cnd</value>
+        <value>classpath*:hcm-config/resourcebundle.cnd</value>
+        <value>classpath*:hcm-config/translations-addon.cnd</value>
+        <value>classpath*:hcm-config/frontend.cnd</value>
+        <value>classpath*:hcm-config/gallerypicker-types.cnd</value>
+        <value>classpath*:hcm-config/hippogallery.cnd</value>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="yamlResourcesPatterns" class="java.util.ArrayList">
+    <constructor-arg>
+      <list>
+        <value>classpath*:org/bloomreach/forge/brut/resources/imports/*.yaml</value>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="contributedCndResourcesPatterns" class="java.util.ArrayList">
+    <constructor-arg>
+      <list/>
+    </constructor-arg>
+  </bean>
+
+  <bean id="contributedYamlResourcesPatterns" class="java.util.ArrayList">
+    <constructor-arg>
+      <list/>
+    </constructor-arg>
+  </bean>
+
+  <bean id="javax.jcr.Repository" class="org.bloomreach.forge.brut.resources.SkeletonRepository" init-method="init" destroy-method="close">
+    <constructor-arg ref="cndResourcesPatterns"/>
+    <constructor-arg ref="contributedCndResourcesPatterns"/>
+    <constructor-arg ref="yamlResourcesPatterns"/>
+    <constructor-arg ref="contributedYamlResourcesPatterns"/>
+  </bean>
+
+</beans>

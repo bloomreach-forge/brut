@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <!--ADDITIONS-->
+
+  <!-- Default properties. The following properties can be overriden by external properties. e.g., hst-config.properties -->
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_FALLBACK"/>
+    <property name="location" value="classpath:/org/bloomreach/forge/brut/resources/hst/container.properties"/>
+  </bean>
+
+  <bean id="org.hippoecm.hst.platform.HstModelProvider" class="org.hippoecm.hst.platform.HstModelProvider">
+    <property name="contextPath" value="/site"/>
+  </bean>
+
+  <bean id="springComponentManager" class="org.bloomreach.forge.brut.resources.SpringComponentManager">
+  </bean>
+
+  <bean id="containerConfiguration" class="org.hippoecm.hst.core.container.ContainerConfigurationImpl">
+    <constructor-arg>
+      <bean class="org.apache.commons.configuration2.PropertiesConfiguration"/>
+    </constructor-arg>
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.sitemenu.HstSiteMenusManager"
+        class="org.hippoecm.hst.core.sitemenu.HstSiteMenusManagerImpl">
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.search.HstQueryManagerFactory"
+        class="org.hippoecm.hst.core.search.HstQueryManagerFactoryImpl">
+    <property name="defaultQueryDateRangeResolution" value="${default.query.date.range.resolution}"/>
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.container.HstComponentInvoker"
+        class="org.hippoecm.hst.core.container.HstComponentInvokerImpl">
+    <property name="exceptionThrowable" value="${development.mode}"/>
+    <property name="errorRenderPath" value="${component.error.page}"/>
+    <property name="dispatchUrlPrefix" value="${dispatch.url.prefix}"/>
+  </bean>
+
+  <bean id="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory"
+        class="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory">
+    <constructor-arg ref="javax.jcr.Repository"/>
+    <constructor-arg ref="javax.jcr.Credentials.default"/>
+    <constructor-arg ref="javax.jcr.Credentials.preview"/>
+  </bean>
+
+  <bean id="org.hippoecm.hst.resourcebundle.ResourceBundleRegistry"
+        class="org.hippoecm.hst.resourcebundle.internal.ResourceBundleRegistryImpl">
+    <constructor-arg ref="org.hippoecm.hst.resourcebundle.internal.ResourceBundleFamilyFactory"/>
+  </bean>
+
+  <!-- ESI based asynchronous component window renderer -->
+  <bean id="esiAsynchronousComponentWindowRenderer" class="org.hippoecm.hst.core.container.ESIAsynchronousComponentWindowRenderer">
+  </bean>
+
+  <!-- SSI based asynchronous component window renderer -->
+  <bean id="ssiAsynchronousComponentWindowRenderer" class="org.hippoecm.hst.core.container.SSIAsynchronousComponentWindowRenderer">
+  </bean>
+
+  <bean id="ajaxAsynchronousComponentWindowRenderer" class="org.hippoecm.hst.core.container.AjaxAsynchronousComponentWindowRenderer">
+    <property name="asyncLoadJavaScriptFragmentTemplate" value="${ajax.asynchronous.component.windows.load.js.fragment.template}"/>
+  </bean>
+
+  <bean id="asynchronousComponentWindowRendererMap" class="org.springframework.beans.factory.config.MapFactoryBean">
+    <property name="sourceMap">
+      <map>
+        <entry key="ajax" value-ref="ajaxAsynchronousComponentWindowRenderer"/>
+        <entry key="esi" value-ref="esiAsynchronousComponentWindowRenderer"/>
+        <entry key="ssi" value-ref="ssiAsynchronousComponentWindowRenderer"/>
+      </map>
+    </property>
+  </bean>
+
+  <bean id="cmsComponentAttributeContributors" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <bean class="org.hippoecm.hst.core.channelmanager.CmsComponentComponentWindowAttributeContributor"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="composerComponentWindowResponseAppenders" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <bean class="org.hippoecm.hst.core.channelmanager.CmsComponentWindowResponseAppender">
+          <property name="attributeContributors" ref="cmsComponentAttributeContributors"/>
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="caffeineCacheManager" class="org.springframework.cache.caffeine.CaffeineCacheManager"/>
+
+  <bean class="org.hippoecm.hst.cache.caffeine.CacheManagerShuttingDownListener" init-method="init" destroy-method="destroy">
+    <property name="cacheManager" ref="caffeineCacheManager" />
+  </bean>
+
+  <bean id="caffeineCacheInstanceFactory" class="org.hippoecm.hst.cache.caffeine.CaffeineCacheInstanceFactory">
+    <constructor-arg ref="caffeineCacheManager" />
+  </bean>
+
+  <bean id="pageCache" class="org.hippoecm.hst.cache.CompositeHstCache">
+    <constructor-arg>
+      <bean class="com.github.benmanes.caffeine.cache.Cache" factory-bean="caffeineCacheInstanceFactory" factory-method="createInstance">
+        <constructor-arg value="hstPageCache" />
+        <constructor-arg value="initialCapacity=10,maximumSize=${pageCache.maxSize},expireAfterWrite=${pageCache.timeToLiveSeconds},expireAfterAccess=24h" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <!--ADDITIONS END-->
+
+  <bean id="org.hippoecm.hst.core.container.HstComponentFactory"
+        class="org.hippoecm.hst.core.container.HstComponentFactoryImpl">
+    <property name="defaultHstComponentClass" value="${default.hst.component.class}" />
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.container.HstComponentWindowFactory"
+        class="org.hippoecm.hst.core.container.HstComponentWindowFactoryImpl">
+    <property name="referenceNameSeparator" value="_" />
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.container.HstComponentWindowFilter.list" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="org.hippoecm.hst.core.component.HstURLFactory"
+        class="org.hippoecm.hst.core.component.HstURLFactoryImpl">
+    <property name="urlNamespacePrefix" value="_hn:" />
+    <property name="parameterNameComponentSeparator" value=":" />
+    <property name="referenceNamespaceIgnored" value="${parameter.namespace.ignored}" />
+  </bean>
+
+  <!-- The default classpath resource scanner -->
+  <bean id="org.hippoecm.hst.util.ClasspathResourceScanner" class="org.hippoecm.hst.site.container.SpringMetadataReaderClasspathResourceScanner">
+  </bean>
+
+</beans>

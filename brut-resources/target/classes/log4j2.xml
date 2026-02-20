@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+  <Appenders>
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss} %-5p [%C.%M():%L] %m%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <!--Loggers have to be explicitly added here-->
+    <Logger name="org.bloomreach.forge.brut.resources.AbstractJaxrsTest" level="all"/>
+    <Logger name="org.bloomreach.forge.brut.resources.AbstractPageModelTest" level="all"/>
+    <Logger name="org.hippoecm.hst.container.HstDelegateeFilterBean" level="warn"/>
+    <!--
+      Suppress ERROR-level "duplicate mount alias/type" messages from VirtualHostsService.
+      BRUT's bootstrap mirrors /hst:hst into a project-specific root (e.g. /hst:petbase),
+      causing HST to detect duplicate mount alias/type combinations. These are harmless
+      false positives — the duplication is intentional and mounts work correctly in tests.
+
+      NOTE: This logger only takes effect when BRUT's log4j2.xml is on the classpath.
+      Downstream projects with their own log4j2.xml will still see these errors and should
+      add this logger entry to their test logging configuration to suppress them.
+    -->
+    <Logger name="org.hippoecm.hst.platform.configuration.hosting.VirtualHostsService" level="off"/>
+    <!--Suppress MBean registration/unregistration warnings when running multiple tests in the same JVM-->
+    <Logger name="org.hippoecm.repository.jackrabbit.RepositoryImpl" level="error"/>
+    <Root level="warn">
+      <AppenderRef ref="console"/>
+    </Root>
+  </Loggers>
+</Configuration>

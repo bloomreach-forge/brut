@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+  <bean id="org.hippoecm.hst.content.beans.manager.ObjectConverter" class="org.hippoecm.hst.site.content.ObjectConverterFactoryBean">
+    <property name="classpathResourceScanner" ref="org.hippoecm.hst.util.ClasspathResourceScanner" />
+    <property name="generateDynamicBean" value="false" />
+  </bean>
+
+  <bean id="org.hippoecm.hst.content.tool.ContentBeansTool" class="org.hippoecm.hst.content.tool.DefaultContentBeansTool">
+    <constructor-arg ref="org.hippoecm.hst.core.search.HstQueryManagerFactory" />
+    <property name="objectConverter" ref="org.hippoecm.hst.content.beans.manager.ObjectConverter" />
+  </bean>
+
+  <bean id="org.hippoecm.hst.content.rewriter.ContentRewriterFactory"
+        class="org.hippoecm.hst.content.rewriter.impl.ContentRewriterFactoryImpl">
+    <property name="defaultContentRewriterClassName" value="${default.hst.contentrewriter.class}" />
+  </bean>
+
+  <bean id="org.hippoecm.hst.content.service.translation.HippoTranslationBeanService"
+        class="org.hippoecm.hst.content.service.translation.HippoTranslationBeanServiceImpl">
+  </bean>
+
+</beans>

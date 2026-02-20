@@ -1,0 +1,45 @@
+//
+// Minimal Framework CNDs - Permissive Approach
+//
+// These CNDs use permissive child node definitions (+ * (nt:base)) to allow
+// tests to bootstrap without requiring exact brXM node type definitions.
+// This trades strict validation for ease of use and test bootstrapping success.
+//
+// Trade-off: Tests work reliably but don't validate structure as strictly as
+// production brXM. This is acceptable for unit testing scenarios where we
+// prioritize test execution over strict node type validation.
+//
+
+<hipposysedit = 'http://www.onehippo.org/jcr/hipposysedit/nt/1.2'>
+
+[hipposysedit:prototype] > nt:base
+  + * (nt:base)
+[hipposysedit:prototypeset] > nt:base
+  + * (nt:base) sns
+[hipposysedit:field] > nt:base
+  - hipposysedit:mandatory (boolean)
+  - hipposysedit:multiple (boolean)
+  - hipposysedit:ordered (boolean)
+  - hipposysedit:path (string)
+  - hipposysedit:primary (boolean)
+  - hipposysedit:type (string)
+  - hipposysedit:validators (string) multiple
+
+[hipposysedit:nodetype] > hippo:document orderable
+  - hipposysedit:node (boolean)
+  - hipposysedit:supertype (string) multiple
+  - hipposysedit:uri (string)
+  - hipposysedit:validators (string) multiple
+  + * (hipposysedit:field)
+
+[hipposysedit:templatetype] orderable
+  + hipposysedit:nodetype (hippo:handle) mandatory
+  + hipposysedit:prototypes (hipposysedit:prototypeset)
+
+[hipposysedit:namespace] > nt:base
+  + * (hipposysedit:templatetype)
+
+[hipposysedit:namespacefolder] > nt:base
+  + * (hipposysedit:namespace)
+
+[hipposysedit:remodel] > nt:base mixin

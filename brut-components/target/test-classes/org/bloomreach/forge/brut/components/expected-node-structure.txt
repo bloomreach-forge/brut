@@ -1,0 +1,22 @@
+content
+   |_documents
+   |   |_mychannel
+   |       |_news
+   |           |_hippotranslation:translations
+   |           |_news1
+   |           |   |_news1
+   |           |       |_ns:headerImage
+   |           |_news2
+   |           |   |_news2
+   |           |       |_ns:headerImage
+   |           |_news3
+   |           |   |_news3
+   |           |       |_ns:relatedNews
+   |           |       |_ns:headerImage
+   |           |_another-type
+   |               |_another-type
+   |                   |_ns:headerImage
+   |_gallery
+   |   |_myhippoproject
+   |_assets
+   |_attic

@@ -1,0 +1,39 @@
+<rep='internal'>
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<hippo='http://www.onehippo.org/jcr/hippo/nt/2.0'>
+<hippostd='http://www.onehippo.org/jcr/hippostd/nt/2.0'>
+<hippogallery='http://www.onehippo.org/jcr/hippogallery/nt/2.0'>
+
+[hippogallery:image] > hippo:resource
+ - hippogallery:width (long)
+ - hippogallery:height (long)
+
+[hippogallery:imageset] > hippo:document orderable
+ - hippogallery:filename (string)
+ - hippogallery:description (string)
+ + hippogallery:thumbnail (hippogallery:image) = hippogallery:image primary mandatory autocreated
+ + hippogallery:original (hippogallery:image) = hippogallery:image
+
+[hippogallery:container] mixin
+ + * (hippogallery:image)
+
+[hippogallery:relaxed] > hippostd:relaxed, hippogallery:container mixin
+
+[hippogallery:exampleAssetSet] > hippo:document
+ + hippogallery:asset (hippo:resource) = hippo:resource primary mandatory autocreated
+
+[hippogallery:stdgalleryset] > hippo:document
+ + hippogallery:thumbnail (hippo:resource) = hippo:resource primary mandatory autocreated
+ + hippogallery:picture (hippo:resource) = hippo:resource
+
+[hippogallery:stdImageGallery] > hippostd:gallery orderable
+
+[hippogallery:stdAssetGallery] > hippostd:gallery orderable
+
+
+// DEPRECATED, use or extend hippogallery:imageset
+[hippogallery:exampleImageSet] > hippo:document
+ + hippogallery:thumbnail (hippo:resource) = hippo:resource primary mandatory autocreated
+ + hippogallery:picture (hippo:resource) = hippo:resource
