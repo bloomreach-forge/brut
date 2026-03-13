@@ -154,6 +154,30 @@ public @interface BrxmJaxrsTest {
     String[] repositoryDataModules() default {};
 
     /**
+     * Dependency-provided HCM module names to force-include during ConfigService bootstrap.
+     *
+     * <p>Use this to explicitly include modules that auto-discovery might miss, such as modules
+     * whose group name matches a platform prefix filter.</p>
+     *
+     * <p>Example: {@code dependencyHcmModules = {"brxm-discovery-cms"}}</p>
+     *
+     * @return dependency HCM module names to force-include
+     */
+    String[] dependencyHcmModules() default {};
+
+    /**
+     * Dependency HCM module names to exclude from auto-discovery.
+     *
+     * <p>Use this to opt out of specific addon modules that BRUT would otherwise auto-discover
+     * from the test classpath.</p>
+     *
+     * <p>Example: {@code excludeDependencyHcmModules = {"some-conflicting-module"}}</p>
+     *
+     * @return dependency HCM module names to exclude from auto-discovery
+     */
+    String[] excludeDependencyHcmModules() default {};
+
+    /**
      * JAX-RS resource classes to register.
      *
      * <p>Eliminates the need for Spring XML configuration by automatically

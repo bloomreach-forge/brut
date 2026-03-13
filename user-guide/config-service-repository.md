@@ -8,6 +8,7 @@
 - **Production Parity**: Uses exact same bootstrap code as real brXM
 - **Zero Maintenance**: brXM structure changes propagate automatically
 - **Explicit Control**: Loads only your test HCM modules (no framework dependencies)
+- **Addon Support**: Dependency HCM modules auto-discovered from classpath (zero config); opt out with `excludeDependencyHcmModules`
 - **Proven**: Works with both JAX-RS and PageModel tests
 
 ## Quick Start
@@ -117,6 +118,33 @@ public class MyIntegrationTest extends AbstractJaxrsTest {
 }
 ```
 
+### 5. Addon HCM Modules — Zero Config
+
+BRUT automatically discovers addon HCM modules from the test classpath. Any JAR on your test classpath that contains `hcm-module.yaml` and is **not** a Hippo platform module (group prefix `hippo`/`onehippo`) and **not** your project's own module is loaded automatically — before your project modules so its node types are registered first.
+
+```java
+// No annotation needed — brxm-discovery-cms is auto-discovered
+@BrxmPageModelTest
+class MyPageModelTest {
+}
+```
+
+**Opt out of a specific module** if it conflicts:
+
+```java
+@BrxmPageModelTest(excludeDependencyHcmModules = {"some-conflicting-module"})
+class MyPageModelTest {
+}
+```
+
+**Force-include** a module that auto-discovery would miss (e.g., its group matches a platform prefix):
+
+```java
+@BrxmPageModelTest(dependencyHcmModules = {"some-special-module"})
+class MyPageModelTest {
+}
+```
+
 ## How It Works
 
 ### Architecture
@@ -138,7 +166,7 @@ Test Resources (target/test-classes)
           JCR Repository               ← Production-identical structure
 ```
 
-**Key Insight**: We use `ModuleReader.read(path, false)` to load test modules explicitly by path, avoiding `ClasspathConfigurationModelReader` which scans for ALL modules (including framework JARs with unmet dependencies).
+**Key Insight**: We use `ModuleReader.read(path, false)` to load project test modules explicitly by path, and dependency modules only when you name them, avoiding `ClasspathConfigurationModelReader` which scans for ALL modules (including framework JARs with unmet dependencies).
 
 ### Initialization Flow
 
