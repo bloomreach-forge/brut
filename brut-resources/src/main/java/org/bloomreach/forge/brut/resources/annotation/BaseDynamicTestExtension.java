@@ -155,6 +155,8 @@ abstract class BaseDynamicTestExtension<T extends DynamicTest, A extends Annotat
             TestConfigurationLogger.logSpringConfigs(log, config.getSpringConfigs());
             TestConfigurationLogger.logHstRoot(log, config.getHstRoot());
             TestConfigurationLogger.logModules(log, "Repository Data Modules", config.getRepositoryDataModules());
+            TestConfigurationLogger.logModules(log, "Dependency HCM Modules (force-include)", config.getDependencyHcmModules());
+            TestConfigurationLogger.logModules(log, "Dependency HCM Modules (exclude)", config.getExcludeDependencyHcmModules());
             TestConfigurationLogger.logModules(log, "Addon Modules", config.getAddonModules());
         });
     }

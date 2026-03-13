@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.example</groupId>
     <artifactId>myproject</artifactId>
-    <version>5.3.2</version>
+    <version>5.4.0-SNAPSHOT</version>
   </parent>
 
   <name>My Project Repository Data</name>

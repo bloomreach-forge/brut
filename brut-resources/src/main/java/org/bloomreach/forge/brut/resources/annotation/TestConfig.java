@@ -27,17 +27,23 @@ class TestConfig {
     private final List<String> springConfigs;
     private final List<String> addonModules;
     private final List<String> repositoryDataModules;
+    private final List<String> dependencyHcmModules;
+    private final List<String> excludeDependencyHcmModules;
 
     TestConfig(List<String> beanPatterns,
                String hstRoot,
                List<String> springConfigs,
                List<String> addonModules,
-               List<String> repositoryDataModules) {
+               List<String> repositoryDataModules,
+               List<String> dependencyHcmModules,
+               List<String> excludeDependencyHcmModules) {
         this.beanPatterns = beanPatterns;
         this.hstRoot = hstRoot;
         this.springConfigs = springConfigs;
         this.addonModules = addonModules;
         this.repositoryDataModules = repositoryDataModules;
+        this.dependencyHcmModules = dependencyHcmModules;
+        this.excludeDependencyHcmModules = excludeDependencyHcmModules;
     }
 
     List<String> getBeanPatterns() {
@@ -58,5 +64,13 @@ class TestConfig {
 
     List<String> getRepositoryDataModules() {
         return repositoryDataModules;
+    }
+
+    List<String> getDependencyHcmModules() {
+        return dependencyHcmModules;
+    }
+
+    List<String> getExcludeDependencyHcmModules() {
+        return excludeDependencyHcmModules;
     }
 }

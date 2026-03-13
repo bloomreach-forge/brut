@@ -45,6 +45,8 @@ class ConventionBasedConfigResolver {
             resolveSpringConfigs(annotation.springConfig(), new String[0], testClass, PAGEMODEL),
             annotation.addonModules(),
             annotation.repositoryDataModules(),
+            annotation.dependencyHcmModules(),
+            annotation.excludeDependencyHcmModules(),
             annotation.loadProjectContent(),
             ProjectDiscovery.BeanPackageOrder.BEANS_FIRST,
             testClass
@@ -79,6 +81,8 @@ class ConventionBasedConfigResolver {
             springConfigs,
             annotation.addonModules(),
             annotation.repositoryDataModules(),
+            annotation.dependencyHcmModules(),
+            annotation.excludeDependencyHcmModules(),
             annotation.loadProjectContent(),
             ProjectDiscovery.BeanPackageOrder.MODEL_FIRST,
             testClass
@@ -90,6 +94,8 @@ class ConventionBasedConfigResolver {
                                             List<String> springConfigs,
                                             String[] addonModulesArray,
                                             String[] repositoryDataModulesArray,
+                                            String[] dependencyHcmModulesArray,
+                                            String[] excludeDependencyHcmModulesArray,
                                             boolean loadProjectContent,
                                             ProjectDiscovery.BeanPackageOrder beanOrder,
                                             Class<?> testClass) {
@@ -102,9 +108,16 @@ class ConventionBasedConfigResolver {
         List<String> repositoryDataModules = repositoryDataModulesArray.length > 0
                 ? Arrays.asList(repositoryDataModulesArray)
                 : List.of();
+        List<String> dependencyHcmModules = dependencyHcmModulesArray.length > 0
+                ? Arrays.asList(dependencyHcmModulesArray)
+                : List.of();
+        List<String> excludeDependencyHcmModules = excludeDependencyHcmModulesArray.length > 0
+                ? Arrays.asList(excludeDependencyHcmModulesArray)
+                : List.of();
 
         if (loadProjectContent) {
-            springConfigs = applyConfigService(springConfigs, repositoryDataModules, testClass);
+            springConfigs = applyConfigService(springConfigs, repositoryDataModules,
+                dependencyHcmModules, excludeDependencyHcmModules, testClass);
         }
 
         List<String> addonModules = addonModulesArray.length > 0
@@ -112,11 +125,12 @@ class ConventionBasedConfigResolver {
                 : null;
 
         LOG.debug("Resolved configuration for {}: beanPatterns={}, hstRoot={}, springConfigs={}, " +
-                "addonModules={}, repositoryDataModules={}",
+                "addonModules={}, repositoryDataModules={}, dependencyHcmModules={}, excludeDependencyHcmModules={}",
                 testClass.getSimpleName(), beanPatterns, resolvedHstRoot, springConfigs,
-                addonModules, repositoryDataModules);
+                addonModules, repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules);
 
-        return new TestConfig(beanPatterns, resolvedHstRoot, springConfigs, addonModules, repositoryDataModules);
+        return new TestConfig(beanPatterns, resolvedHstRoot, springConfigs, addonModules,
+            repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules);
     }
 
     private static List<String> resolveSpringConfigs(String singleConfig, String[] multiConfigs,
@@ -136,6 +150,8 @@ class ConventionBasedConfigResolver {
 
     private static List<String> applyConfigService(List<String> springConfigs,
                                                    List<String> repositoryDataModules,
+                                                   List<String> dependencyHcmModules,
+                                                   List<String> excludeDependencyHcmModules,
                                                    Class<?> testClass) {
         String projectNamespace = ProjectDiscovery.resolveProjectNamespace(
             Paths.get(System.getProperty("user.dir")));
@@ -143,7 +159,8 @@ class ConventionBasedConfigResolver {
         List<String> yamlPatterns = detectYamlPatterns(projectNamespace, true, testClass.getClassLoader());
 
         String configPath = ConfigServiceSpringConfig.create(
-            projectNamespace, cndPatterns, yamlPatterns, repositoryDataModules);
+            projectNamespace, cndPatterns, yamlPatterns, repositoryDataModules,
+            dependencyHcmModules, excludeDependencyHcmModules);
         return prependSpringConfig(springConfigs, configPath);
     }
 
