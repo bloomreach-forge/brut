@@ -20,7 +20,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * JCR repository that uses brXM's production ConfigService for HST bootstrap.
@@ -56,7 +60,11 @@ public class ConfigServiceRepository extends AbstractBrutRepository {
     private final List<String> yamlResourcesPatterns;
     private final String projectNamespace;
     private final ConfigServiceBootstrapStrategy bootstrapStrategy;
+    private static final Set<String> PLATFORM_GROUP_PREFIXES = Set.of("hippo", "onehippo");
+
     private List<String> additionalRepositoryModules = Collections.emptyList();
+    private List<String> dependencyHcmModules = Collections.emptyList();
+    private List<String> excludeDependencyHcmModules = Collections.emptyList();
 
     /**
      * Creates repository with ConfigService bootstrap.
@@ -97,6 +105,18 @@ public class ConfigServiceRepository extends AbstractBrutRepository {
             : Collections.emptyList();
     }
 
+    public void setDependencyHcmModules(List<String> dependencyHcmModules) {
+        this.dependencyHcmModules = dependencyHcmModules != null
+            ? List.copyOf(dependencyHcmModules)
+            : Collections.emptyList();
+    }
+
+    public void setExcludeDependencyHcmModules(List<String> excludeDependencyHcmModules) {
+        this.excludeDependencyHcmModules = excludeDependencyHcmModules != null
+            ? List.copyOf(excludeDependencyHcmModules)
+            : Collections.emptyList();
+    }
+
     /**
      * Initializes repository with ConfigService bootstrap.
      * <p>
@@ -126,10 +146,33 @@ public class ConfigServiceRepository extends AbstractBrutRepository {
 
             currentStep = "ConfigService HST bootstrap";
             try {
-                List<Path> moduleDescriptors = ProjectDiscovery.discoverRepositoryModuleDescriptors(
+                List<Path> projectDescriptors = ProjectDiscovery.discoverRepositoryModuleDescriptors(
                     Paths.get(System.getProperty("user.dir")),
                     additionalRepositoryModules
                 );
+
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                Set<String> projectGroupNames = readGroupNames(projectDescriptors);
+                Set<String> excludeModuleNames = new java.util.HashSet<>(excludeDependencyHcmModules);
+
+                List<Path> autoDiscovered = DependencyHcmModuleResolver.resolveAll(
+                    classLoader, PLATFORM_GROUP_PREFIXES, projectGroupNames, excludeModuleNames);
+
+                // Force-include explicit modules (may override auto-discovery exclusions)
+                List<Path> explicit = DependencyHcmModuleResolver.resolve(
+                    dependencyHcmModules, classLoader);
+
+                // Merge: addon modules first (they define types project content depends on)
+                Map<Path, Path> merged = new LinkedHashMap<>();
+                for (Path p : autoDiscovered) {
+                    merged.put(p, p);
+                }
+                for (Path p : explicit) {
+                    merged.put(p, p);
+                }
+
+                List<Path> moduleDescriptors = new ArrayList<>(merged.keySet());
+                moduleDescriptors.addAll(projectDescriptors);
 
                 if (moduleDescriptors.isEmpty()) {
                     throw new RepositoryException(
@@ -184,6 +227,20 @@ public class ConfigServiceRepository extends AbstractBrutRepository {
                 session.logout();
             }
         }
+    }
+
+    private static Set<String> readGroupNames(List<Path> descriptors) {
+        return descriptors.stream()
+            .map(p -> {
+                try {
+                    return DependencyHcmModuleResolver.readGroupName(
+                        java.nio.file.Files.newInputStream(p));
+                } catch (IOException e) {
+                    return null;
+                }
+            })
+            .filter(name -> name != null && !name.isBlank())
+            .collect(Collectors.toSet());
     }
 
     private String buildStepFailureMessage(String step, List<String> patterns, String suggestion) {

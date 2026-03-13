@@ -22,25 +22,32 @@ class ConfigServiceSpringConfig {
     static String create(String projectNamespace,
                          List<String> cndPatterns,
                          List<String> yamlPatterns,
-                         List<String> repositoryDataModules) {
+                         List<String> repositoryDataModules,
+                         List<String> dependencyHcmModules,
+                         List<String> excludeDependencyHcmModules) {
         String namespace = projectNamespace != null && !projectNamespace.isBlank()
             ? projectNamespace
             : "project";
 
-        String xml = buildXml(namespace, cndPatterns, yamlPatterns, repositoryDataModules);
+        String xml = buildXml(namespace, cndPatterns, yamlPatterns,
+            repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules);
         return SpringXmlGenerator.createTempConfig("brut-configservice-", xml);
     }
 
     private static String buildXml(String projectNamespace,
                                    List<String> cndPatterns,
                                    List<String> yamlPatterns,
-                                   List<String> repositoryDataModules) {
+                                   List<String> repositoryDataModules,
+                                   List<String> dependencyHcmModules,
+                                   List<String> excludeDependencyHcmModules) {
         StringBuilder builder = new StringBuilder();
         builder.append(SpringXmlGenerator.XML_HEADER);
 
         SpringXmlGenerator.appendListBean(builder, "contributedCndResourcesPatterns", cndPatterns);
         SpringXmlGenerator.appendListBean(builder, "contributedYamlResourcesPatterns", yamlPatterns);
         SpringXmlGenerator.appendListBean(builder, "repositoryDataModules", repositoryDataModules);
+        SpringXmlGenerator.appendListBean(builder, "dependencyHcmModules", dependencyHcmModules);
+        SpringXmlGenerator.appendListBean(builder, "excludeDependencyHcmModules", excludeDependencyHcmModules);
 
         builder.append("  <bean id=\"javax.jcr.Repository\"\n");
         builder.append("        class=\"org.bloomreach.forge.brut.resources.ConfigServiceRepository\"\n");
@@ -52,6 +59,8 @@ class ConfigServiceSpringConfig {
         builder.append("    <constructor-arg ref=\"contributedYamlResourcesPatterns\"/>\n");
         builder.append("    <constructor-arg value=\"").append(SpringXmlGenerator.escapeXml(projectNamespace)).append("\"/>\n");
         builder.append("    <property name=\"additionalRepositoryModules\" ref=\"repositoryDataModules\"/>\n");
+        builder.append("    <property name=\"dependencyHcmModules\" ref=\"dependencyHcmModules\"/>\n");
+        builder.append("    <property name=\"excludeDependencyHcmModules\" ref=\"excludeDependencyHcmModules\"/>\n");
         builder.append("  </bean>\n");
         builder.append(SpringXmlGenerator.XML_FOOTER);
 

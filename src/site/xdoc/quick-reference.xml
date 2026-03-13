@@ -189,6 +189,9 @@ public class MyApiTest {
     // Load production HCM content
     loadProjectContent = true,
 
+    // Opt out of a specific auto-discovered addon module
+    excludeDependencyHcmModules = {"some-conflicting-module"},
+
     // Override auto-detected values
     hstRoot = "/hst:myproject",
     springConfigs = {"/org/example/custom.xml"},
@@ -498,6 +501,12 @@ src/test/resources/
         </div>
 
         <p>See <a href="config-service-repository.html">ConfigService Repository Guide</a> for detailed setup.</p>
+
+        <h4>Addon Module Auto-Discovery</h4>
+        <p>When <code>loadProjectContent = true</code>, BRUT automatically loads addon HCM modules from the
+        test classpath. Any non-platform, non-project JAR with <code>META-INF/hcm-module.yaml</code> is loaded
+        before your project modules. Use <code>excludeDependencyHcmModules</code> to opt out of specific addons,
+        or <code>dependencyHcmModules</code> to force-include a module that auto-discovery would miss.</p>
       </subsection>
 
     </section>
@@ -549,6 +558,24 @@ src/test/resources/
             <td>true</td>
             <td>Load real HCM modules via ConfigServiceRepository</td>
           </tr>
+          <tr>
+            <td><code>repositoryDataModules</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>Additional repository-data submodule names to include alongside auto-detected ones</td>
+          </tr>
+          <tr>
+            <td><code>dependencyHcmModules</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>Force-include named addon HCM modules (overrides auto-discovery filter)</td>
+          </tr>
+          <tr>
+            <td><code>excludeDependencyHcmModules</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>Exclude named addon HCM modules from auto-discovery</td>
+          </tr>
         </table>
       </subsection>
 
@@ -576,8 +603,26 @@ src/test/resources/
           <tr>
             <td><code>loadProjectContent</code></td>
             <td>boolean</td>
-            <td>false</td>
+            <td>true</td>
             <td>Load real HCM modules via ConfigServiceRepository</td>
+          </tr>
+          <tr>
+            <td><code>repositoryDataModules</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>Additional repository-data submodule names to include alongside auto-detected ones</td>
+          </tr>
+          <tr>
+            <td><code>dependencyHcmModules</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>Force-include named addon HCM modules (overrides auto-discovery filter)</td>
+          </tr>
+          <tr>
+            <td><code>excludeDependencyHcmModules</code></td>
+            <td>String[]</td>
+            <td>{}</td>
+            <td>Exclude named addon HCM modules from auto-discovery</td>
           </tr>
         </table>
       </subsection>
@@ -641,6 +686,11 @@ src/test/resources/
           <td>Test YAML</td>
           <td>&lt;testPackage&gt;/imports/**/*.yaml</td>
           <td><code>yamlPatterns = {"classpath*:custom/**/*.yaml"}</code></td>
+        </tr>
+        <tr>
+          <td>Addon HCM Modules</td>
+          <td>Classpath JARs with <code>hcm-module.yaml</code>, non-platform (group not <code>hippo*</code>/<code>onehippo*</code>), non-project group</td>
+          <td><code>excludeDependencyHcmModules = {"name"}</code> or <code>dependencyHcmModules = {"name"}</code></td>
         </tr>
       </table>
     </section>

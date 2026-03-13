@@ -31,6 +31,7 @@
         <li><strong>Production Parity</strong>: Uses exact same bootstrap code as real brXM</li>
         <li><strong>Zero Maintenance</strong>: brXM structure changes propagate automatically</li>
         <li><strong>Explicit Control</strong>: Loads only your test HCM modules (no framework dependencies)</li>
+        <li><strong>Addon Support</strong>: Dependency HCM modules auto-discovered from classpath (zero config)</li>
         <li><strong>Proven</strong>: Works with both JAX-RS and PageModel tests</li>
       </ul>
     </section>
@@ -66,6 +67,59 @@ class MyTest {
       </ul>
 
       <p>You still need the HCM module descriptor and config files (see Manual Setup below), but the annotation handles the repository wiring automatically.</p>
+    </section>
+
+    <section name="Addon HCM Modules (Zero Config)">
+      <p>BRUT automatically discovers addon HCM modules from the test classpath. Any JAR that provides
+      <code>META-INF/hcm-module.yaml</code> and is <em>not</em> a Hippo platform module (group prefix
+      <code>hippo</code> / <code>onehippo</code>) and <em>not</em> your project's own module is loaded
+      automatically — before your project modules so its node types are registered first.</p>
+
+      <subsection name="Default: Zero Config">
+        <p>No annotation parameter is needed — addon modules are discovered and loaded automatically:</p>
+        <div class="brush: java">
+          <source><![CDATA[
+// brxm-discovery-cms (or any other addon JAR) is auto-discovered from the classpath
+@BrxmPageModelTest
+class MyPageModelTest {
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Opt Out of a Specific Module">
+        <p>Use <code>excludeDependencyHcmModules</code> to skip a module that causes conflicts:</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmPageModelTest(excludeDependencyHcmModules = {"some-conflicting-module"})
+class MyPageModelTest {
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Force-Include a Module">
+        <p>Use <code>dependencyHcmModules</code> to explicitly include a module that auto-discovery
+        would miss (e.g., its group name matches a platform prefix):</p>
+        <div class="brush: java">
+          <source><![CDATA[
+@BrxmPageModelTest(dependencyHcmModules = {"some-special-module"})
+class MyPageModelTest {
+}
+          ]]></source>
+        </div>
+      </subsection>
+
+      <subsection name="Discovery Rules">
+        <p>A classpath JAR is treated as an <strong>addon</strong> and loaded automatically when all of
+        the following are true:</p>
+        <ul>
+          <li>It contains <code>META-INF/hcm-module.yaml</code></li>
+          <li>Its HCM group name does <em>not</em> start with <code>hippo</code> or <code>onehippo</code> (platform modules)</li>
+          <li>Its HCM group name does <em>not</em> match your project's group (project modules are loaded separately)</li>
+          <li>It is not listed in <code>excludeDependencyHcmModules</code></li>
+        </ul>
+      </subsection>
     </section>
 
     <section name="Manual Setup (Legacy)">
@@ -201,15 +255,17 @@ Test Resources (target/test-classes)
           JCR Repository               <- Production-identical structure
           ]]></source>
         </div>
-        <p><strong>Key Insight:</strong> We use <code>ModuleReader.read(path, false)</code> to load test modules
-        explicitly by path, avoiding <code>ClasspathConfigurationModelReader</code> which scans for ALL modules
-        (including framework JARs with unmet dependencies).</p>
+        <p><strong>Key Insight:</strong> We use <code>ModuleReader.read(path, false)</code> to load project test
+        modules explicitly by path, and scan the classpath for addon modules (non-platform, non-project JARs with
+        <code>META-INF/hcm-module.yaml</code>), avoiding <code>ClasspathConfigurationModelReader</code> which
+        would include framework JARs with unmet dependencies.</p>
       </subsection>
 
       <subsection name="Initialization Flow">
         <ol>
           <li><strong>Register CNDs</strong>: Node type definitions from classpath</li>
           <li><strong>Load Test Modules</strong>: ModuleReader finds <code>META-INF/hcm-module.yaml</code> in <code>target/test-classes</code></li>
+          <li><strong>Auto-Discover Addon Modules</strong>: Scans classpath JARs for non-platform, non-project HCM modules; loaded before project modules</li>
           <li><strong>Discover Config</strong>: ModuleReader automatically finds <code>hcm-config/**/*.yaml</code></li>
           <li><strong>Build Model</strong>: Creates <code>ConfigurationModelImpl</code> with only test modules</li>
           <li><strong>Apply via ConfigService</strong>: Uses reflection to call package-private ConfigService methods</li>
@@ -311,6 +367,17 @@ definitions:
       <subsection name="MissingDependencyException: missing dependency 'hippo-cms'">
         <p><strong>Cause:</strong> Module declares dependency on framework module not present in test</p>
         <p><strong>Fix:</strong> Remove <code>after:</code> section from group.</p>
+      </subsection>
+
+      <subsection name="Addon module not loading">
+        <p><strong>Cause:</strong> Module group name starts with <code>hippo</code> or <code>onehippo</code>,
+        or matches your project group — auto-discovery filters it out</p>
+        <p><strong>Fix:</strong> Use <code>dependencyHcmModules = {"module-name"}</code> to force-include it</p>
+      </subsection>
+
+      <subsection name="Conflicting addon module">
+        <p><strong>Cause:</strong> An auto-discovered addon module conflicts with your test setup</p>
+        <p><strong>Fix:</strong> Use <code>excludeDependencyHcmModules = {"module-name"}</code> to opt out</p>
       </subsection>
 
       <subsection name="HST nodes not created">

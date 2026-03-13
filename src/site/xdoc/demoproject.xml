@@ -53,7 +53,12 @@
           <li><code>AnnotationBasedPageModelTest</code>: Page Model API test with annotations</li>
           <li><code>AnnotationBasedComponentTest</code>: HST Component test with annotations</li>
           <li><code>ConfigServiceAnnotationJaxrsTest</code>: ConfigServiceRepository with <code>loadProjectContent = true</code></li>
+          <li><code>ConfigServiceAnnotationEssentialsListComponentTest</code>: ConfigServiceRepository test demonstrating addon HCM module auto-discovery — no <code>dependencyHcmModules</code> annotation parameter needed</li>
         </ul>
+        <p><strong>Addon HCM Modules:</strong> Tests using <code>loadProjectContent = true</code> automatically
+        benefit from zero-config addon discovery. Any non-platform, non-project JAR with
+        <code>META-INF/hcm-module.yaml</code> on the test classpath is loaded without additional annotation
+        parameters.</p>
         <p><strong>Example:</strong></p>
         <div class="brush: java">
           <source><![CDATA[
