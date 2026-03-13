@@ -14,7 +14,7 @@ jobs:
   release:
     permissions:
       contents: write
-    uses: bloomreach-forge/ci-workflows/.github/workflows/release.yml@v1.0.2
+    uses: bloomreach-forge/ci-workflows/.github/workflows/release.yml@v1.0.3
     with:
       version: ${{ inputs.version }}
       next-development-version: ${{ inputs.next-development-version }}
