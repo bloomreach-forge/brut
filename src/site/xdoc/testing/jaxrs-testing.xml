@@ -39,7 +39,7 @@ class HelloResourceTest {
 }
         ]]></source>
       </div>
-      <p><strong>That's it.</strong> No Spring XML required.</p>
+      <p>No Spring XML required.</p>
     </section>
 
     <section name="How It Works">

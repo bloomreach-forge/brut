@@ -46,7 +46,7 @@
       </subsection>
 
       <subsection name="Annotation-Based Tests (Recommended)">
-        <p>BRUT 5.1.0 introduces annotation-based testing with JUnit 5 parameter injection:</p>
+        <p>BRUT annotation-based testing with JUnit 5 parameter injection:</p>
         <ul>
           <li><code>ZeroConfigJaxrsTest</code>: Zero-config JAX-RS test with auto-detected bean packages</li>
           <li><code>AnnotationBasedJaxrsTest</code>: JAX-RS test with explicit configuration</li>

@@ -382,20 +382,20 @@ void doBeforeRender_withErrorParameter_setsErrorModelTrue() {
 }
 ```
 
-## Authentication Test Coverage Checklist
+## Authentication Test Coverage
 
-Ensure your authentication tests cover:
+Good authentication test suites cover these scenarios:
 
-- [ ] **Unauthenticated state** - No principal, no session
-- [ ] **Principal only** - Principal set, no session user
-- [ ] **Session user** - Full user object in session
-- [ ] **User profile** - External profile (e.g., from SSO/SAML)
-- [ ] **Each subscription tier** - Free, basic, premium, etc.
-- [ ] **Role-based access** - Admin, editor, viewer permissions
-- [ ] **Login parameters** - `?login=true`, `?error=true`
-- [ ] **Session expiry** - Invalidated or expired sessions
-- [ ] **Invalid credentials** - Wrong username/password (use `brxm.authentication()`)
-- [ ] **Locked accounts** - Disabled or suspended users
+- **Unauthenticated state** — no principal, no session
+- **Principal only** — principal set, no session user
+- **Session user** — full user object in session
+- **User profile** — external profile (e.g. from SSO/SAML)
+- **Each subscription tier** — free, basic, premium, etc.
+- **Role-based access** — admin, editor, viewer permissions
+- **Login parameters** — `?login=true`, `?error=true`
+- **Session expiry** — invalidated or expired sessions
+- **Invalid credentials** — wrong username/password (use `brxm.authentication()`)
+- **Locked accounts** — disabled or suspended users
 
 ## PageModel API Authentication Pattern
 

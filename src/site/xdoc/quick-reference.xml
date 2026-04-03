@@ -27,11 +27,10 @@
       <subsection name="1. Add Dependencies">
         <div class="brush: xml">
           <source><![CDATA[
-<!-- JUnit 5 (Required for annotation-based testing) -->
+<!-- JUnit 5 is typically managed by the brXM parent POM; only add explicitly if missing -->
 <dependency>
   <groupId>org.junit.jupiter</groupId>
   <artifactId>junit-jupiter</artifactId>
-  <version>5.10.2</version>
   <scope>test</scope>
 </dependency>
 
@@ -61,7 +60,7 @@
 
       <subsection name="2. Create Your First Test">
 
-        <h4>JAX-RS API Test (Parameter Injection - Recommended)</h4>
+        <h4>JAX-RS API Test</h4>
         <div class="brush: java">
           <source><![CDATA[
 package org.example;
@@ -72,11 +71,11 @@ import org.example.rest.HelloResource;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmJaxrsTest(resources = {HelloResource.class})  // beanPackages auto-detected!
+@BrxmJaxrsTest(resources = {HelloResource.class})
 public class MyApiTest {
 
     @Test
-    void testEndpoint(DynamicJaxrsTest brxm) {  // Parameter injection - no IDE warnings!
+    void testEndpoint(DynamicJaxrsTest brxm) {
         String response = brxm.request()
             .get("/site/api/hello/world")
             .execute();
@@ -96,7 +95,7 @@ import org.bloomreach.forge.brut.resources.annotation.DynamicPageModelTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmPageModelTest  // Zero-config for standard project layouts
+@BrxmPageModelTest
 public class MyPageModelTest {
 
     @Test

@@ -1,4 +1,4 @@
-#  B.R.U.T.
+# BRUT
 
 [![CI](https://github.com/bloomreach-forge/brut/actions/workflows/ci.yml/badge.svg)](https://github.com/bloomreach-forge/brut/actions/workflows/ci.yml)
 
@@ -11,71 +11,29 @@ min-java: 17
 min-brxm: 16.0
 -->
 
-**Bloomreach Unit Testing Library for BrXM Delivery Tier**
+Unit testing library for Bloomreach Experience Manager (brXM) delivery-tier components. BRUT spins up a full in-memory brXM stack — repository, HST container, and request pipelines — so tests run the same code paths as production without a running server.
 
-Zero-config unit testing for BrXM HST components, JAX-RS APIs, and Page Model API. Reduces test boilerplate by 66-74% with annotation-based testing.
+## Compatibility
 
-## Quick Navigation
+| BRUT  | brXM  | Java |
+|-------|-------|------|
+| 5.5.x | 16.7+ | 17+  |
+| 5.4.x | 16.7+ | 17+  |
+| 5.3.x | 16.7+ | 17+  |
+| 5.2.x | 16.7+ | 17+  |
+| 5.1.x | 16.x  | 17+  |
+| 5.0.x | 16.x  | 17+  |
+| 4.x   | 15.x  | 11+  |
 
-| I want to... | Go to... |
-|--------------|----------|
-| Get started quickly | [Getting Started Guide](user-guide/getting-started.md) |
-| Test an HST component | [Component Testing](#component-testing) |
-| Test a REST endpoint | [JAX-RS Testing Guide](user-guide/jaxrs-testing.md) |
-| Test Page Model API | [Page Model API Test](#page-model-api-test) |
-| Test authenticated users | [Authentication Patterns](user-guide/authentication-patterns.md) |
-| Create test content | [Stubbing Test Data](user-guide/stubbing-test-data.md) |
-| Fix a failing test | [Troubleshooting Guide](user-guide/troubleshooting.md) |
-| Get actionable test failure messages | [Diagnostics API](user-guide/troubleshooting.md#diagnostics-api) |
-| See common patterns | [Common Patterns](user-guide/common-patterns.md) |
-| Understand architecture | [Architecture](user-guide/architecture.md) |
+## Installation
 
-## Version Compatibility
-
-| BRUT Version | brXM Version | Java | JUnit |
-|--------------|--------------|------|-------|
-| 5.3.x | 16.7+ | 17+ | 5.x |
-| 5.2.x | 16.7+ | 17+ | 5.x |
-| 5.1.x | 16.x | 17+ | 5.x |
-| 5.0.x | 16.x | 17+ | 5.x |
-| 4.x | 15.x | 11+ | 4.x / 5.x |
-| 3.x | 14.x | 11+ | 4.x |
-
-## What is BRUT?
-
-BRUT provides comprehensive testing infrastructure for Bloomreach Experience Manager (brXM) delivery tier components:
-
-- **Component Testing** - Unit test HST components with mock repository
-- **JAX-RS API Testing** - Test REST endpoints with full HST pipeline
-- **Page Model API Testing** - Test Page Model API responses
-- **Production Parity** - Use real HCM configuration in tests
-- **Zero Config** - Auto-detection of beans, HST root, and Spring configs
-
-**Key Benefits:**
-- ✅ **66-74% Less Code** - Annotation-based API eliminates boilerplate
-- ✅ **Production Config** - Load real HCM modules into tests
-- ✅ **Fast Feedback** - Diagnostic assertions pinpoint missing YAML config on failure
-- ✅ **No Inheritance** - Field injection instead of extending base classes
-- ✅ **JUnit 5 Native** - Modern testing patterns
-
-**Docs:**
-- [Getting Started](user-guide/getting-started.md) - First test in 3 steps
-- [Quick Reference](user-guide/quick-reference.md) - Fast lookup
-- [Architecture](user-guide/architecture.md) - How BRUT works
-
-## Install
-
-### Step 1: Add version property to parent pom.xml
+In your parent `pom.xml`, declare the version and add dependency management:
 
 ```xml
 <properties>
-    <brut.version>5.3.0</brut.version>
+    <brut.version>5.5.0</brut.version>
 </properties>
-```
 
-### Step 2: Add dependency management to parent pom.xml (recommended)
-
-```xml
 <dependencyManagement>
     <dependencies>
         <dependency>
@@ -94,17 +52,17 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
 </dependencyManagement>
 ```
 
-### Step 3: Add dependencies to site/components/pom.xml
+In `site/components/pom.xml`, add the dependencies you need:
 
 ```xml
-<!-- Component Testing -->
+<!-- HST component tests -->
 <dependency>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut-components</artifactId>
     <scope>test</scope>
 </dependency>
 
-<!-- PageModel/JAX-RS Testing -->
+<!-- JAX-RS and Page Model API tests -->
 <dependency>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut-resources</artifactId>
@@ -112,474 +70,98 @@ BRUT provides comprehensive testing infrastructure for Bloomreach Experience Man
 </dependency>
 ```
 
-> **Warning: `<scope>test</scope>` is required.** BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented implementations. If BRUT is on the runtime classpath without test scope, its mock beans will shadow production beans and real HST endpoints will stop working. Always declare BRUT dependencies with `<scope>test</scope>`.
+> Both dependencies must declare `<scope>test</scope>`. BRUT replaces core HST beans (component manager, pipelines, link creator) with test implementations; if they reach the runtime classpath they will shadow the real beans and break production endpoints.
 
-> **Note:** JUnit 5, Mockito, and AssertJ versions are typically managed by the brXM parent pom. Only add explicit versions if not already provided by your project's dependency management.
+## Usage
 
-## Quick Start
-
-### Annotation-Based Testing (Recommended)
-
-BRUT 5.1.0+ provides zero-config annotation-based testing with automatic setup and teardown:
-
-#### Page Model API Test
-```java
-@BrxmPageModelTest(loadProjectContent = true)
-public class MyPageModelTest {
-    private DynamicPageModelTest brxm;
-
-    @Test
-    void testPageStructure() throws Exception {
-        PageModelResponse pageModel = brxm.request()
-            .get("/site/resourceapi/news")
-            .executeAsPageModel();
-
-        // Works with both v1.0 (/page/ refs) and v1.1 (/content/ refs) response formats
-        PageComponent newsList = pageModel.findComponentByName("NewsList").orElseThrow();
-        List<ArticleData> articles = pageModel.resolveModelContentList(newsList, "items", ArticleData.class);
-        assertFalse(articles.isEmpty());
-    }
-
-    @Test
-    void testWithDiagnostics() throws Exception {
-        PageModelResponse pageModel = brxm.request()
-            .get("/site/resourceapi/news")
-            .executeAsPageModel();
-
-        // Fails with sitemap/config recommendations instead of a bare AssertionError
-        PageModelAssert.assertThat(pageModel, "/news", "mysite")
-            .hasPage("newsoverview")
-            .hasComponent("NewsList")
-            .containerNotEmpty("main");
-    }
-}
-```
-
-#### JAX-RS REST API Test
-```java
-@BrxmJaxrsTest(resources = {HelloResource.class})
-public class MyJaxrsTest {
-    private DynamicJaxrsTest brxm;
-
-    @Test
-    void testEndpoint() {
-        brxm.getHstRequest().setRequestURI("/site/api/hello/user");
-        String response = brxm.invokeFilter();
-        assertEquals("Hello, World! user", response);
-    }
-}
-```
-
-> **`loadProjectContent = true`** loads your project's real HCM configuration (HST sitemap, channels, content types, and CND definitions) into the test repository. Without it, BRUT uses minimal stub data sufficient for basic tests but lacking production routes and content structures. Enable this option for production-parity testing where your tests exercise actual HST pipelines and content paths.
-
-### Key Features
-
-| Feature | Annotation-Based | Legacy (Abstract Classes) |
-|---------|------------------|---------------------------|
-| **Lines of Code** | ~16 lines per test | ~47 lines per test |
-| **Boilerplate Reduction** | **66-74%** | - |
-| **Auto-Detection** | ✅ HST root, bean paths | ❌ Manual configuration |
-| **Field Injection** | ✅ No inheritance | ❌ Must extend base class |
-| **JUnit 5 Native** | ✅ Extension-based | ⚠️ Requires @TestInstance |
-| **Production Config** | ✅ ConfigServiceRepository | ⚠️ Manual setup |
-| **Parallel Execution** | ⚠️ Class-level only | ⚠️ Class-level only |
-
-### When to Configure Manually
-
-| Scenario | Solution |
-|----------|----------|
-| Beans in multiple packages | `beanPackages = {"pkg1", "pkg2"}` |
-| HST root doesn't match artifactId | `hstRoot = "/hst:actual-name"` |
-| Custom JAX-RS resources | `springConfigs = {"/path/to/config.xml"}` |
-| Need custom CND/YAML patterns | Create Spring config with `contributedCndResourcesPatterns` |
-| Mix ConfigService with custom resources | `loadProjectContent = true, springConfigs = {...}` |
-
-See [Quick Reference - When to Configure Manually](user-guide/quick-reference.md#3a-when-to-configure-manually) for details.
-
-### Before/After Comparison
-
-**Before (Legacy Abstract Class):**
-```java
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class JaxrsTest extends AbstractJaxrsTest {
-    @BeforeAll
-    public void init() { super.init(); }
-
-    @BeforeEach
-    public void beforeEach() {
-        setupForNewRequest();
-        getHstRequest().setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        getHstRequest().setMethod(HttpMethod.GET);
-    }
-
-    @Override
-    protected String getAnnotatedHstBeansClasses() {
-        return "classpath*:org/example/model/*.class,";
-    }
-
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/custom-jaxrs.xml", "/rest-resources.xml");
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return "/hst:myproject";
-    }
-
-    @Test
-    public void testEndpoint() {
-        getHstRequest().setRequestURI("/site/api/hello/user");
-        String response = invokeFilter();
-        assertEquals("Hello, World! user", response);
-    }
-}
-```
-
-**After (Annotation-Based):**
-```java
-@BrxmJaxrsTest(resources = {HelloResource.class})
-public class JaxrsTest {
-    private DynamicJaxrsTest brxm;
-
-    @Test
-    void testEndpoint() {
-        brxm.getHstRequest().setRequestURI("/site/api/hello/user");
-        String response = brxm.invokeFilter();
-        assertEquals("Hello, World! user", response);
-    }
-}
-```
-
-**Result:** 47 lines → 12 lines (74% reduction)
-
-### Component Testing
+### HST component test
 
 ```java
-@BrxmComponentTest()  // beanPackages optional for simple tests
-public class HeroBannerTest {
+@BrxmComponentTest
+class HeroBannerTest {
+
     private DynamicComponentTest brxm;
     private HeroBanner component;
 
     @BeforeEach
-    void setUp() throws RepositoryException {
-        // Register custom node types
-        brxm.registerNodeType("myproject:HeroBanner");
-        brxm.registerNodeType("myproject:CallToAction");
-
-        // Import test content from YAML
-        URL resource = getClass().getResource("/test-content.yaml");
-        ImporterUtils.importYaml(resource, brxm.getRootNode(),
-                "/content/documents", "hippostd:folder");
-        brxm.recalculateRepositoryPaths();
-        brxm.setSiteContentBasePath("/content/documents/myproject");
-
-        // Initialize component
+    void setUp() {
         component = new HeroBanner();
         component.init(null, brxm.getComponentConfiguration());
     }
 
     @Test
-    void testWithParameters() {
-        // Mock component parameters
-        HeroBannerInfo paramInfo = mock(HeroBannerInfo.class);
-        when(paramInfo.getDocument()).thenReturn("herobanners/test-hero");
-        brxm.setComponentParameters(paramInfo);
+    void doBeforeRender_withDocumentParameter_setsTitle() {
+        HeroBannerInfo params = mock(HeroBannerInfo.class);
+        when(params.getDocument()).thenReturn("herobanners/test-hero");
+        brxm.setComponentParameters(params);
 
         component.doBeforeRender(brxm.getHstRequest(), brxm.getHstResponse());
 
         HeroBannerModel model = brxm.getRequestAttributeValue("heroBanner");
         assertThat(model.getTitle()).isEqualTo("Welcome");
     }
-
-    @Test
-    void testWithLoggedInUser() {
-        Principal principal = mock(Principal.class);
-        when(principal.getName()).thenReturn("JohnDoe");
-        brxm.getHstRequest().setUserPrincipal(principal);
-
-        // ...
-    }
 }
 ```
 
-**Component test features:**
-- ✅ `registerNodeType()` - Register custom JCR node types
-- ✅ `ImporterUtils.importYaml()` - Import test content
-- ✅ `recalculateRepositoryPaths()` - Update hippo:paths after import
-- ✅ `setSiteContentBasePath()` - Set site content root
-- ✅ `setComponentParameters()` - Set mocked ParameterInfo
-- ✅ `addRequestParameter()` - Add request parameters
-- ✅ `getRequestAttributeValue()` - Assert on model attributes
+Bean packages are auto-detected from `project-settings.xml`. Override when needed: `@BrxmComponentTest(beanPackages = {"com.example.beans"})`.
 
-### Fluent Test Utilities
-
-BRUT 5.1.0+ provides fluent APIs for common test operations:
-
-#### Fluent Request Builder
+### JAX-RS endpoint test
 
 ```java
 @BrxmJaxrsTest(resources = {NewsResource.class})
-public class FluentApiTest {
-    private DynamicJaxrsTest brxm;
+class NewsResourceTest {
 
     @Test
-    void testFluentRequest() {
+    void getArticles_returnsPagedList(DynamicJaxrsTest brxm) {
         String response = brxm.request()
-            .get("/site/api/news")           // Sets URI and method
-            .withHeader("X-Custom", "value") // Add custom header
-            .queryParam("category", "tech")  // Add query parameter
-            .execute();
+                .get("/site/api/news")
+                .queryParam("limit", "5")
+                .execute();
 
-        assertTrue(response.contains("news"));
+        assertThat(response).contains("articles");
     }
 }
+```
 
-// Page Model API — navigate structure and resolve document references
+### Page Model API test
+
+```java
 @BrxmPageModelTest(loadProjectContent = true)
-public class PageModelTest {
-    private DynamicPageModelTest brxm;
+class NewsPageTest {
 
     @Test
-    void testPageModel() throws Exception {
-        PageModelResponse pageModel = brxm.request()
-            .get("/site/resourceapi/")
-            .executeAsPageModel();
+    void newsPage_resolvesArticleList(DynamicPageModelTest brxm) throws Exception {
+        PageModelResponse model = brxm.request()
+                .get("/site/resourceapi/news")
+                .executeAsPageModel();
 
-        // Navigate structure
-        PageComponent root = pageModel.getRootComponent();
-        PageComponent header = pageModel.findComponentByName("header").orElseThrow();
-        List<PageComponent> children = pageModel.getChildComponents(root);
+        PageComponent list = model.findComponentByName("NewsList").orElseThrow();
+        List<ArticleData> articles = model.resolveModelContentList(list, "items", ArticleData.class);
 
-        // Resolve document references — works with v1.0 (/page/ refs) and v1.1 (/content/ refs)
-        Optional<BannerData> banner = pageModel.resolveModelContent(header, "document", BannerData.class);
-        List<ArticleData> articles = pageModel.resolveModelContentList(header, "items", ArticleData.class);
+        assertFalse(articles.isEmpty());
     }
 }
 ```
 
-#### Fluent Authentication
+`loadProjectContent = true` loads your project's actual HCM modules (sitemap, channels, content types) into the test repository. Omit it when stub data is sufficient.
 
-```java
-// Authenticated user with roles
-@Test
-void testProtectedEndpoint() {
-    String response = brxm.request()
-        .get("/site/api/admin/settings")
-        .asUser("john", "admin", "editor")  // username + roles
-        .execute();
+## Modules
 
-    assertThat(response).contains("settings");
-}
-
-// Role-only access testing
-@Test
-void testRoleBasedAccess() {
-    String response = brxm.request()
-        .get("/site/api/reports")
-        .withRole("manager")  // role without username
-        .execute();
-
-    assertThat(response).contains("reports");
-}
-```
-
-See [Authentication Patterns](user-guide/authentication-patterns.md) for advanced scenarios.
-
-#### Auto-Managed Repository Sessions
-
-```java
-@Test
-void testRepositoryAccess() {
-    try (RepositorySession session = brxm.repository()) {
-        Node newsNode = session.getNode("/content/documents/news");
-        assertEquals("hippo:handle", newsNode.getPrimaryNodeType().getName());
-    }
-    // Session automatically closed
-}
-```
-
-#### HTTP Session Support
-
-```java
-@Test
-void testWithSession() {
-    HttpSession session = brxm.getHstRequest().getSession();
-    session.setAttribute("user", userProfile);
-
-    // Or inject a mock session
-    brxm.getHstRequest().setSession(mockSession);
-
-    // Sessions auto-invalidate between tests in setupForNewRequest()
-}
-```
-
-**Benefits:**
-- ✅ Chainable request configuration
-- ✅ Auto-cleanup of JCR sessions
-- ✅ HTTP session support with test isolation
-- ✅ PageModelResponse utilities for navigating API responses
-- ✅ Works with both PageModel and JAX-RS tests
-
-### Custom JAX-RS Resources
-
-**Simple approach** - Reference your resource class directly:
-
-```java
-@BrxmJaxrsTest(resources = {MyResource.class})
-class MyResourceTest {
-    private DynamicJaxrsTest brxm;
-
-    @Test
-    void testCustomEndpoint() {
-        String response = brxm.request()
-            .get("/site/api/my-endpoint")
-            .execute();
-        // ...
-    }
-}
-```
-
-**Advanced** - For complex setups requiring Spring configuration, use `springConfigs`. See [JAX-RS Testing Guide](user-guide/jaxrs-testing.md) for details.
-
-### One-Liner ConfigService Integration
-
-Load your project's real HCM configuration (HST sitemap, channels, content types):
-
-```java
-@BrxmJaxrsTest(
-    resources = {NewsResource.class},
-    loadProjectContent = true  // Loads HCM modules from your project
-)
-public class NewsTest {
-    private DynamicJaxrsTest brxm;
-
-    @Test
-    void testEndpoint() {
-        // Test uses real brXM configuration from HCM modules
-        brxm.getHstRequest().setRequestURI("/site/api/news");
-        String response = brxm.invokeFilter();
-        assertEquals("expected", response);
-    }
-}
-```
-
-**No Spring XML needed** - BRUT auto-generates `ConfigServiceRepository` with your project's HCM modules.
-By default BRUT loads standard repository-data modules (`application`, `site`, `development`, `site-development`, `webfiles`).
-Add extra modules explicitly when needed:
-
-```java
-@BrxmPageModelTest(
-    loadProjectContent = true,
-    repositoryDataModules = {"cms"}
-)
-```
-
-If CMS or addon config is present but not needed for delivery-tier tests, BRUT can prune unreachable definitions under
-`/hippo:configuration/hippo:frontend`, `/hippo:configuration/hippo:modules`, and `/hippo:configuration/hippo:translations`.
-By default BRUT only allows config roots under `/hst:`, `/content`, `/webfiles`, and `/hippo:namespaces`.
-Override with `-Dbrut.configservice.allowedConfigRoots=/hst:,/hippo:configuration/hippo:modules` or
-use `-Dbrut.configservice.allowedConfigRoots=*` to disable filtering.
-Unreachable roots outside the allowed list are also pruned by default unless `brut.configservice.pruneConfigRoots`
-is explicitly set.
-Override roots with `-Dbrut.configservice.pruneConfigRoots=/hippo:configuration/hippo:frontend,/hippo:configuration/hippo:modules`,
-use `-Dbrut.configservice.pruneConfigRoots=*` to prune any unreachable root, or disable pruning with
-`-Dbrut.configservice.pruneFrontendConfig=false`.
+- **brut-common** — In-memory JCR repository and YAML content import utilities.
+- **brut-components** — HST component test harness (`@BrxmComponentTest`, `DynamicComponentTest`).
+- **brut-resources** — JAX-RS and Page Model API test harness (`@BrxmJaxrsTest`, `@BrxmPageModelTest`).
 
 ## Documentation
 
-- **[Quick Reference Guide](user-guide/quick-reference.md)** - Fast lookup for common patterns
-- **[Common Patterns](user-guide/common-patterns.md)** - Recipes and idioms
-- **[Troubleshooting & Diagnostics](user-guide/troubleshooting.md)** - Fixes and diagnostic API
-- **[Architecture](user-guide/architecture.md)** - How BRUT works internally
-- **[ConfigService Guide](user-guide/config-service-repository.md)** - Production-parity configuration
-- **[Release Notes](release-notes.md)** - Version history and features
-- **[Examples](demo/site/components/src/test/java/org/example/)** - Working test examples
-
-## Contents
-
-### B.R.U.T Common
-
-* This module contains the repository that other modules depend on. This module was initially a fork of the project
-[InMemoryJcrRepository](https://github.com/openweb-nl/in-memory-jcr).
-
-* The repository itself can be used standalone. It supports YAML import as main mechanism for bootstrapping content to it.
-
-* Note that you could also provide your own repository.xml (see com.bloomreach.ps.brut.common.repository.BrxmTestingRepository.getRepositoryConfigFileLocation)
-
-* If you are importing yaml that references images, make sure you choose the zip export option. Unzip the export
-in the classpath.
-
-* You can import nodes like the following:
-
-```java
-java.net.URL resource = getClass().getResource("/news.yaml");
-YamlImporter.importYaml(resource, rootNode, "/content/documents/mychannel", "hippostd:folder");
-
-```
-
-### B.R.U.T. Components
-
-This module is for testing HST components. This is a fork of the project called [Hippo Unit Tester](https://github.com/openweb-nl/hippo-unit-tester) by OpenWeb.
-
- An [example](https://github.com/bloomreach-forge/brut/blob/master/demo/site/components/src/test/java/org/example/EssentialsListComponentTest.java) of usage of this module
-
-### B.R.U.T. Resources
-
-This module provides testing infrastructure for HST pipelines (JAX-RS REST, Page Model API).
-
-**Recommended Approach:** Use annotation-based testing (see Quick Start above)
-
-**Features:**
-* ✅ **Annotation-based API** - Zero-config with `@BrxmPageModelTest` and `@BrxmJaxrsTest`
-* ✅ **Production-parity config** - ConfigServiceRepository loads real HCM modules
-* ✅ **Convention over configuration** - Auto-detects bean paths, HST root
-* ✅ **v1.0 + v1.1 Page Model API** - Documents and imagesets resolve correctly in both formats
-* ✅ **Ergonomic content resolution** - `resolveModelContent` / `resolveModelContentList` replace manual pipelines
-* ✅ **Diagnostic assertions** - `PageModelAssert` surfaces YAML config recommendations on failure
-* ✅ **Field injection** - No inheritance required
-* ⚠️ **Class-level parallel** supported; method-level concurrent execution (`@Execution(CONCURRENT)`) is not supported
-* ✅ **RequestContextProvider.get()** works in JAX-RS resources
-* ⚠️ Legacy abstract classes still supported (see below)
-
-### Legacy Approach: Abstract Classes
-
-For existing tests or when you need features not yet available in the annotation-based API, the abstract class approach (`AbstractJaxrsTest`, `AbstractPageModelTest`) is still fully supported.
-
-See [Legacy API Guide](user-guide/legacy-api.md) for examples and migration guidance.
+- [Getting Started](user-guide/getting-started.md)
+- [JAX-RS Testing](user-guide/jaxrs-testing.md)
+- [Stubbing Test Data](user-guide/stubbing-test-data.md)
+- [Authentication Patterns](user-guide/authentication-patterns.md)
+- [Common Patterns](user-guide/common-patterns.md)
+- [Troubleshooting](user-guide/troubleshooting.md)
+- [Architecture](user-guide/architecture.md)
+- [Release Notes](release-notes.md)
 
 ## Releasing
 
-This project uses [git-flow](https://bloomreach-forge.github.io/using-git-flow.html) for releases with automated deployment.
-
-### Steps
-
-1. **Start release and set version**
-   ```bash
-   git flow release start x.y.z
-   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z"
-   mvn -f demo versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z"
-   git commit -a -m "<ISSUE_ID> releasing x.y.z: set version"
-   ```
-
-2. **Finish release** (creates tag, merges to master/develop)
-   ```bash
-   git flow release finish x.y.z
-   ```
-
-3. **Set next snapshot and push** (you're now on develop)
-   ```bash
-   mvn versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z+1-SNAPSHOT"
-   mvn -f demo versions:set -DgenerateBackupPoms=false -DnewVersion="x.y.z+1-SNAPSHOT"
-   git commit -a -m "<ISSUE_ID> releasing x.y.z: set next development version"
-   git push origin develop master --follow-tags
-   ```
-
-> Replace `<ISSUE_ID>` with your JIRA ticket (e.g., `FORGE-123`).
-
-The CI workflow automatically:
-- Verifies both root and demo pom versions match the tag
-- Builds and tests BRUT and demo
-- Deploys to the Forge Maven repository
-- Creates a GitHub Release with auto-generated notes
-- Regenerates and publishes documentation to master
+Releases are managed through GitHub Actions. Use the [Release workflow](../../actions/workflows/release.yml) to cut a release, or run the [Test Release workflow](../../actions/workflows/test-release.yml) first for a dry run.

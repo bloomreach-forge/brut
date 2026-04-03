@@ -67,7 +67,7 @@ class MyApiTest {
     <section name="Key Features">
       <ul>
         <li><strong>Parameter Injection</strong> - No IDE warnings, standard JUnit 5 pattern</li>
-        <li><strong>Zero-Config</strong> - Auto-detection of bean packages, HST root, Spring configs</li>
+        <li>Auto-detection of bean packages, HST root, and Spring config files from project conventions</li>
         <li><strong>Fluent Request API</strong> - <code>brxm.request().get("/api").execute()</code></li>
         <li><strong>Typed JSON Responses</strong> - <code>executeAs(User.class)</code>, <code>executeWithStatus()</code></li>
         <li><strong>No Inheritance</strong> - Uses JUnit 5 extensions, not abstract base classes</li>

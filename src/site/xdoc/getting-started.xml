@@ -37,7 +37,7 @@
         <div class="brush: xml">
           <source><![CDATA[
 <properties>
-    <brut.version>5.1.0</brut.version>
+    <brut.version>5.5.0</brut.version>
 </properties>
 
 <dependencyManagement>
@@ -97,12 +97,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@BrxmComponentTest  // Zero-config! Bean packages auto-detected
+@BrxmComponentTest
 class MyFirstTest {
 
     @Test
     void infrastructure_testIsProperlyInitialized(DynamicComponentTest brxm) {
-        // Parameter injection - no IDE warnings
+
         assertThat(brxm.getHstRequest()).isNotNull();
         assertThat(brxm.getHstResponse()).isNotNull();
     }

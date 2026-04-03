@@ -84,7 +84,7 @@ public final class ConfigServiceReflectionBridge {
             APPLY_NAMESPACES_METHOD.invoke(configService, baseline, update, session);
             LOG.debug("Successfully invoked applyNamespacesAndNodeTypes via reflection");
         } catch (Exception e) {
-            LOG.error("Failed to invoke applyNamespacesAndNodeTypes via reflection", e);
+            LOG.debug("applyNamespacesAndNodeTypes failed (will be retried if recoverable)", e);
             throw new RepositoryException("Reflection invocation failed for applyNamespacesAndNodeTypes", e);
         }
     }

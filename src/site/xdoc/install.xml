@@ -56,11 +56,11 @@
            implementations. If BRUT is on the runtime classpath without test scope, its mock beans will shadow
            production beans and real HST endpoints will stop working. Always declare BRUT dependencies with
            <code>&lt;scope&gt;test&lt;/scope&gt;</code>.</p>
-        <p><strong>Recommended:</strong> Use BRUT 5.1.0+ with JUnit 5 for annotation-based testing support (<code>@BrxmPageModelTest</code>, <code>@BrxmJaxrsTest</code>)</p>
+        <p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit 5. JUnit 4 is still supported for the legacy abstract class approach.</p>
         <ul>
-          <li><strong>BRUT 5.1.0+</strong> - Annotation-based testing API, ConfigServiceRepository, 66-74% less boilerplate</li>
-          <li><strong>BRUT 5.0.x</strong> - Multi-test support, thread-safe initialization, JUnit 4 and 5 support</li>
-          <li><strong>JUnit 5</strong> - Required for annotation-based testing (JUnit 4 still supported for legacy abstract classes)</li>
+          <li><strong>BRUT 5.1.0+</strong> — Annotation-based API (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) with auto-detection and fluent request builder</li>
+          <li><strong>BRUT 5.0.x</strong> — Multi-test support, thread-safe initialization, JUnit 4 and 5 support</li>
+          <li><strong>JUnit 5</strong> — Required for annotation-based testing; JUnit 4 still supported for legacy abstract classes</li>
         </ul>
       </subsection>
 
@@ -68,10 +68,10 @@
         <p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit 5:</p>
         <div class="brush: xml">
           <source><![CDATA[
+            <!-- JUnit 5 is typically managed by the brXM parent POM; only add explicitly if missing -->
             <dependency>
               <groupId>org.junit.jupiter</groupId>
               <artifactId>junit-jupiter</artifactId>
-              <version>5.10.2</version>
               <scope>test</scope>
             </dependency>
           ]]></source>

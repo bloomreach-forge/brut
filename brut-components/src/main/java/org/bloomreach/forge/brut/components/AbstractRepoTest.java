@@ -31,10 +31,13 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractRepoTest extends SimpleComponentTest {
 
     private static final String SLASH = "/";
+    private static final ConcurrentHashMap<String, ObjectConverter> CONVERTER_CACHE = new ConcurrentHashMap<>();
+
     protected Node rootNode;
     protected ObjectConverter objectConverter;
     protected ObjectBeanManager objectBeanManager;
@@ -243,21 +246,29 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
     }
 
     protected void setObjectConverter() throws Exception {
-        MetadataReaderClasspathResourceScanner resourceScanner = new MetadataReaderClasspathResourceScanner();
-        resourceScanner.setResourceLoader(new PathMatchingResourcePatternResolver());
-        ObjectConverterFactoryBean objectConverterFactory = new ObjectConverterFactoryBean();
-        objectConverterFactory.setClasspathResourceScanner(resourceScanner);
-        objectConverterFactory.setAnnotatedClassesResourcePath(getAnnotatedClassesResourcePath());
-        objectConverterFactory.setGenerateDynamicBean(false); //disable dynamic beans feature
-        objectConverterFactory.afterPropertiesSet();
-        this.objectConverter = objectConverterFactory.getObject();
+        this.objectConverter = CONVERTER_CACHE.computeIfAbsent(
+                getAnnotatedClassesResourcePath(), AbstractRepoTest::buildObjectConverter);
 
         this.objectBeanManager = new ObjectBeanManagerImpl(this.rootNode.getSession(), objectConverter);
         this.requestContext.setDefaultObjectBeanManager(objectBeanManager);
         HashMap<Session, ObjectBeanManager> map = new HashMap<>();
         map.put(this.rootNode.getSession(), objectBeanManager);
         this.requestContext.setNonDefaultObjectBeanManagers(map);
+    }
 
+    private static ObjectConverter buildObjectConverter(String annotatedClassesResourcePath) {
+        try {
+            MetadataReaderClasspathResourceScanner resourceScanner = new MetadataReaderClasspathResourceScanner();
+            resourceScanner.setResourceLoader(new PathMatchingResourcePatternResolver());
+            ObjectConverterFactoryBean objectConverterFactory = new ObjectConverterFactoryBean();
+            objectConverterFactory.setClasspathResourceScanner(resourceScanner);
+            objectConverterFactory.setAnnotatedClassesResourcePath(annotatedClassesResourcePath);
+            objectConverterFactory.setGenerateDynamicBean(false);
+            objectConverterFactory.afterPropertiesSet();
+            return objectConverterFactory.getObject();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to build ObjectConverter for: " + annotatedClassesResourcePath, e);
+        }
     }
 
     protected void registerMixinType(String mixinType) throws RepositoryException {
@@ -341,88 +352,21 @@ public abstract class AbstractRepoTest extends SimpleComponentTest {
         }
     }
 
+    private static final String BASE_NODE_TYPES_CND = "brut-base-node-types.cnd";
+
     /**
-     * Registers base node types required for the test repository.
+     * Registers base node types required for the test repository using a single CND import.
      * Override {@link #shouldRegisterBaseNodeTypes()} to return {@code false} when using
-     * CND imports instead of manual registration, so that this method is skipped.
+     * CND imports instead, so that this method is skipped.
      *
      * @throws Exception if node type registration fails
      */
     protected void registerBaseNodeTypes() throws Exception {
-        registerNodeType("frontend:application");
-        registerNodeType("frontend:pluginconfig");
-        registerNodeType("hippo:handle");
-        registerNodeType("hippo:initializefolder");
-        registerNodeType("hippo:mirror");
-        registerNodeType("hippogallerypicker:imagelink", "hippo:facetselect");
-        registerNodeType("hippolog:folder");
-        registerNodeType("hipporeport:folder");
-        registerNodeType("hippostd:document", "hippo:document");
-        registerNodeType("hippostd:folder", "hippo:document");
-        registerNodeType("hippostd:html");
-        registerNodeType("hippostd:directory", "hippo:document");
-        registerNodeType("hipposys:configuration");
-        registerNodeType("hipposys:applicationfolder");
-        registerNodeType("hipposys:modulefolder");
-        registerNodeType("hipposys:derivativesfolder");
-        registerNodeType("hipposys:temporaryfolder");
-        registerNodeType("hipposys:queryfolder");
-        registerNodeType("hipposys:workflowfolder");
-        registerNodeType("hipposys:updaterfolder");
-        registerNodeType("hipposys:resourcebundles");
-        registerNodeType("hipposys:update");
-        registerNodeType("hipposys:domainfolder");
-        registerNodeType("hipposys:userfolder");
-        registerNodeType("hipposys:groupfolder");
-        registerNodeType("hipposys:rolefolder");
-        registerNodeType("hipposys:securityfolder");
-        registerNodeType("hipposys:securityprovider");
-        registerNodeType("hipposys:userprovider");
-        registerNodeType("hipposys:groupprovider");
-        registerNodeType("hipposys:accessmanager");
-        registerNodeType("hippostd:templatequery");
-        registerNodeType("hippostd:templates");
-        registerNodeType("hippofacnav:facetnavigation");
-        registerNodeType("hippotranslation:translations");
-        registerNodeType("hipposysedit:namespacefolder");
-        registerNodeType("hipposysedit:namespace");
-        registerNodeType("hipposysedit:templatetype");
-        registerNodeType("hipposysedit:nodetype", "hippo:document");
-        registerNodeType("hipposysedit:prototypeset");
-        registerNodeType("hippostdpubwf:document");
-        registerNodeType("hippostd:gallery", "hippostd:folder");
-        registerNodeType("hippogallery:stdAssetGallery", "hippostd:gallery");
-        registerNodeType("hippogallery:stdImageGallery", "hippostd:gallery");
-        registerNodeType("hippogallery:imageset", "hippo:document");
-        registerNodeType("hst:hst");
-        registerNodeType("hst:formdatacontainer");
-        registerNodeType("hst:configuration");
-        registerNodeType("hst:configurations");
-        registerNodeType("hst:pages");
-        registerNodeType("hst:blueprints");
-        registerNodeType("hst:channels");
-        registerNodeType("hst:sites");
-        registerNodeType("hst:virtualhosts");
-        registerNodeType("hst:catalog");
-        registerNodeType("hst:abstractcomponent");
-        registerNodeType("hst:component", "hst:abstractcomponent");
-        registerNodeType("hst:components");
-        registerNodeType("hst:template");
-        registerNodeType("hst:templates");
-        registerNodeType("hst:sitemenus");
-        registerNodeType("hst:sitemapitemhandlers");
-        registerNodeType("hst:sitemapitem");
-        registerNodeType("hst:sitemap");
-        registerNodeType("selection:basedocument", "hippo:document");
-        registerNodeType("selection:valuelist", "selection:basedocument");
-        registerNodeType("selection:listitem", "hippo:compound");
-        registerNodeType("webfiles:webfiles");
-
-        registerMixinType("hipposysedit:remodel");
-        registerMixinType("hippotranslation:translated");
-        registerMixinType("hipposys:implementation");
-        registerMixinType("hippo:lockable");
-        registerMixinType("hippo:harddocument");
-        registerMixinType("hippo:named");
+        try (InputStream cnd = getClass().getClassLoader().getResourceAsStream(BASE_NODE_TYPES_CND)) {
+            if (cnd == null) {
+                throw new IllegalStateException("CND resource not found on classpath: " + BASE_NODE_TYPES_CND);
+            }
+            ImporterUtils.registerNamespaces(cnd, rootNode.getSession());
+        }
     }
 }

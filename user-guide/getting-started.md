@@ -9,12 +9,7 @@ difficulty: beginner
 
 ## Prerequisites
 
-Before you begin, ensure you have:
-
-- [ ] Java 17 or higher
-- [ ] Maven 3.8 or higher
-- [ ] brXM 16.x project
-- [ ] JUnit 5 in your test dependencies
+This guide assumes Java 17+, Maven 3.8+, a brXM 16.x project, and JUnit 5 in your test dependencies. JUnit 5, Mockito, and AssertJ are typically managed by the brXM parent POM — check before adding explicit versions.
 
 ## Step 1: Add Dependencies
 
@@ -24,7 +19,7 @@ Add the version property and dependency management:
 
 ```xml
 <properties>
-    <brut.version>5.1.0</brut.version>
+    <brut.version>5.5.0</brut.version>
 </properties>
 
 <dependencyManagement>
@@ -82,12 +77,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@BrxmComponentTest  // Zero-config! Bean packages auto-detected from project-settings.xml
+@BrxmComponentTest
 class MyFirstTest {
 
     @Test
     void infrastructure_testIsProperlyInitialized(DynamicComponentTest brxm) {
-        // Parameter injection - no IDE warnings, standard JUnit 5 pattern
         assertThat(brxm.getHstRequest()).isNotNull();
         assertThat(brxm.getHstResponse()).isNotNull();
     }
@@ -161,11 +155,9 @@ mvn test -Dtest=MyFirstTest
    - `getComponentConfiguration()` - Mock component config for `init()`
    - `getRequestAttributeValue(name)` - Retrieve attributes set by your component
 
-3. **Injection patterns** - Choose between:
-   - **Parameter injection** (recommended) - `void test(DynamicComponentTest brxm)` - no IDE warnings
-   - **Field injection** - `private DynamicComponentTest brxm;` - needed for `@BeforeEach` access
+3. **Injection patterns** — use parameter injection (`void test(DynamicComponentTest brxm)`) for simple test methods, or field injection (`private DynamicComponentTest brxm`) when you need access in `@BeforeEach`.
 
-4. **`beanPackages`** - Tells BRUT where to scan for `@Node` annotated beans. This is **optional** if your project has a `project-settings.xml` file - BRUT will auto-detect packages from `selectedProjectPackage` and `selectedBeansPackage` settings
+4. **`beanPackages`** — tells BRUT where to scan for `@Node` annotated beans. Optional if your project has a `project-settings.xml` file; BRUT auto-detects packages from `selectedProjectPackage` and `selectedBeansPackage`.
 
 ## Next Steps
 
@@ -178,82 +170,3 @@ mvn test -Dtest=MyFirstTest
 | Fix a failing test | [Troubleshooting Guide](troubleshooting.md) |
 | Understand BRUT architecture | [Architecture](architecture.md) |
 
-## Complete pom.xml Example
-
-### Parent pom.xml (properties and dependency management)
-
-```xml
-<properties>
-    <brut.version>5.1.0</brut.version>
-</properties>
-
-<dependencyManagement>
-    <dependencies>
-        <!-- BRUT dependencies -->
-        <dependency>
-            <groupId>org.bloomreach.forge.brut</groupId>
-            <artifactId>brut-components</artifactId>
-            <version>${brut.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bloomreach.forge.brut</groupId>
-            <artifactId>brut-resources</artifactId>
-            <version>${brut.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-```
-
-### site/components/pom.xml (dependencies)
-
-```xml
-<!-- BRUT Testing -->
-<dependency>
-    <groupId>org.bloomreach.forge.brut</groupId>
-    <artifactId>brut-components</artifactId>
-    <scope>test</scope>
-</dependency>
-
-<dependency>
-    <groupId>org.bloomreach.forge.brut</groupId>
-    <artifactId>brut-resources</artifactId>
-    <scope>test</scope>
-</dependency>
-
-<!-- These are typically managed by brXM parent pom -->
-<dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter</artifactId>
-    <scope>test</scope>
-</dependency>
-
-<dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-core</artifactId>
-    <scope>test</scope>
-</dependency>
-
-<dependency>
-    <groupId>org.assertj</groupId>
-    <artifactId>assertj-core</artifactId>
-    <scope>test</scope>
-</dependency>
-
-<dependency>
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-databind</artifactId>
-    <scope>test</scope>
-</dependency>
-
-<!-- Optional: Include your repository-data-site for production HST config -->
-<dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>${project.artifactId}-repository-data-site</artifactId>
-    <version>${project.version}</version>
-    <scope>test</scope>
-</dependency>
-```
-
-> **Tip:** Avoid hardcoding versions in module pom.xml files. Use `${property}` references or rely on dependency management from the parent pom.

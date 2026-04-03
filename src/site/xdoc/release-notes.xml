@@ -31,7 +31,15 @@
             <th>Bloomreach Experience Manager Version</th>
           </tr>
           <tr>
-            <td>5.3.0</td>
+            <td>5.5.0</td>
+            <td>16.7.0</td>
+          </tr>
+          <tr>
+            <td>5.4.0</td>
+            <td>16.7.0</td>
+          </tr>
+          <tr>
+            <td>5.3.x</td>
             <td>16.7.0</td>
           </tr>
           <tr>
@@ -74,12 +82,33 @@
       </subsection>
 
       <subsection name="Release Notes">
-        <h4>5.3.0</h4>
+        <h4>5.5.0</h4>
         <ul>
-          <li>Zero-config addon HCM module auto-discovery: non-platform, non-project HCM modules on the test classpath are loaded automatically</li>
+          <li>Namespace pre-registration before <code>applyNamespacesAndNodeTypes</code> — prevents <code>NamespaceException</code> failures from addon module ordering</li>
+          <li>Missing supertype pre-stubbing — stubs supertypes referenced in CNDs but absent from the test classpath before type registration</li>
+          <li>Retry loops for namespace registration and config delta — auto-recovers from invalid supertype and "is not a mixin" errors</li>
+          <li>Unmapped mount patching — sets <code>hst:ismapped=false</code> on mounts with unresolvable site references, preventing errors in multi-tenant setups</li>
+          <li><code>RuntimeTypeStubber.registerStubMixinNodeType()</code> — new method to register stub mixin types specifically</li>
+          <li><code>SpringComponentManager.getInternalApplicationContext()</code> — exposes Spring context for test setup</li>
+          <li><code>AbstractPageModelTest</code> registers a <code>GenericWebApplicationContext</code> on the test servlet context — fixes <code>WebApplicationContextUtils.getWebApplicationContext()</code> returning null</li>
+          <li>Bootstrap log noise reduction — noisy ConfigService loggers suppressed during bootstrap</li>
+        </ul>
+
+        <h4>5.4.0</h4>
+        <ul>
+          <li><a href="https://bloomreach.atlassian.net/browse/FORGE-626">FORGE-626</a> Addon HCM module auto-discovery: non-platform, non-project HCM modules on the test classpath are loaded automatically. <strong>Upgrade note:</strong> tests using <code>loadProjectContent = true</code> may pick up additional modules; use <code>excludeDependencyHcmModules</code> to opt out of specific ones.</li>
           <li>New <code>excludeDependencyHcmModules</code> parameter on <code>@BrxmJaxrsTest</code> and <code>@BrxmPageModelTest</code> to opt out of specific addon modules</li>
           <li><code>dependencyHcmModules</code> repurposed as force-include override for modules that auto-discovery would miss</li>
-          <li>Ordering fix: addon modules are now loaded before project modules to ensure node types are registered first</li>
+          <li>Ordering fix: addon modules now load before project modules to ensure node types are registered first</li>
+        </ul>
+
+        <h4>5.3.0</h4>
+        <ul>
+          <li>Page Model API v1.0 document resolution: documents and imagesets in the <code>page</code> section are now correctly parsed and resolved</li>
+          <li><code>resolveModelContent(component, modelName, type)</code> and <code>resolveModelContentList(component, modelName, type)</code> — helper methods replacing manual stream pipelines for resolving <code>$ref</code> content</li>
+          <li>Diagnostics package: <code>PageModelAssert</code>, <code>PageModelDiagnostics</code>, and <code>ConfigurationDiagnostics</code> provide actionable failure output with YAML file references and fix recommendations</li>
+          <li>JCR repository shared across test classes with the same configuration fingerprint — Jackrabbit bootstraps once per fingerprint</li>
+          <li><code>ConfigurationModel</code> cached by source file hash — repeated YAML/CND processing skipped for classes with identical HCM modules</li>
         </ul>
 
         <h4>5.2.0</h4>
@@ -100,7 +129,7 @@
           <a href="user-guide/troubleshooting.html">Troubleshooting</a>
         </p>
         <ul>
-          <li><a href="https://issues.onehippo.com/browse/FORGE-577">FORGE-577</a> Annotation-based testing with zero-config setup</li>
+          <li><a href="https://bloomreach.atlassian.net/browse/FORGE-577">FORGE-577</a> Annotation-based testing with zero-config setup</li>
           <li>JUnit 5 parameter injection: Test harness via <code>@Test</code> method parameters (recommended)</li>
           <li>Production-parity testing with ConfigServiceRepository</li>
           <li>New annotations: <code>@BrxmPageModelTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmComponentTest</code></li>
@@ -109,7 +138,6 @@
           <li>Fluent request builder API with typed JSON responses</li>
           <li>HTTP Session support in MockHstRequest</li>
           <li>Enhanced error messages with actionable fix suggestions</li>
-          <li>66-74% boilerplate reduction compared to legacy abstract classes</li>
         </ul>
 
         <h4>5.0.1</h4>
@@ -166,7 +194,7 @@
 
         <h4>1.0.0</h4>
         <ul>
-          <li>lder release with different group id</li>
+          <li>Older release with different group id</li>
         </ul>
       </subsection>
 

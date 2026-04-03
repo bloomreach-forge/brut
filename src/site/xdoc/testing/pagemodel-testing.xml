@@ -25,7 +25,7 @@
     <section name="Basic PageModel Test">
       <div class="brush: java">
         <source><![CDATA[
-@BrxmPageModelTest  // Zero-config for standard project layouts
+@BrxmPageModelTest
 class PageModelTest {
 
     @Test

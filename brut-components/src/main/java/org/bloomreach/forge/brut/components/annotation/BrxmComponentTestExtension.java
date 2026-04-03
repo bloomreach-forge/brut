@@ -61,7 +61,7 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
         DynamicComponentTest testInstance = new DynamicComponentTest(config);
 
         try {
-            testInstance.setRepository(entry.get());
+            testInstance.setRepository(entry.repository());
             testInstance.setup();
             applyAnnotationConfig(testInstance, config);
         } catch (Exception e) {
@@ -207,18 +207,8 @@ public class BrxmComponentTestExtension implements BeforeAllCallback, BeforeEach
      * exactly once at the end of the full test suite, shutting down the shared Jackrabbit
      * instance and cleaning up its temporary directory.
      */
-    private static final class SharedRepositoryEntry
-        implements ExtensionContext.Store.CloseableResource {
-
-        private final BrxmTestingRepository repository;
-
-        SharedRepositoryEntry(BrxmTestingRepository repository) {
-            this.repository = repository;
-        }
-
-        BrxmTestingRepository get() {
-            return repository;
-        }
+    private record SharedRepositoryEntry(BrxmTestingRepository repository)
+            implements ExtensionContext.Store.CloseableResource {
 
         @Override
         public void close() {

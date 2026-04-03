@@ -1,0 +1,220 @@
+/*
+ * Minimal stub node types required by BRUT component tests.
+ * These are lightweight stubs (no properties) that provide just enough type hierarchy
+ * for YAML content imports and HstQueryManager to function in unit tests.
+ *
+ * This CND replaces the ~75 individual NodeTypeUtils.createNodeType() calls in
+ * AbstractRepoTest.registerBaseNodeTypes(), batching them into a single CndImporter call.
+ *
+ * Namespace URIs match the authoritative brXM CND files.
+ * For namespaces pre-registered by RepositoryImpl (hippo, hipposys, hipposysedit, hippofacnav),
+ * CndImporter silently ignores re-registration attempts if URIs differ.
+ */
+
+<rep='internal'>
+<jcr='http://www.jcp.org/jcr/1.0'>
+<nt='http://www.jcp.org/jcr/nt/1.0'>
+<mix='http://www.jcp.org/jcr/mix/1.0'>
+<hippo='http://www.onehippo.org/jcr/hippo/nt/2.0.4'>
+<hipposys='http://www.onehippo.org/jcr/hipposys/nt/1.0'>
+<hipposysedit='http://www.onehippo.org/jcr/hipposysedit/nt/1.2'>
+<hippofacnav='http://www.onehippo.org/jcr/hippofacnav/nt/1.0.1'>
+<frontend='http://www.onehippo.org/jcr/frontend/nt/2.0'>
+<hippogallerypicker='http://www.hippoecm.org/hippogallerypicker/nt/2.0'>
+<hippolog='http://www.onehippo.org/jcr/hippolog/nt/2.0'>
+<hipporeport='http://www.onehippo.com/jcr/hipporeport/nt/1.0'>
+<hippostd='http://www.onehippo.org/jcr/hippostd/nt/2.0'>
+<hippostdpubwf='http://www.onehippo.org/jcr/hippostdpubwf/nt/1.0'>
+<hippogallery='http://www.onehippo.org/jcr/hippogallery/nt/2.0'>
+<hippotranslation='http://www.onehippo.org/jcr/hippotranslation/nt/1.0'>
+<hst='http://www.hippoecm.org/hst/nt/2.1'>
+<selection='http://forge.onehippo.org/selection/nt/1.0'>
+<webfiles='http://www.onehippo.org/webfiles/nt/1.0'>
+
+// ---- Stub supertypes (created as nt:unstructured stubs by NodeTypeUtils recursive calls) ----
+
+[hippo:document] > nt:unstructured
+
+[hippo:compound] > nt:unstructured
+
+[hippo:facetselect] > nt:unstructured
+
+// ---- frontend ----
+
+[frontend:application] > nt:unstructured
+
+[frontend:pluginconfig] > nt:unstructured
+
+// ---- hippo ----
+
+[hippo:handle] > nt:unstructured
+
+[hippo:initializefolder] > nt:unstructured
+
+[hippo:mirror] > nt:unstructured
+
+// ---- hippogallerypicker ----
+
+[hippogallerypicker:imagelink] > hippo:facetselect
+
+// ---- hippolog ----
+
+[hippolog:folder] > nt:unstructured
+
+// ---- hipporeport ----
+
+[hipporeport:folder] > nt:unstructured
+
+// ---- hippostd ----
+
+[hippostd:html] > nt:unstructured
+
+[hippostd:templatequery] > nt:unstructured
+
+[hippostd:templates] > nt:unstructured
+
+[hippostd:document] > hippo:document
+
+[hippostd:folder] > hippo:document
+
+[hippostd:directory] > hippo:document
+
+[hippostd:gallery] > hippostd:folder
+
+// ---- hippostdpubwf ----
+
+[hippostdpubwf:document] > nt:unstructured
+
+// ---- hippogallery ----
+
+[hippogallery:imageset] > hippo:document
+
+[hippogallery:stdAssetGallery] > hippostd:gallery
+
+[hippogallery:stdImageGallery] > hippostd:gallery
+
+// ---- hipposys ----
+
+[hipposys:configuration] > nt:unstructured
+
+[hipposys:applicationfolder] > nt:unstructured
+
+[hipposys:modulefolder] > nt:unstructured
+
+[hipposys:derivativesfolder] > nt:unstructured
+
+[hipposys:temporaryfolder] > nt:unstructured
+
+[hipposys:queryfolder] > nt:unstructured
+
+[hipposys:workflowfolder] > nt:unstructured
+
+[hipposys:updaterfolder] > nt:unstructured
+
+[hipposys:resourcebundles] > nt:unstructured
+
+[hipposys:update] > nt:unstructured
+
+[hipposys:domainfolder] > nt:unstructured
+
+[hipposys:userfolder] > nt:unstructured
+
+[hipposys:groupfolder] > nt:unstructured
+
+[hipposys:rolefolder] > nt:unstructured
+
+[hipposys:securityfolder] > nt:unstructured
+
+[hipposys:securityprovider] > nt:unstructured
+
+[hipposys:userprovider] > nt:unstructured
+
+[hipposys:groupprovider] > nt:unstructured
+
+[hipposys:accessmanager] > nt:unstructured
+
+// ---- hippofacnav ----
+
+[hippofacnav:facetnavigation] > nt:unstructured
+
+// ---- hippotranslation ----
+
+[hippotranslation:translations] > nt:unstructured
+
+// ---- hipposysedit ----
+
+[hipposysedit:namespacefolder] > nt:unstructured
+
+[hipposysedit:namespace] > nt:unstructured
+
+[hipposysedit:templatetype] > nt:unstructured
+
+[hipposysedit:nodetype] > hippo:document
+
+[hipposysedit:prototypeset] > nt:unstructured
+
+// ---- hst ----
+
+[hst:hst] > nt:unstructured
+
+[hst:formdatacontainer] > nt:unstructured
+
+[hst:configuration] > nt:unstructured
+
+[hst:configurations] > nt:unstructured
+
+[hst:pages] > nt:unstructured
+
+[hst:blueprints] > nt:unstructured
+
+[hst:channels] > nt:unstructured
+
+[hst:sites] > nt:unstructured
+
+[hst:virtualhosts] > nt:unstructured
+
+[hst:catalog] > nt:unstructured
+
+[hst:abstractcomponent] > nt:unstructured
+
+[hst:component] > hst:abstractcomponent
+
+[hst:components] > nt:unstructured
+
+[hst:template] > nt:unstructured
+
+[hst:templates] > nt:unstructured
+
+[hst:sitemenus] > nt:unstructured
+
+[hst:sitemapitemhandlers] > nt:unstructured
+
+[hst:sitemapitem] > nt:unstructured
+
+[hst:sitemap] > nt:unstructured
+
+// ---- selection ----
+
+[selection:basedocument] > hippo:document
+
+[selection:valuelist] > selection:basedocument
+
+[selection:listitem] > hippo:compound
+
+// ---- webfiles ----
+
+[webfiles:webfiles] > nt:unstructured
+
+// ---- Mixins ----
+
+[hipposysedit:remodel] mixin
+
+[hippotranslation:translated] mixin
+
+[hipposys:implementation] mixin
+
+[hippo:lockable] mixin
+
+[hippo:harddocument] mixin
+
+[hippo:named] mixin

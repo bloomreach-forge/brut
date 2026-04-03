@@ -24,7 +24,7 @@
 
     <section name="Overview">
       <p><strong>Note:</strong> This is the legacy approach using abstract base classes. For new tests,
-         we recommend the <a href="quick-reference.html">annotation-based API</a> which reduces boilerplate by 66-74%.</p>
+         we recommend the <a href="quick-reference.html">annotation-based API</a>.</p>
       <p>For existing tests or special cases, the abstract class approach is still fully supported.</p>
     </section>
 

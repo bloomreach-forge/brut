@@ -225,6 +225,42 @@ class RuntimeTypeStubberTest {
     }
 
     @Nested
+    class MixinStubRegistration {
+
+        @Test
+        @Tag("integration")
+        void registerStubMixinNodeType_registersAsMixin() throws Exception {
+            try (BrxmTestingRepository repo = new BrxmTestingRepository()) {
+                Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
+                try {
+                    RuntimeTypeStubber.registerStubMixinNodeType(session, "brut:mixinstub", new java.util.HashSet<>());
+                    assertTrue(session.getWorkspace().getNodeTypeManager()
+                            .getNodeType("brut:mixinstub").isMixin());
+                } finally {
+                    session.logout();
+                }
+            }
+        }
+
+        @Test
+        @Tag("integration")
+        void registerStubMixinNodeType_expandedUriFormat() throws Exception {
+            try (BrxmTestingRepository repo = new BrxmTestingRepository()) {
+                Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
+                try {
+                    RuntimeTypeStubber.registerStubMixinNodeType(session,
+                            "{http://forge.onehippo.org/relateddocs/nt/1.1}relatabledocs",
+                            new java.util.HashSet<>());
+                    assertTrue(session.getWorkspace().getNodeTypeManager()
+                            .getNodeType("relateddocs:relatabledocs").isMixin());
+                } finally {
+                    session.logout();
+                }
+            }
+        }
+    }
+
+    @Nested
     class UriPrefixDerivation {
 
         @Test

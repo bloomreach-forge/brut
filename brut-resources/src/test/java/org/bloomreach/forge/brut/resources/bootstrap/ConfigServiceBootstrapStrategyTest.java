@@ -226,6 +226,178 @@ class ConfigServiceBootstrapStrategyTest {
     }
 
     @Nested
+    class MissingPrimaryTypeExtraction {
+
+        @Test
+        void extractMissingPrimaryTypePath_extractsPathFromMessage() throws Exception {
+            String msg = "Node '/hst:hst/hst:configurations/hst:default/hst:sitemap/sitemap.xml' "
+                    + "defined at '...' is missing the required jcr:primaryType property.";
+            assertEquals(
+                "/hst:hst/hst:configurations/hst:default/hst:sitemap/sitemap.xml",
+                invokeExtract(msg));
+        }
+
+        @Test
+        void extractMissingPrimaryTypePath_returnsNullForNull() throws Exception {
+            assertNull(invokeExtract(null));
+        }
+
+        @Test
+        void extractMissingPrimaryTypePath_returnsNullForNoMarker() throws Exception {
+            assertNull(invokeExtract("Some other error message"));
+        }
+
+        @Test
+        void extractMissingPrimaryTypePath_returnsNullForUnreachableNodeMessage() throws Exception {
+            // Must not cross-match the unreachable-node message format
+            assertNull(invokeExtract("contains definition rooted at unreachable node '/foo/bar'"));
+        }
+
+        private String invokeExtract(String message) throws Exception {
+            Method method = ConfigServiceBootstrapStrategy.class
+                    .getDeclaredMethod("extractMissingPrimaryTypePath", String.class);
+            method.setAccessible(true);
+            return (String) method.invoke(strategy, message);
+        }
+    }
+
+    @Nested
+    class NamespaceUriExtraction {
+
+        @Test
+        void extractUnregisteredNamespaceUri_extractsUriFromMessage() throws Exception {
+            String msg = "http://forge.onehippo.org/relateddocs/nt/1.1: is not a registered namespace uri.";
+            assertEquals(
+                "http://forge.onehippo.org/relateddocs/nt/1.1",
+                invokeExtract(msg));
+        }
+
+        @Test
+        void extractUnregisteredNamespaceUri_returnsNullForNull() throws Exception {
+            assertNull(invokeExtract(null));
+        }
+
+        @Test
+        void extractUnregisteredNamespaceUri_returnsNullForNoSuffix() throws Exception {
+            assertNull(invokeExtract("some other namespace error message"));
+        }
+
+        @Test
+        void extractUnregisteredNamespaceUri_handlesLeadingWhitespace() throws Exception {
+            assertEquals(
+                "http://example.org/ns",
+                invokeExtract("  http://example.org/ns: is not a registered namespace uri."));
+        }
+
+        private String invokeExtract(String message) throws Exception {
+            Method method = ConfigServiceBootstrapStrategy.class
+                    .getDeclaredMethod("extractUnregisteredNamespaceUri", String.class);
+            method.setAccessible(true);
+            return (String) method.invoke(strategy, message);
+        }
+    }
+
+    @Nested
+    class NamespaceConflictInfoExtraction {
+
+        @Test
+        void extractNamespaceConflictInfo_extractsPrefixAndTarget() throws Exception {
+            String msg = "namespace with prefix 'autoexport' already exists in repository with different URI. "
+                    + "Existing: 'http://www.onehippo.org/autoexport/1.0', "
+                    + "target: 'http://www.onehippo.org/autoexport/1.1'. "
+                    + "Changing existing namespaces is not supported. Aborting.";
+            String[] result = invokeExtract(msg);
+            assertNotNull(result);
+            assertEquals("autoexport", result[0]);
+            assertEquals("http://www.onehippo.org/autoexport/1.1", result[1]);
+        }
+
+        @Test
+        void extractNamespaceConflictInfo_returnsNullForNull() throws Exception {
+            assertNull(invokeExtract(null));
+        }
+
+        @Test
+        void extractNamespaceConflictInfo_returnsNullForNonConflictMessage() throws Exception {
+            assertNull(invokeExtract("some unrelated namespace error"));
+        }
+
+        @Test
+        void extractNamespaceConflictInfo_returnsNullWhenNoTargetClause() throws Exception {
+            assertNull(invokeExtract("namespace with prefix 'foo' already exists in repository with different URI."));
+        }
+
+        private String[] invokeExtract(String message) throws Exception {
+            Method method = ConfigServiceBootstrapStrategy.class
+                    .getDeclaredMethod("extractNamespaceConflictInfo", String.class);
+            method.setAccessible(true);
+            return (String[]) method.invoke(strategy, message);
+        }
+    }
+
+    @Nested
+    class NotMixinNodeTypeExtraction {
+
+        @Test
+        void extractNotMixinNodeType_extractsQualifiedName() throws Exception {
+            assertEquals("relateddocs:relatabledocs",
+                invokeExtract("relateddocs:relatabledocs is not a mixin node type"));
+        }
+
+        @Test
+        void extractNotMixinNodeType_returnsNullForNull() throws Exception {
+            assertNull(invokeExtract(null));
+        }
+
+        @Test
+        void extractNotMixinNodeType_returnsNullForNoSuffix() throws Exception {
+            assertNull(invokeExtract("some other error message"));
+        }
+
+        private String invokeExtract(String message) throws Exception {
+            Method method = ConfigServiceBootstrapStrategy.class
+                    .getDeclaredMethod("extractNotMixinNodeType", String.class);
+            method.setAccessible(true);
+            return (String) method.invoke(strategy, message);
+        }
+    }
+
+    @Nested
+    class InvalidSupertypeExtraction {
+
+        @Test
+        void extractInvalidSupertype_extractsSupertypeFromMessage() throws Exception {
+            String msg = "[{http://www.onehippo.org/grandvision/nt/1.0}contentDocument] "
+                    + "invalid supertype: {http://forge.onehippo.org/relateddocs/nt/1.1}relatabledocs";
+            assertEquals(
+                "{http://forge.onehippo.org/relateddocs/nt/1.1}relatabledocs",
+                invokeExtract(msg));
+        }
+
+        @Test
+        void extractInvalidSupertype_returnsNullForNull() throws Exception {
+            assertNull(invokeExtract(null));
+        }
+
+        @Test
+        void extractInvalidSupertype_returnsNullForNoMarker() throws Exception {
+            assertNull(invokeExtract("some unrelated node type error"));
+        }
+
+        @Test
+        void extractInvalidSupertype_returnsNullForBlankAfterMarker() throws Exception {
+            assertNull(invokeExtract("invalid supertype: "));
+        }
+
+        private String invokeExtract(String message) throws Exception {
+            Method method = ConfigServiceBootstrapStrategy.class
+                    .getDeclaredMethod("extractInvalidSupertype", String.class);
+            method.setAccessible(true);
+            return (String) method.invoke(strategy, message);
+        }
+    }
+
+    @Nested
     class MissingDependencyParsing {
 
         @Test
@@ -421,7 +593,8 @@ class ConfigServiceBootstrapStrategyTest {
     class SafeRootPrefixCheck {
 
         @Test
-        void isSafeRootPrefix_acceptsHstPrefix() throws Exception {
+        void isSafeRootPrefix_acceptsHstPrefix_whenNoProjectNamespaceKnown() throws Exception {
+            // Conservative fallback: strategy freshly created (projectNamespace=null)
             assertTrue(invokeIsSafeRootPrefix("/hst:hst"));
         }
 
@@ -436,7 +609,8 @@ class ConfigServiceBootstrapStrategyTest {
         }
 
         @Test
-        void isSafeRootPrefix_acceptsNamespacesPrefix() throws Exception {
+        void isSafeRootPrefix_acceptsNamespacesPrefix_whenNoProjectNamespaceKnown() throws Exception {
+            // Conservative fallback: when project namespace is unknown, protect all /hippo:namespaces paths
             assertTrue(invokeIsSafeRootPrefix("/hippo:namespaces/myns"));
         }
 
@@ -448,6 +622,80 @@ class ConfigServiceBootstrapStrategyTest {
         @Test
         void isSafeRootPrefix_returnsFalseForNull() throws Exception {
             assertFalse(invokeIsSafeRootPrefix(null));
+        }
+
+        private boolean invokeIsSafeRootPrefix(String root) throws Exception {
+            Method method = ConfigServiceBootstrapStrategy.class.getDeclaredMethod("isSafeRootPrefix", String.class);
+            method.setAccessible(true);
+            return (boolean) method.invoke(strategy, root);
+        }
+    }
+
+    @Nested
+    class ProjectNamespaceScopedSafeCheck {
+
+        @Test
+        void isSafeRootPrefix_platformNamespaceExtensionNotSafeWhenProjectNamespaceKnown() throws Exception {
+            // addon module extending /hippo:namespaces/hippogallery — must be prunable when project is known
+            setProjectNamespace("myproject");
+            assertFalse(invokeIsSafeRootPrefix(
+                "/hippo:namespaces/hippogallery/image/editor:templates/_default_/display"));
+        }
+
+        @Test
+        void isSafeRootPrefix_projectNamespaceIsSafeWhenKnown() throws Exception {
+            setProjectNamespace("myproject");
+            assertTrue(invokeIsSafeRootPrefix("/hippo:namespaces/myproject/news"));
+        }
+
+        @Test
+        void isSafeRootPrefix_allNamespacesSafeWhenProjectNamespaceNull() throws Exception {
+            // projectNamespace is null on a freshly-created strategy — conservative fallback
+            assertNull(getProjectNamespace());
+            assertTrue(invokeIsSafeRootPrefix("/hippo:namespaces/hippogallery/image"));
+        }
+
+        @Test
+        void isSafeRootPrefix_allNamespacesSafeWhenProjectNamespaceBlank() throws Exception {
+            setProjectNamespace("  ");
+            assertTrue(invokeIsSafeRootPrefix("/hippo:namespaces/hippogallery/image"));
+        }
+
+        @Test
+        void isSafeRootPrefix_hstBlueprintsNotSafeWhenProjectNamespaceKnown() throws Exception {
+            setProjectNamespace("myproject");
+            assertFalse(invokeIsSafeRootPrefix("/hst:hst/hst:blueprints/new-addon-website"));
+        }
+
+        @Test
+        void isSafeRootPrefix_hstHstPathNotSafeWhenProjectNamespaceKnown() throws Exception {
+            setProjectNamespace("myproject");
+            assertFalse(invokeIsSafeRootPrefix("/hst:hst/hst:configurations/other"));
+        }
+
+        @Test
+        void isSafeRootPrefix_projectHstRootIsSafeWhenKnown() throws Exception {
+            setProjectNamespace("myproject");
+            assertTrue(invokeIsSafeRootPrefix("/hst:myproject/hst:hosts"));
+        }
+
+        @Test
+        void isSafeRootPrefix_hstSafeForAllWhenProjectNamespaceNull() throws Exception {
+            // projectNamespace is null on a freshly-created strategy — conservative fallback
+            assertNull(getProjectNamespace());
+            assertTrue(invokeIsSafeRootPrefix("/hst:hst/hst:blueprints/anything"));
+        }
+
+        private void setProjectNamespace(String value) throws Exception {
+            Field field = ConfigServiceBootstrapStrategy.class.getDeclaredField("projectNamespace");
+            field.setAccessible(true);
+            field.set(strategy, value);
+        }
+
+        private String getProjectNamespace() throws Exception {
+            Field field = ConfigServiceBootstrapStrategy.class.getDeclaredField("projectNamespace");
+            field.setAccessible(true);
+            return (String) field.get(strategy);
         }
 
         private boolean invokeIsSafeRootPrefix(String root) throws Exception {

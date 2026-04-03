@@ -154,22 +154,13 @@ IntelliJ will then invoke `mvn test` under the hood, which always runs `process-
 **Cause:** Field injection not working (field is private or final)
 
 **Fix:**
+
+Ensure `@BrxmComponentTest` is present on the class — it registers the JUnit 5 extension that performs injection:
+
 ```java
-// WRONG: private field
-private DynamicComponentTest brxm;
-
-// CORRECT: package-private (no modifier)
-DynamicComponentTest brxm;
-
-// ALSO CORRECT: explicitly package-private
-private DynamicComponentTest brxm;  // Actually this IS correct - just ensure @BrxmComponentTest is present
-```
-
-Ensure the annotation is on the class:
-```java
-@BrxmComponentTest(beanPackages = {"com.example.beans"})  // Required!
+@BrxmComponentTest(beanPackages = {"com.example.beans"})
 class MyTest {
-    private DynamicComponentTest brxm;  // Will be injected
+    private DynamicComponentTest brxm;  // injected by the extension
 }
 ```
 

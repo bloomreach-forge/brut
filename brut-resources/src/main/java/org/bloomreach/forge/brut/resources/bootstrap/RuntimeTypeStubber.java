@@ -63,29 +63,48 @@ public final class RuntimeTypeStubber {
      */
     public static void registerStubNodeType(Session session, String nodeType, Set<String> stubbedNamespaces)
             throws RepositoryException {
+        registerStubType(session, nodeType, stubbedNamespaces, false);
+    }
+
+    /**
+     * Registers a stub mixin node type definition.
+     * <p>
+     * Creates a minimal mixin CND. Used when stubbing supertypes during
+     * {@code applyNamespacesAndNodeTypes} — addon module CNDs commonly extend mixin types
+     * from dependency modules that aren't loaded in tests.
+     *
+     * @param session           the JCR session
+     * @param nodeType          the node type name (prefix:localName or {uri}localName)
+     * @param stubbedNamespaces set of already-stubbed namespaces (updated if needed)
+     * @throws RepositoryException if registration fails
+     */
+    public static void registerStubMixinNodeType(Session session, String nodeType, Set<String> stubbedNamespaces)
+            throws RepositoryException {
+        registerStubType(session, nodeType, stubbedNamespaces, true);
+    }
+
+    private static void registerStubType(Session session, String nodeType,
+                                         Set<String> stubbedNamespaces, boolean mixin)
+            throws RepositoryException {
         String prefix;
         String uri;
-        String localName;
         String qualifiedName;
 
-        // Handle expanded URI format: {uri}localName
         if (nodeType.startsWith("{")) {
             int braceEnd = nodeType.indexOf('}');
             if (braceEnd <= 1) {
                 return;
             }
             uri = nodeType.substring(1, braceEnd);
-            localName = nodeType.substring(braceEnd + 1);
+            String localName = nodeType.substring(braceEnd + 1);
             prefix = derivePrefixFromUri(uri);
             qualifiedName = prefix + ":" + localName;
         } else {
-            // Handle prefix:localName format
             int colonIdx = nodeType.indexOf(':');
             if (colonIdx <= 0) {
                 return;
             }
             prefix = nodeType.substring(0, colonIdx);
-            localName = nodeType.substring(colonIdx + 1);
             uri = "urn:brut:stub:" + prefix;
             qualifiedName = nodeType;
         }
@@ -97,16 +116,19 @@ public final class RuntimeTypeStubber {
             stubbedNamespaces.add(prefix);
         }
 
+        String typeClause = mixin ? "mixin" : "> nt:base";
         String cnd = String.format(
-            "<%s='%s'>\n[%s] > nt:base\n  - * (UNDEFINED) multiple\n  + * (nt:base) = nt:base sns",
-            prefix, uri, qualifiedName);
+            "<%s='%s'>\n[%s] %s\n  - * (UNDEFINED) multiple\n  + * (nt:base) = nt:base sns",
+            prefix, uri, qualifiedName, typeClause);
 
         try {
             CndImporter.registerNodeTypes(new StringReader(cnd), session);
-            LOG.warn("Stubbed missing node type '{}' for delivery-tier tests. " +
-                "Disable with -D{}=false", qualifiedName, STUB_MISSING_NODE_TYPES_PROPERTY);
+            LOG.warn("Stubbed missing {} '{}' for delivery-tier tests. " +
+                "Disable with -D{}=false", mixin ? "mixin type" : "node type",
+                qualifiedName, STUB_MISSING_NODE_TYPES_PROPERTY);
         } catch (Exception e) {
-            LOG.debug("Failed to register stub node type '{}': {}", qualifiedName, e.getMessage());
+            LOG.debug("Failed to register stub {} '{}': {}", mixin ? "mixin" : "node type",
+                qualifiedName, e.getMessage());
         }
     }
 

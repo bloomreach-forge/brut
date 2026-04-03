@@ -7,7 +7,7 @@
 **Key Benefits:**
 - **Production Parity**: Uses exact same bootstrap code as real brXM
 - **Zero Maintenance**: brXM structure changes propagate automatically
-- **Explicit Control**: Loads only your test HCM modules (no framework dependencies)
+- **Explicit Control**: Loads your project's HCM modules (framework platform modules are excluded)
 - **Addon Support**: Dependency HCM modules auto-discovered from classpath (zero config); opt out with `excludeDependencyHcmModules`
 - **Proven**: Works with both JAX-RS and PageModel tests
 
@@ -90,26 +90,18 @@ definitions:
 ### 4. Use in Your Test
 
 ```java
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MyIntegrationTest extends AbstractJaxrsTest {
+@BrxmJaxrsTest(springConfigs = {
+    "/org/example/config-service-jcr.xml",  // ConfigServiceRepository override
+    "/org/example/custom-jaxrs.xml",
+    "/org/example/rest-resources.xml"
+})
+class MyIntegrationTest {
 
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList(
-            "/org/example/config-service-jcr.xml",  // ConfigServiceRepository override
-            "/org/example/custom-jaxrs.xml",
-            "/org/example/rest-resources.xml"
-        );
-    }
-
-    @Override
-    protected String contributeHstConfigurationRootPath() {
-        return "/hst:myproject";  // BRUT uses project-specific root
-    }
+    private DynamicJaxrsTest brxm;
 
     @Test
     void testHstStructureCreated() throws Exception {
-        Repository repo = getComponentManager().getComponent(Repository.class);
+        Repository repo = brxm.getComponentManager().getComponent(Repository.class);
         Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
 
         assertTrue(session.nodeExists("/hst:myproject"));
@@ -243,16 +235,14 @@ definitions:
 ### JAX-RS Tests
 
 ```java
-public class MyJaxrsTest extends AbstractJaxrsTest {
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/org/example/config-service-jcr.xml");
-    }
+@BrxmJaxrsTest(springConfigs = {"/org/example/config-service-jcr.xml"})
+class MyJaxrsTest {
+
+    private DynamicJaxrsTest brxm;
 
     @Test
     void testEndpoint() {
-        getHstRequest().setRequestURI("/site/api/hello/world");
-        String response = invokeFilter();
+        String response = brxm.request().get("/site/api/hello/world").execute();
         assertEquals("Hello, World! world", response);
     }
 }
@@ -261,18 +251,17 @@ public class MyJaxrsTest extends AbstractJaxrsTest {
 ### PageModel Tests
 
 ```java
-public class MyPageModelTest extends AbstractPageModelTest {
-    @Override
-    protected List<String> contributeSpringConfigurationLocations() {
-        return Arrays.asList("/org/example/config-service-jcr.xml");
-    }
+@BrxmPageModelTest(springConfigs = {"/org/example/config-service-jcr.xml"})
+class MyPageModelTest {
+
+    private DynamicPageModelTest brxm;
 
     @Test
-    void testPageModel() throws IOException {
-        getHstRequest().setRequestURI("/site/resourceapi/news");
-        String response = invokeFilter();
-        JsonNode json = new ObjectMapper().readValue(response, JsonNode.class);
-        assertTrue(json.get("page").size() > 0);
+    void testPageModel() throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
+        assertThat(pageModel.getRootComponent()).isNotNull();
     }
 }
 ```

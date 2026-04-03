@@ -22,20 +22,20 @@
     <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemBundlePersistenceManager">
       <param name="persistent" value="false"/>
     </PersistenceManager>
-    <SearchIndex class="org.hippoecm.repository.FacetedNavigationEngineImpl">
+    <SearchIndex class="org.hippoecm.repository.query.lucene.ServicingSearchIndex">
       <param name="indexingConfiguration" value="/indexing_configuration.xml"/>
       <param name="indexingConfigurationClass"
              value="org.hippoecm.repository.query.lucene.ServicingIndexingConfigurationImpl"/>
       <param name="path" value="${wsp.home}/index"/>
       <param name="useSimpleFSDirectory" value="true"/>
       <param name="useCompoundFile" value="true"/>
-      <param name="minMergeDocs" value="100"/>
+      <param name="minMergeDocs" value="10"/>
       <param name="volatileIdleTime" value="10"/>
-      <param name="maxMergeDocs" value="100000"/>
-      <param name="mergeFactor" value="5"/>
+      <param name="maxMergeDocs" value="1000"/>
+      <param name="mergeFactor" value="2"/>
       <param name="maxFieldLength" value="10000"/>
-      <param name="bufferSize" value="1000"/>
-      <param name="cacheSize" value="1000"/>
+      <param name="bufferSize" value="10"/>
+      <param name="cacheSize" value="10"/>
       <param name="onWorkspaceInconsistency" value="log"/>
       <param name="forceConsistencyCheck" value="false"/>
       <param name="enableConsistencyCheck" value="false"/>
@@ -43,11 +43,11 @@
       <param name="analyzer" value="org.hippoecm.repository.query.lucene.StandardHippoAnalyzer"/>
       <param name="queryClass" value="org.apache.jackrabbit.core.query.QueryImpl"/>
       <param name="respectDocumentOrder" value="false"/>
-      <param name="resultFetchSize" value="1000"/>
+      <param name="resultFetchSize" value="100"/>
       <param name="extractorTimeout" value="100"/>
-      <param name="extractorBackLogSize" value="100"/>
+      <param name="extractorBackLogSize" value="10"/>
       <param name="excerptProviderClass" value="org.apache.jackrabbit.core.query.lucene.DefaultHTMLExcerpt"/>
-      <param name="supportSimilarityOnStrings" value="true"/>
+      <param name="supportSimilarityOnStrings" value="false"/>
       <param name="supportSimilarityOnBinaries" value="false"/>
       <param name="directoryManagerClass"
              value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager"/>
@@ -61,7 +61,4 @@
     </PersistenceManager>
   </Versioning>
 
-  <Cluster id="node1">
-    <Journal class="org.apache.jackrabbit.core.journal.MemoryJournal"/>
-  </Cluster>
 </Repository>

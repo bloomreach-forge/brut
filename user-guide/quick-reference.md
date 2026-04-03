@@ -5,13 +5,12 @@
 ### 1. Add Dependencies
 
 ```xml
-<!-- JUnit 5 (Required for annotation-based testing) -->
-<dependency>
+<!-- JUnit 5 is typically managed by the brXM parent POM; only add explicitly if needed -->
+<!-- <dependency>
   <groupId>org.junit.jupiter</groupId>
   <artifactId>junit-jupiter</artifactId>
-  <version>5.10.2</version>
   <scope>test</scope>
-</dependency>
+</dependency> -->
 
 <!-- For JAX-RS / Page Model API Testing -->
 <dependency>
@@ -46,11 +45,11 @@ import org.example.rest.HelloResource;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmJaxrsTest(resources = {HelloResource.class})  // beanPackages auto-detected!
+@BrxmJaxrsTest(resources = {HelloResource.class})
 public class MyApiTest {
 
     @Test
-    void testEndpoint(DynamicJaxrsTest brxm) {  // Parameter injection - no IDE warnings!
+    void testEndpoint(DynamicJaxrsTest brxm) {
         String response = brxm.request()
             .get("/site/api/hello/world")
             .execute();
@@ -68,14 +67,15 @@ import org.bloomreach.forge.brut.resources.annotation.DynamicPageModelTest;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BrxmPageModelTest  // Zero-config for standard project layouts
-public class MyPageModelTest {
+@BrxmPageModelTest
+class MyPageModelTest {
 
     @Test
-    void testComponent(DynamicPageModelTest brxm) {
-        brxm.getHstRequest().setRequestURI("/site/resourceapi/news");
-        String response = brxm.invokeFilter();
-        assertTrue(response.contains("page"));
+    void testComponent(DynamicPageModelTest brxm) throws Exception {
+        PageModelResponse pageModel = brxm.request()
+            .get("/site/resourceapi/news")
+            .executeAsPageModel();
+        assertThat(pageModel.getRootComponent()).isNotNull();
     }
 }
 ```
@@ -722,14 +722,11 @@ private DynamicJaxrsTest brxm;
 ```java
 @Test
 void descriptiveName() {
-    // 1. Setup request
-    brxm.getHstRequest().setRequestURI("/uri");
+    // 1. Execute
+    String response = brxm.request().get("/site/api/endpoint").execute();
 
-    // 2. Execute
-    String response = brxm.invokeFilter();
-
-    // 3. Assert
-    assertEquals(expected, actual);
+    // 2. Assert
+    assertThat(response).contains("expected");
 }
 ```
 

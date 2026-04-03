@@ -92,20 +92,11 @@ void secureEndpoint_requiresAuth() {
 ```java
 @Test
 void createItem_returnsCreated() {
-    setRequestBody("{\"name\": \"test\"}");
-    brxm.getHstRequest().setRequestURI("/site/api/items");
-    brxm.getHstRequest().setMethod(HttpMethod.POST);
-    brxm.getHstRequest().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-    String json = brxm.invokeFilter();
+    String json = brxm.request()
+        .post("/site/api/items")
+        .withBody("{\"name\": \"test\"}")
+        .execute();
     // ...
-}
-
-private void setRequestBody(String body) {
-    byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-    brxm.getHstRequest().setInputStream(
-        new DelegatingServletInputStream(new ByteArrayInputStream(bytes))
-    );
 }
 ```
 

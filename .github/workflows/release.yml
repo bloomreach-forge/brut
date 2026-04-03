@@ -18,6 +18,8 @@ jobs:
     with:
       version: ${{ inputs.version }}
       next-development-version: ${{ inputs.next-development-version }}
+      branch: develop
       run-demo-build: true
       demo-pom-path: demo/pom.xml
+      forge-readme-path: README.md
     secrets: inherit

@@ -23,8 +23,7 @@
   <body>
 
     <section name="Introduction">
-      <p><strong>BRUT 5.1.0</strong> introduces annotation-based testing for brXM delivery tier with 66-74% less boilerplate
-      than legacy abstract classes. Write tests with simple annotations and let BRUT handle the infrastructure.</p>
+      <p>BRUT provides annotation-based testing for brXM delivery-tier components. Annotate a test class and BRUT handles the infrastructure — repository bootstrap, HST container, and request pipelines.</p>
 
       <subsection name="Quick Example">
         <div class="brush: java">
@@ -41,15 +40,15 @@ class MyApiTest {
 }
           ]]></source>
         </div>
-        <p><strong>That's it!</strong> No abstract classes, no 30+ lines of configuration, no lifecycle management.</p>
+        <p>No abstract classes, no lifecycle management, no boilerplate configuration.</p>
       </subsection>
 
       <subsection name="Key Features">
         <ul>
-          <li><strong>Zero-Config Auto-Detection</strong> - Bean packages discovered from project structure</li>
-          <li><strong>JUnit 5 Parameter Injection</strong> - Test harness injected via <code>@Test</code> method parameters</li>
-          <li><strong>Fluent Request API</strong> - Chainable request building with typed responses</li>
-          <li><strong>ConfigService Integration</strong> - Production-parity testing with one-liner setup</li>
+          <li>Bean packages auto-detected from project structure; override with <code>beanPackages</code> when needed</li>
+          <li>Test harness injected via <code>@Test</code> method parameters or field injection</li>
+          <li>Fluent request builder: chainable setup with typed response deserialization</li>
+          <li>Load real HCM modules into the test repository with <code>loadProjectContent = true</code></li>
           <li><strong>Three Test Types</strong> - Components, JAX-RS APIs, and Page Model</li>
         </ul>
       </subsection>

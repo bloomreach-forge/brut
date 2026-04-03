@@ -10,6 +10,8 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -79,10 +81,20 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         componentManager.setAddonModuleDefinitions(Collections.singletonList(Utils.loadAddonModule(PAGEMODEL_ADDON_PATH)));
         componentManager.setServletContext(servletContext);
         componentManager.initialize();
+        registerWebApplicationContext();
         HstServices.setComponentManager(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
         String hstRoot = resolveExistingHstRoot(contributeHstConfigurationRootPath());
         containerConfiguration.setProperty("hst.configuration.rootPath", hstRoot);
+    }
+
+    private void registerWebApplicationContext() {
+        GenericWebApplicationContext webAppContext = new GenericWebApplicationContext();
+        webAppContext.setParent(componentManager.getInternalApplicationContext());
+        webAppContext.setServletContext(servletContext);
+        webAppContext.refresh();
+        servletContext.setAttribute(
+                WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, webAppContext);
     }
 
     private void includeAdditionalAddonModules() {

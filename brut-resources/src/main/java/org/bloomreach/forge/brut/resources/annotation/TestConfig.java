@@ -16,6 +16,7 @@
 package org.bloomreach.forge.brut.resources.annotation;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Immutable configuration holder for annotation-based tests.
@@ -72,5 +73,16 @@ class TestConfig {
 
     List<String> getExcludeDependencyHcmModules() {
         return excludeDependencyHcmModules;
+    }
+
+    /**
+     * Computes a fingerprint covering all configuration fields.
+     * Two TestConfig instances with the same fingerprint can share the same
+     * Spring ApplicationContext (and JCR repository) safely.
+     */
+    String computeFingerprint() {
+        return String.valueOf(Objects.hash(
+                beanPatterns, hstRoot, springConfigs, addonModules,
+                repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules));
     }
 }
