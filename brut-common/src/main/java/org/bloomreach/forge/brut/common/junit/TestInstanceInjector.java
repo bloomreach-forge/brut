@@ -16,23 +16,23 @@
 package org.bloomreach.forge.brut.common.junit;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.TestInstances;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * Utility for injecting test infrastructure instances into test class fields.
  * Used by JUnit 5 extensions to provide field injection of BRUT test instances.
  *
- * <p>Supports JUnit 5 {@code @Nested} test classes by searching enclosing classes
- * when the target field is not found in the nested class itself.</p>
+ * <p>Supports JUnit 5 {@code @Nested} test classes by searching enclosing class
+ * instances via {@link TestInstances#getAllInstances()}.</p>
  *
  * <p>Field injection is optional - if no field is found, injection is skipped.
  * Tests can alternatively use parameter injection via JUnit 5 {@code ParameterResolver}.</p>
  */
 public final class TestInstanceInjector {
-
-    private static final String ENCLOSING_INSTANCE_PREFIX = "this$";
 
     private TestInstanceInjector() {
     }
@@ -53,37 +53,26 @@ public final class TestInstanceInjector {
      */
     public static <T> void inject(ExtensionContext context, T instance, Class<T> targetType, Logger log)
             throws Exception {
-        Object testObject = context.getRequiredTestInstance();
-        InjectionTarget target = findInjectionTarget(testObject, targetType);
+        List<Object> allInstances = context.getRequiredTestInstances().getAllInstances();
 
-        if (target == null) {
-            if (log != null) {
-                log.debug("No field of type {} found in {}; skipping field injection (parameter injection may be used)",
-                        targetType.getSimpleName(), testObject.getClass().getSimpleName());
+        // Search from innermost to outermost so the most specific field wins
+        for (int i = allInstances.size() - 1; i >= 0; i--) {
+            Object testObject = allInstances.get(i);
+            Field targetField = findFieldOfType(testObject.getClass(), targetType);
+            if (targetField != null) {
+                targetField.setAccessible(true);
+                targetField.set(testObject, instance);
+                if (log != null) {
+                    log.debug("Injected {} instance into field: {}", targetType.getSimpleName(), targetField.getName());
+                }
+                return;
             }
-            return;
         }
-
-        target.field.setAccessible(true);
-        target.field.set(target.instance, instance);
 
         if (log != null) {
-            log.debug("Injected {} instance into field: {}", targetType.getSimpleName(), target.field.getName());
+            log.debug("No field of type {} found; skipping field injection (parameter injection may be used)",
+                    targetType.getSimpleName());
         }
-    }
-
-    private static <T> InjectionTarget findInjectionTarget(Object object, Class<T> targetType) {
-        Object currentInstance = object;
-
-        while (currentInstance != null) {
-            Field targetField = findFieldOfType(currentInstance.getClass(), targetType);
-            if (targetField != null) {
-                return new InjectionTarget(currentInstance, targetField);
-            }
-            currentInstance = getEnclosingInstance(currentInstance);
-        }
-
-        return null;
     }
 
     private static Field findFieldOfType(Class<?> clazz, Class<?> targetType) {
@@ -93,29 +82,5 @@ public final class TestInstanceInjector {
             }
         }
         return null;
-    }
-
-    private static Object getEnclosingInstance(Object object) {
-        for (Field field : object.getClass().getDeclaredFields()) {
-            if (field.getName().startsWith(ENCLOSING_INSTANCE_PREFIX)) {
-                try {
-                    field.setAccessible(true);
-                    return field.get(object);
-                } catch (IllegalAccessException e) {
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static class InjectionTarget {
-        final Object instance;
-        final Field field;
-
-        InjectionTarget(Object instance, Field field) {
-            this.instance = instance;
-            this.field = field;
-        }
     }
 }

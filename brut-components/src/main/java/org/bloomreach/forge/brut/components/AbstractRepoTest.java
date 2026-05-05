@@ -14,7 +14,7 @@ import org.hippoecm.hst.content.beans.query.HstQueryManager;
 import org.hippoecm.hst.content.beans.query.HstQueryManagerImpl;
 import org.hippoecm.hst.content.beans.standard.HippoBean;
 import org.hippoecm.hst.core.component.HstComponentException;
-import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
+import org.hippoecm.repository.api.RuntimeRepositoryException;
 import org.hippoecm.hst.core.search.HstQueryManagerFactoryImpl;
 import org.hippoecm.hst.site.content.ObjectConverterFactoryBean;
 import org.hippoecm.hst.util.PathUtils;
