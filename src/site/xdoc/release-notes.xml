@@ -31,8 +31,8 @@
             <th>Bloomreach Experience Manager Version</th>
           </tr>
           <tr>
-            <td>5.5.0</td>
-            <td>16.7.0</td>
+            <td>6.0.0</td>
+            <td>17.0.0</td>
           </tr>
           <tr>
             <td>5.4.0</td>
@@ -82,8 +82,17 @@
       </subsection>
 
       <subsection name="Release Notes">
-        <h4>5.5.0</h4>
+        <h4>6.0.0</h4>
+        <p><strong>Breaking Changes:</strong></p>
         <ul>
+          <li><strong>brXM 17.0.0 required</strong> — Parent POM upgraded from <code>hippo-cms7-project:16.7.0</code> to <code>17.0.0</code>. Projects on 16.x must remain on BRUT 5.4.x.</li>
+          <li><strong>Java 21 required</strong> — CI and runtime now target Java 21.</li>
+          <li><strong>JUnit Jupiter 6.0.3</strong> — brXM 17.0.0 sets <code>junit-jupiter.version=6.0.3</code>. BRUT's <code>@Nested</code> test injection now uses <code>TestInstances.getAllInstances()</code> instead of synthetic field reflection, compatible with Java 21 bytecode.</li>
+          <li><strong><code>RuntimeRepositoryException</code> package change</strong> — Removed from <code>org.hippoecm.hst.core.jcr</code>; now imported from <code>org.hippoecm.repository.api</code>. Update any direct imports in your project.</li>
+        </ul>
+        <p><strong>Improvements:</strong></p>
+        <ul>
+          <li>JaCoCo coverage reporting — module-level and aggregate reports generated during build</li>
           <li>Namespace pre-registration before <code>applyNamespacesAndNodeTypes</code> — prevents <code>NamespaceException</code> failures from addon module ordering</li>
           <li>Missing supertype pre-stubbing — stubs supertypes referenced in CNDs but absent from the test classpath before type registration</li>
           <li>Retry loops for namespace registration and config delta — auto-recovers from invalid supertype and "is not a mixin" errors</li>

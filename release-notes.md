@@ -18,7 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
-| 16.7.0   | 5.5.0   |
+| 17.0.0   | 6.0.0   |
 | 16.7.0   | 5.4.0   |
 | 16.7.0   | 5.3.x   |
 | 16.7.0   | 5.2.0   |
@@ -34,11 +34,24 @@
 
 ## Release Notes
 
-### 5.5.0
+### 6.0.0
 
-**HST Bootstrap Reliability and Multi-Tenant Fixes**
+**brXM 17.0.0 Upgrade + HST Bootstrap Reliability and Multi-Tenant Fixes**
 
-This release addresses failures when loading projects that use addon or multi-tenant HST configurations where dependency module node types or namespaces are absent from the test classpath.
+#### Breaking Changes
+
+* **brXM 17.0.0 required** — Parent POM upgraded from `hippo-cms7-project:16.7.0` to `17.0.0`. Projects on 16.x must remain on BRUT 5.4.x.
+* **Java 21 required** — CI and runtime now target Java 21. The JVM must be Java 21 or higher.
+* **JUnit Jupiter 6.0.3** — brXM 17.0.0 sets `junit-jupiter.version=6.0.3`. This is a major version bump from JUnit Jupiter 5.x. BRUT's `@Nested` test injection was updated to use `TestInstances.getAllInstances()` instead of synthetic `this$0` field reflection, which works correctly with both Java 17 and Java 21 bytecode.
+* **`RuntimeRepositoryException` package change** — `org.hippoecm.hst.core.jcr.RuntimeRepositoryException` was removed from HST API in brXM 17.0.0. BRUT now imports `org.hippoecm.repository.api.RuntimeRepositoryException` (already a transitive dependency). Projects that import the old class directly must update their imports.
+
+#### Improvements
+
+* **JaCoCo coverage reporting** — Module-level and aggregate JaCoCo reports are now generated during the build. Surefire `argLine` updated to use late-binding `@{argLine}` so the JaCoCo Java agent is correctly injected.
+
+---
+
+This release also addresses failures when loading projects that use addon or multi-tenant HST configurations where dependency module node types or namespaces are absent from the test classpath.
 
 #### Bug Fixes
 
