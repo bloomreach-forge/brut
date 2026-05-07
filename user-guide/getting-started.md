@@ -9,7 +9,7 @@ difficulty: beginner
 
 ## Prerequisites
 
-This guide assumes Java 17+, Maven 3.8+, a brXM 16.x project, and JUnit 5 in your test dependencies. JUnit 5, Mockito, and AssertJ are typically managed by the brXM parent POM — check before adding explicit versions.
+This guide assumes Java 21+, Maven 3.8+, a brXM 17.x project, and JUnit Jupiter in your test dependencies. JUnit Jupiter, Mockito, and AssertJ are typically managed by the brXM parent POM — check before adding explicit versions.
 
 ## Step 1: Add Dependencies
 
@@ -19,7 +19,7 @@ Add the version property and dependency management:
 
 ```xml
 <properties>
-    <brut.version>5.5.0</brut.version>
+    <brut.version>6.0.0</brut.version>
 </properties>
 
 <dependencyManagement>
@@ -62,7 +62,7 @@ Add the dependencies (version inherited from parent):
 
 > **Warning: `<scope>test</scope>` is required.** BRUT replaces core HST beans (pipelines, component manager, link creator, etc.) with test-oriented implementations. If BRUT is on the runtime classpath without test scope, its mock beans will shadow production beans and real HST endpoints will stop working. Always declare BRUT dependencies with `<scope>test</scope>`.
 
-> **Note:** JUnit 5, Mockito, and AssertJ are typically managed by the brXM parent pom. Only add explicit versions if not already provided.
+> **Note:** JUnit Jupiter, Mockito, and AssertJ are typically managed by the brXM parent pom. Only add explicit versions if not already provided.
 
 ## Step 2: Write Your First Test
 
@@ -145,7 +145,7 @@ mvn test -Dtest=MyFirstTest
 
 ## What Just Happened?
 
-1. **`@BrxmComponentTest`** - BRUT's JUnit 5 extension that:
+1. **`@BrxmComponentTest`** - BRUT's JUnit Jupiter extension that:
    - Bootstraps an in-memory JCR repository
    - Initializes HST mock objects (request, response, component configuration)
    - Provides `DynamicComponentTest` via parameter or field injection

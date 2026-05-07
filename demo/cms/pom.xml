@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.example</groupId>
     <artifactId>myproject</artifactId>
-    <version>5.5.1-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>myproject-cms</artifactId>
   <packaging>war</packaging>
@@ -45,10 +45,6 @@
             <type>remote</type>
           </container>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.onehippo.cms.l10n</groupId>
-        <artifactId>hippo-cms-l10n-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

@@ -31,7 +31,7 @@ jobs:
       contents: write
       checks: write
       pull-requests: write
-    uses: bloomreach-forge/ci-workflows/.github/workflows/brxm-ci.yml@v1.0.4
+    uses: bloomreach-forge/ci-workflows/.github/workflows/brxm-ci.yml@v2.0.0
     with:
       run-demo-build: true
       demo-pom-path: demo/pom.xml
