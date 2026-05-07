@@ -17,6 +17,7 @@ Unit testing library for Bloomreach Experience Manager (brXM) delivery-tier comp
 
 | BRUT  | brXM  | Java |
 |-------|-------|------|
+| 6.x   | 17.x  | 21+  |
 | 5.5.x | 16.7+ | 17+  |
 | 5.4.x | 16.7+ | 17+  |
 | 5.3.x | 16.7+ | 17+  |
