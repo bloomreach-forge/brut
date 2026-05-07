@@ -139,27 +139,29 @@
            production beans and real HST endpoints will stop working. Always declare BRUT dependencies with
            <code>&lt;scope&gt;test&lt;/scope&gt;</code>.</p>
         
-<p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit 5. JUnit 4 is still supported for the legacy abstract class approach.</p>
+<p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit Jupiter. JUnit 4 is still supported for the legacy abstract class approach.</p>
         
 <ul>
+          
+<li><strong>BRUT 6.0.0+</strong> &#x2014; brXM 17.0.0 and Java 21; JUnit Jupiter 6.x (managed by brXM parent POM)</li>
           
 <li><strong>BRUT 5.1.0+</strong> &#x2014; Annotation-based API (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) with auto-detection and fluent request builder</li>
           
 <li><strong>BRUT 5.0.x</strong> &#x2014; Multi-test support, thread-safe initialization, JUnit 4 and 5 support</li>
           
-<li><strong>JUnit 5</strong> &#x2014; Required for annotation-based testing; JUnit 4 still supported for legacy abstract classes</li>
+<li><strong>JUnit Jupiter</strong> &#x2014; Required for annotation-based testing; JUnit 4 still supported for legacy abstract classes</li>
         </ul>
       </section>
 
-      <section><a id="JUnit_5_Dependency_.28Required_for_Annotation-Based_Testing.29"></a>
-<h2>JUnit 5 Dependency (Required for Annotation-Based Testing)</h2>
+      <section><a id="JUnit_Jupiter_Dependency_.28Required_for_Annotation-Based_Testing.29"></a>
+<h2>JUnit Jupiter Dependency (Required for Annotation-Based Testing)</h2>
         
-<p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit 5:</p>
+<p>Annotation-based testing (<code>@BrxmComponentTest</code>, <code>@BrxmJaxrsTest</code>, <code>@BrxmPageModelTest</code>) requires JUnit Jupiter (6.x for brXM 17+):</p>
         
 <div class="brush: xml">
           
 <pre><code>
-            &lt;!-- JUnit 5 is typically managed by the brXM parent POM; only add explicitly if missing --&gt;
+            &lt;!-- JUnit Jupiter is typically managed by the brXM parent POM; only add explicitly if missing --&gt;
             &lt;dependency&gt;
               &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
               &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
@@ -168,7 +170,7 @@
           </code></pre>
         </div>
         
-<p><strong>Note:</strong> Most brXM projects already include JUnit 5. Check your parent POM or dependency management section.</p>
+<p><strong>Note:</strong> Most brXM projects already include JUnit Jupiter. Check your parent POM or dependency management section.</p>
       </section>
 
       <section><a id="Component_Testing_Dependencies"></a>

@@ -113,82 +113,89 @@
           
 <tr class="b">
             
+<td>6.0.0</td>
+            
+<td>17.0.0</td>
+          </tr>
+          
+<tr class="a">
+            
 <td>5.5.0</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>5.4.0</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>5.3.x</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>5.2.0</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>5.1.0</td>
             
 <td>16.6.5</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>5.0.1</td>
             
 <td>16.6.5</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>5.0.0</td>
             
 <td>16.0.0</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>4.x</td>
             
 <td>15.x</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>3.x</td>
             
 <td>14.x</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>2.1.2</td>
             
 <td>13.4.x</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>2.0.0</td>
             
 <td>13.1</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>1.x</td>
             
@@ -199,7 +206,30 @@
 
       <section><a id="Release_Notes_1"></a>
 <h2>Release Notes</h2>
-        <section><section><a id="a5.5.0"></a>
+        <section><section><a id="a6.0.0"></a>
+<h4>6.0.0</h4>
+        
+<p><strong>Breaking Changes:</strong></p>
+        
+<ul>
+          
+<li><strong>brXM 17.0.0 required</strong> &#x2014; Parent POM upgraded from <code>hippo-cms7-project:16.7.0</code> to <code>17.0.0</code>. Projects on 16.x must remain on BRUT 5.x.</li>
+          
+<li><strong>Java 21 required</strong> &#x2014; CI and runtime now target Java 21.</li>
+          
+<li><strong>JUnit Jupiter 6.0.3</strong> &#x2014; brXM 17.0.0 sets <code>junit-jupiter.version=6.0.3</code>. BRUT's <code>@Nested</code> test injection now uses <code>TestInstances.getAllInstances()</code> instead of synthetic field reflection, compatible with Java 21 bytecode.</li>
+          
+<li><strong><code>RuntimeRepositoryException</code> package change</strong> &#x2014; Removed from <code>org.hippoecm.hst.core.jcr</code>; now imported from <code>org.hippoecm.repository.api</code>. Update any direct imports in your project.</li>
+        </ul>
+        
+<p><strong>Improvements:</strong></p>
+        
+<ul>
+          
+<li>JaCoCo coverage reporting &#x2014; module-level and aggregate reports generated during build</li>
+        </ul>
+
+        </section><section><a id="a5.5.0"></a>
 <h4>5.5.0</h4>
         
 <ul>
