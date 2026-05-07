@@ -4,8 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.TestInstances;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -86,7 +89,7 @@ class TestInstanceInjectorTest {
         void inject_findsFieldInEnclosingClass() throws Exception {
             OuterTestClass outer = new OuterTestClass();
             OuterTestClass.NestedTestClass nested = outer.new NestedTestClass();
-            ExtensionContext context = mockContextFor(nested);
+            ExtensionContext context = mockContextFor(outer, nested);
             MockInfrastructure instance = new MockInfrastructure();
 
             TestInstanceInjector.inject(context, instance, TestInfrastructure.class, LOG);
@@ -100,7 +103,7 @@ class TestInstanceInjectorTest {
         void inject_prefersNestedClassField() throws Exception {
             OuterWithBothFields outer = new OuterWithBothFields();
             OuterWithBothFields.NestedWithField nested = outer.new NestedWithField();
-            ExtensionContext context = mockContextFor(nested);
+            ExtensionContext context = mockContextFor(outer, nested);
             MockInfrastructure instance = new MockInfrastructure();
 
             TestInstanceInjector.inject(context, instance, TestInfrastructure.class, LOG);
@@ -115,7 +118,7 @@ class TestInstanceInjectorTest {
             OuterTestClass outer = new OuterTestClass();
             OuterTestClass.NestedTestClass nested = outer.new NestedTestClass();
             OuterTestClass.NestedTestClass.DeeplyNestedTestClass deeplyNested = nested.new DeeplyNestedTestClass();
-            ExtensionContext context = mockContextFor(deeplyNested);
+            ExtensionContext context = mockContextFor(outer, nested, deeplyNested);
             MockInfrastructure instance = new MockInfrastructure();
 
             TestInstanceInjector.inject(context, instance, TestInfrastructure.class, LOG);
@@ -145,9 +148,12 @@ class TestInstanceInjectorTest {
         }
     }
 
-    private ExtensionContext mockContextFor(Object testObject) {
+    /** Creates a mock context whose TestInstances hierarchy is [outermost, ..., innermost]. */
+    private ExtensionContext mockContextFor(Object... instances) {
         ExtensionContext context = mock(ExtensionContext.class);
-        when(context.getRequiredTestInstance()).thenReturn(testObject);
+        TestInstances testInstances = mock(TestInstances.class);
+        when(testInstances.getAllInstances()).thenReturn(List.of(instances));
+        when(context.getRequiredTestInstances()).thenReturn(testInstances);
         return context;
     }
 }

@@ -16,7 +16,8 @@
 package org.bloomreach.forge.brut.common.repository;
 
 import org.apache.jackrabbit.commons.cnd.CndImporter;
-import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
+
+import org.hippoecm.repository.api.RuntimeRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;

@@ -3,7 +3,7 @@ package org.bloomreach.forge.brut.components.mock;
 import org.hippoecm.hst.configuration.hosting.Mount;
 import org.hippoecm.hst.configuration.sitemap.HstSiteMapItem;
 import org.hippoecm.hst.content.beans.standard.HippoBean;
-import org.hippoecm.hst.core.jcr.RuntimeRepositoryException;
+import org.hippoecm.repository.api.RuntimeRepositoryException;
 import org.hippoecm.hst.core.linking.HstLink;
 import org.hippoecm.hst.core.linking.HstLinkCreator;
 import org.hippoecm.hst.core.linking.LocationResolver;
