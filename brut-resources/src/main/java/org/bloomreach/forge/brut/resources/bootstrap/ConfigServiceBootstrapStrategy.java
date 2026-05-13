@@ -345,7 +345,7 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
             return 0;
         }
         node.setProperty("hst:ismapped", false);
-        LOG.warn("Set hst:ismapped=false on mount '{}': mountpoint '{}' not resolvable from HST root '{}'",
+        LOG.debug("Set hst:ismapped=false on mount '{}': mountpoint '{}' not resolvable from HST root '{}'",
                 node.getPath(), mountPoint, hstRootPath);
         return 1;
     }
@@ -601,8 +601,10 @@ public class ConfigServiceBootstrapStrategy implements JcrBootstrapStrategy {
 
         LOG.debug("Successfully built model with explicit modules only (framework modules NOT scanned)");
         LoadedModules result = new LoadedModules(builtModel, List.copyOf(modules));
-        MODEL_CACHE.put(cacheKey, result);
-        return result;
+        // putIfAbsent is atomic: if a concurrent fork already stored a result for the same key,
+        // discard ours and return theirs — avoids silent overwrites from the prior get+put pattern.
+        LoadedModules existing = MODEL_CACHE.putIfAbsent(cacheKey, result);
+        return existing != null ? existing : result;
     }
 
     private String computeModelCacheKey(List<Path> descriptors) {

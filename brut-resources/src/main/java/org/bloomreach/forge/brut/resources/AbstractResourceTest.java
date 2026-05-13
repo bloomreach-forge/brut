@@ -48,6 +48,11 @@ public abstract class AbstractResourceTest {
     private static final Method REQUEST_CONTEXT_SET;
     private static final Method REQUEST_CONTEXT_CLEAR;
 
+    // Registered with HstServices once and never replaced. Each test class sets its own
+    // SpringComponentManager via IsolatingComponentManager.set() so concurrent test classes
+    // each get their own ThreadLocal slot instead of clobbering the global static.
+    static final IsolatingComponentManager ISOLATING = new IsolatingComponentManager();
+
     static {
         try {
             REQUEST_CONTEXT_SET = RequestContextProvider.class.getDeclaredMethod("set", HstRequestContext.class);
@@ -57,16 +62,8 @@ public abstract class AbstractResourceTest {
         } catch (NoSuchMethodException e) {
             throw new ExceptionInInitializerError(e);
         }
+        HstServices.setComponentManager(ISOLATING);
     }
-
-    // Shared across test instances to support JUnit 4 @Before pattern.
-    // volatile ensures the writes in storeSharedReferences() (inside the ReentrantLock) are
-    // visible to reads in reuseSharedInstances() (outside the lock) without relying solely on
-    // the AtomicBoolean volatile-chain for the happens-before guarantee.
-    protected static volatile SpringComponentManager sharedComponentManager;
-    protected static volatile HstModelRegistryImpl sharedHstModelRegistry;
-    protected static volatile PlatformServicesImpl sharedPlatformServices;
-    protected static volatile PlatformModelAvailableService sharedPlatformModelAvailableService;
 
     protected SpringComponentManager componentManager = new SpringComponentManager();
     protected MockHstRequest hstRequest;
@@ -88,6 +85,17 @@ public abstract class AbstractResourceTest {
 
     protected abstract String getAnnotatedHstBeansClasses();
 
+    /**
+     * Returns the servlet context path used to register this test with HST and
+     * {@link HippoWebappContextRegistry}. Annotation-driven tests override this to return a
+     * class-specific path (e.g. {@code /site-MyTest}), isolating concurrent test classes from
+     * each other. Legacy tests that extend the abstract classes directly keep the default
+     * {@code /site}.
+     */
+    protected String contextPath() {
+        return "/site";
+    }
+
     protected void setupHstResponse() {
         this.hstResponse = new MockHstResponse();
     }
@@ -101,7 +109,7 @@ public abstract class AbstractResourceTest {
     }
 
     protected void setupServletContext() {
-        servletContext.setContextPath("/site");
+        servletContext.setContextPath(contextPath());
         servletContext.setInitParameter(DefaultContentBeansTool.BEANS_ANNOTATED_CLASSES_CONF_PARAM,
                 getAnnotatedHstBeansClasses());
         hstRequest.setServletContext(servletContext);
@@ -109,7 +117,7 @@ public abstract class AbstractResourceTest {
         componentManager.setServletContext(servletContext);
         webappContextLock.lock();
         try {
-            if (HippoWebappContextRegistry.get().getContext("/site") == null) {
+            if (HippoWebappContextRegistry.get().getContext(contextPath()) == null) {
                 HippoWebappContextRegistry.get().register(new HippoWebappContext(HippoWebappContext.Type.SITE, servletContext));
             }
         } finally {
@@ -153,11 +161,13 @@ public abstract class AbstractResourceTest {
     public void destroy() {
         HippoServiceRegistry.unregister(platformModelAvailableService, PlatformModelAvailableService.class);
 
-        HstServices.setComponentManager(null);
+        // Clear this thread's delegate — ISOLATING remains registered with HstServices so that
+        // any concurrent test class on another thread is unaffected.
+        IsolatingComponentManager.remove();
 
         HstSiteMapItemHandlerFactoriesImpl hstSiteMapItemHandlerFactories = (HstSiteMapItemHandlerFactoriesImpl) getComponentManager().getComponent(HstSiteMapItemHandlerFactories.class);
         hstSiteMapItemHandlerFactories.destroy();
-        hstSiteMapItemHandlerFactories.unregister(servletContext.getContextPath());
+        hstSiteMapItemHandlerFactories.unregister(contextPath());
 
         unregisterHstModel();
         if (hstModelRegistry != null) {
@@ -170,6 +180,11 @@ public abstract class AbstractResourceTest {
             platformServices.setPreviewDecorator(null);
             platformServices.setHstModelRegistry(null);
         }
+
+        HippoWebappContext ctx = HippoWebappContextRegistry.get().getContext(contextPath());
+        if (ctx != null) {
+            HippoWebappContextRegistry.get().unregister(ctx);
+        }
     }
 
     /**
@@ -177,6 +192,17 @@ public abstract class AbstractResourceTest {
      * Sets RequestContextProvider ThreadLocal for JAX-RS resources to access.
      */
     public String invokeFilter() {
+        // Guard against another module (e.g. brut-components/SimpleComponentTest) replacing
+        // HstServices.componentManager with a different delegate between test classes.
+        if (HstServices.getComponentManager() != ISOLATING) {
+            HstServices.setComponentManager(ISOLATING);
+        }
+        // Re-set the ThreadLocal delegate in case something cleared it between setup and invocation.
+        IsolatingComponentManager.set(componentManager);
+        // Ensure any stuck FILTER_DONE_KEY from a previous failed invocation is cleared.
+        // The HST filter checks for HST_RESET_FILTER and removes FILTER_DONE_KEY when found.
+        hstRequest.setAttribute(HST_RESET_FILTER, true);
+
         setupHstResponse();
         performValidation();
 
@@ -201,7 +227,6 @@ public abstract class AbstractResourceTest {
 
             String contentAsString = hstResponse.getContentAsString();
             LOGGER.info(contentAsString);
-            hstRequest.setAttribute(HST_RESET_FILTER, true);
 
             return contentAsString;
         } catch (Exception e) {

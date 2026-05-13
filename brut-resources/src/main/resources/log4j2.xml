@@ -23,6 +23,29 @@
     <Logger name="org.hippoecm.hst.platform.configuration.hosting.VirtualHostsService" level="off"/>
     <!--Suppress MBean registration/unregistration warnings when running multiple tests in the same JVM-->
     <Logger name="org.hippoecm.repository.jackrabbit.RepositoryImpl" level="error"/>
+    <!--
+      Suppress duplicate-value and duplicate-namespace WARNs from the HCM config engine.
+      BRUT's bootstrap intentionally loads overlapping definitions (minimal-roots + project modules),
+      so these warnings are structural noise, not real misconfiguration.
+    -->
+    <Logger name="org.onehippo.cm.model.impl.tree.ConfigurationTreeBuilder" level="error"/>
+    <Logger name="org.onehippo.cm.engine.ConfigurationConfigService" level="error"/>
+    <!--
+      Suppress "Cannot find hst:template" WARNs from the component config service.
+      Templates from other sites/channels are not loaded in a focused BRUT test context.
+    -->
+    <Logger name="org.hippoecm.hst.platform.configuration.components.HstComponentConfigurationService" level="error"/>
+    <!--
+      Suppress "unresolvable hst:componentconfigurationid" WARNs from sitemap linkage.
+      Pages outside the tested site are not fully wired in a BRUT context.
+    -->
+    <Logger name="org.hippoecm.hst.platform.linking.LocationMapTreeComponentDocuments" level="error"/>
+    <!--Suppress "Unclosed session" WARN — brut intentionally holds the session open for the test-class lifetime-->
+    <Logger name="org.apache.jackrabbit.core.SessionImpl" level="error"/>
+    <!--Suppress "jcr:uuid already in use" WARN — UUID collisions when importing YAML into a shared repo are structural noise-->
+    <Logger name="org.onehippo.cm.engine.JcrContentProcessor" level="error"/>
+    <!--Suppress "overwriting cached entry" WARN — internal Jackrabbit LRU cache management, never actionable-->
+    <Logger name="org.apache.jackrabbit.core.state.ItemStateReferenceCache" level="error"/>
     <Root level="warn">
       <AppenderRef ref="console"/>
     </Root>
