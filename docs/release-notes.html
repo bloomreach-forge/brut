@@ -113,89 +113,96 @@
           
 <tr class="b">
             
-<td>6.0.0</td>
+<td>6.1.0</td>
             
 <td>17.0.0</td>
           </tr>
           
 <tr class="a">
             
+<td>6.0.0</td>
+            
+<td>17.0.0</td>
+          </tr>
+          
+<tr class="b">
+            
 <td>5.5.0</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>5.4.0</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>5.3.x</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>5.2.0</td>
             
 <td>16.7.0</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>5.1.0</td>
             
 <td>16.6.5</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>5.0.1</td>
             
 <td>16.6.5</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>5.0.0</td>
             
 <td>16.0.0</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>4.x</td>
             
 <td>15.x</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>3.x</td>
             
 <td>14.x</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>2.1.2</td>
             
 <td>13.4.x</td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td>2.0.0</td>
             
 <td>13.1</td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td>1.x</td>
             
@@ -206,7 +213,31 @@
 
       <section><a id="Release_Notes_1"></a>
 <h2>Release Notes</h2>
-        <section><section><a id="a6.0.0"></a>
+        <section><section><a id="a6.1.0"></a>
+<h4>6.1.0</h4>
+        
+<p><strong>Parallel Test Isolation and Log Noise Reduction (<a href="https://bloomreach.atlassian.net/browse/FORGE-668" class="externalLink">FORGE-668</a>)</strong></p>
+        
+<p><strong>Improvements:</strong></p>
+        
+<ul>
+          
+<li><strong>Parallel test isolation &#x2014; <code>IsolatingComponentManager</code></strong> &#x2014; A new <code>IsolatingComponentManager</code> is registered once with <code>HstServices</code> at class load and never replaced. Each test class sets its own <code>SpringComponentManager</code> via a per-thread <code>ThreadLocal</code> delegate, eliminating the flakiness caused by concurrent test classes writing to the global <code>HstServices</code> static.</li>
+          
+<li><strong><code>contextPath()</code> override in <code>AbstractResourceTest</code></strong> &#x2014; New protected method, defaulting to <code>/site</code>. Annotation-driven tests derive a per-class context path (e.g., <code>/site-MyTest</code>), fully isolating servlet context registrations when test classes run concurrently.</li>
+          
+<li><strong><code>SimpleComponentTest</code> teardown fix</strong> &#x2014; Captures and restores the pre-existing <code>ComponentManager</code> on teardown. Prevents <code>SimpleComponentTest</code> from clobbering the <code>IsolatingComponentManager</code> when <code>brut-components</code> and <code>brut-resources</code> tests run in the same JVM.</li>
+          
+<li><strong><code>MODEL_CACHE</code> atomicity</strong> &#x2014; Cache write changed from non-atomic <code>get + put</code> to <code>putIfAbsent</code>, preventing silent overwrites when two test threads bootstrap with the same configuration fingerprint concurrently.</li>
+          
+<li><strong>Log noise reduction</strong> &#x2014; Numerous noisy loggers suppressed across all modules: Jackrabbit session/UUID/cache warnings (<code>SessionImpl</code>, <code>JcrContentProcessor</code>, <code>ItemStateReferenceCache</code>), HCM config engine duplicates (<code>ConfigurationTreeBuilder</code>, <code>ConfigurationConfigService</code>), HST template and sitemap warnings (<code>HstComponentConfigurationService</code>, <code>LocationMapTreeComponentDocuments</code>), and <code>RuntimeTypeStubber</code> / <code>ConfigServiceBootstrapStrategy</code> operational messages downgraded from WARN to DEBUG. All are structural noise in a BRUT test context.</li>
+          
+<li><strong>Surefire GC switch</strong> &#x2014; JVM GC flag changed from <code>-XX:+UseParallelGC</code> to <code>-XX:+UseZGC -XX:+ZGenerational</code>, reducing pause times during the allocation-heavy bootstrap phase.</li>
+          
+<li><strong>POM cleanup</strong> &#x2014; Removed redundant <code>project.build.javaVersion</code> property and explicit <code>maven-compiler-plugin</code> source/target configuration (both were already governed by the parent POM).</li>
+        </ul>
+
+        </section><section><a id="a6.0.0"></a>
 <h4>6.0.0</h4>
         
 <p><strong>Breaking Changes:</strong></p>
