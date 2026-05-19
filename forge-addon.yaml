@@ -1,6 +1,6 @@
 id: brut
 name: Bloomreach Unit Testing Library
-version: 6.0.0
+version: 6.1.0
 description: Bloomreach Unit Testing Library for BrXM Delivery Tier
 repository:
   url: https://github.com/bloomreach-forge/brut
