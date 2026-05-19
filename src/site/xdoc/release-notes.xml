@@ -31,6 +31,10 @@
             <th>Bloomreach Experience Manager Version</th>
           </tr>
           <tr>
+            <td>6.1.0</td>
+            <td>17.0.0</td>
+          </tr>
+          <tr>
             <td>6.0.0</td>
             <td>17.0.0</td>
           </tr>
@@ -86,6 +90,19 @@
       </subsection>
 
       <subsection name="Release Notes">
+        <h4>6.1.0</h4>
+        <p><strong>Parallel Test Isolation and Log Noise Reduction (<a href="https://bloomreach.atlassian.net/browse/FORGE-668">FORGE-668</a>)</strong></p>
+        <p><strong>Improvements:</strong></p>
+        <ul>
+          <li><strong>Parallel test isolation — <code>IsolatingComponentManager</code></strong> — A new <code>IsolatingComponentManager</code> is registered once with <code>HstServices</code> at class load and never replaced. Each test class sets its own <code>SpringComponentManager</code> via a per-thread <code>ThreadLocal</code> delegate, eliminating the flakiness caused by concurrent test classes writing to the global <code>HstServices</code> static.</li>
+          <li><strong><code>contextPath()</code> override in <code>AbstractResourceTest</code></strong> — New protected method, defaulting to <code>/site</code>. Annotation-driven tests derive a per-class context path (e.g., <code>/site-MyTest</code>), fully isolating servlet context registrations when test classes run concurrently.</li>
+          <li><strong><code>SimpleComponentTest</code> teardown fix</strong> — Captures and restores the pre-existing <code>ComponentManager</code> on teardown. Prevents <code>SimpleComponentTest</code> from clobbering the <code>IsolatingComponentManager</code> when <code>brut-components</code> and <code>brut-resources</code> tests run in the same JVM.</li>
+          <li><strong><code>MODEL_CACHE</code> atomicity</strong> — Cache write changed from non-atomic <code>get + put</code> to <code>putIfAbsent</code>, preventing silent overwrites when two test threads bootstrap with the same configuration fingerprint concurrently.</li>
+          <li><strong>Log noise reduction</strong> — Numerous noisy loggers suppressed across all modules: Jackrabbit session/UUID/cache warnings (<code>SessionImpl</code>, <code>JcrContentProcessor</code>, <code>ItemStateReferenceCache</code>), HCM config engine duplicates (<code>ConfigurationTreeBuilder</code>, <code>ConfigurationConfigService</code>), HST template and sitemap warnings (<code>HstComponentConfigurationService</code>, <code>LocationMapTreeComponentDocuments</code>), and <code>RuntimeTypeStubber</code> / <code>ConfigServiceBootstrapStrategy</code> operational messages downgraded from WARN to DEBUG. All are structural noise in a BRUT test context.</li>
+          <li><strong>Surefire GC switch</strong> — JVM GC flag changed from <code>-XX:+UseParallelGC</code> to <code>-XX:+UseZGC -XX:+ZGenerational</code>, reducing pause times during the allocation-heavy bootstrap phase.</li>
+          <li><strong>POM cleanup</strong> — Removed redundant <code>project.build.javaVersion</code> property and explicit <code>maven-compiler-plugin</code> source/target configuration (both were already governed by the parent POM).</li>
+        </ul>
+
         <h4>6.0.0</h4>
         <p><strong>Breaking Changes:</strong></p>
         <ul>

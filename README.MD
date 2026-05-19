@@ -15,16 +15,12 @@ Unit testing library for Bloomreach Experience Manager (brXM) delivery-tier comp
 
 ## Compatibility
 
-| BRUT  | brXM  | Java |
-|-------|-------|------|
-| 6.x   | 17.x  | 21+  |
-| 5.5.x | 16.7+ | 17+  |
-| 5.4.x | 16.7+ | 17+  |
-| 5.3.x | 16.7+ | 17+  |
-| 5.2.x | 16.7+ | 17+  |
-| 5.1.x | 16.x  | 17+  |
-| 5.0.x | 16.x  | 17+  |
-| 4.x   | 15.x  | 11+  |
+| BRUT    | brXM   | Java |
+|---------|--------|------|
+| 6.x     | 17.x   | 21+  |
+| 5.2–5.5 | 16.7+  | 17+  |
+| 5.0–5.1 | 16.x   | 17+  |
+| 4.x     | 15.x   | 11+  |
 
 ## Installation
 
@@ -32,7 +28,7 @@ In your parent `pom.xml`, declare the version and add dependency management:
 
 ```xml
 <properties>
-    <brut.version>5.5.0</brut.version>
+    <brut.version>6.1.0</brut.version>
 </properties>
 
 <dependencyManagement>

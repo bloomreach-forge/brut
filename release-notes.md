@@ -18,6 +18,7 @@
 
 | brXM     | B.R.U.T |
 |----------|---------|
+| 17.0.0   | 6.1.0   |
 | 17.0.0   | 6.0.0   |
 | 16.7.0   | 5.5.0   |
 | 16.7.0   | 5.4.0   |
@@ -34,6 +35,28 @@
 | 12.x     | 1.x     |
 
 ## Release Notes
+
+### 6.1.0
+
+**Parallel Test Isolation and Log Noise Reduction ([FORGE-668](https://bloomreach.atlassian.net/browse/FORGE-668))**
+
+#### Improvements
+
+* **Parallel test isolation — `IsolatingComponentManager`** — A new `IsolatingComponentManager` is registered once with `HstServices` at class load and never replaced. Each test class sets its own `SpringComponentManager` via a per-thread `ThreadLocal` delegate, eliminating the flakiness caused by concurrent test classes writing to the global `HstServices` static.
+
+* **`contextPath()` override in `AbstractResourceTest`** — New protected method, defaulting to `/site`. Annotation-driven tests derive a per-class context path (e.g. `/site-MyTest`), fully isolating servlet context registrations when test classes run concurrently.
+
+* **`SimpleComponentTest` teardown fix** — Captures and restores the pre-existing `ComponentManager` on teardown. Prevents `SimpleComponentTest` from clobbering the `IsolatingComponentManager` when `brut-components` and `brut-resources` tests run in the same JVM.
+
+* **`MODEL_CACHE` atomicity** — Cache write changed from non-atomic `get + put` to `putIfAbsent`, preventing silent overwrites when two test threads bootstrap with the same configuration fingerprint concurrently.
+
+* **Log noise reduction** — Numerous noisy loggers suppressed across all modules: Jackrabbit session/UUID/cache warnings (`SessionImpl`, `JcrContentProcessor`, `ItemStateReferenceCache`), HCM config engine duplicates (`ConfigurationTreeBuilder`, `ConfigurationConfigService`), HST template and sitemap warnings (`HstComponentConfigurationService`, `LocationMapTreeComponentDocuments`), and `RuntimeTypeStubber` / `ConfigServiceBootstrapStrategy` operational messages downgraded from WARN to DEBUG. All are structural noise in a BRUT test context.
+
+* **Surefire GC switch** — JVM GC flag changed from `-XX:+UseParallelGC` to `-XX:+UseZGC -XX:+ZGenerational`, reducing pause times during the allocation-heavy bootstrap phase.
+
+* **POM cleanup** — Removed redundant `project.build.javaVersion` property and explicit `maven-compiler-plugin` source/target configuration (both were already governed by the parent POM).
+
+---
 
 ### 6.0.0
 
