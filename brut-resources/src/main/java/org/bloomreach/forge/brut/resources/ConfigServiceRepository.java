@@ -211,7 +211,7 @@ public class ConfigServiceRepository extends AbstractBrutRepository {
                     recalculateHippoPaths("/content");
                 }
             } catch (Exception e) {
-                LOG.warn("Path recalculation failed (non-fatal): {}", e.getMessage());
+                LOG.debug("Path recalculation failed (non-fatal): {}", e.getMessage());
             }
 
             currentStep = "content path setup";

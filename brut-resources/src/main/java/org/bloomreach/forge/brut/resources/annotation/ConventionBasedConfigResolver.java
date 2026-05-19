@@ -130,7 +130,7 @@ class ConventionBasedConfigResolver {
                 addonModules, repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules);
 
         return new TestConfig(beanPatterns, resolvedHstRoot, springConfigs, addonModules,
-            repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules);
+            repositoryDataModules, dependencyHcmModules, excludeDependencyHcmModules, testClass);
     }
 
     private static List<String> resolveSpringConfigs(String singleConfig, String[] multiConfigs,

@@ -3,7 +3,6 @@ package org.bloomreach.forge.brut.resources;
 import org.apache.commons.io.IOUtils;
 import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
 import org.hippoecm.hst.core.parameters.Parameter;
-import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -67,7 +66,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
 
     protected void setupHstRequest() {
         this.hstRequest = new MockHstRequest();
-        hstRequest.setContextPath("/site");
+        hstRequest.setContextPath(contextPath());
         hstRequest.setHeader("Host", "localhost:8080");
         hstRequest.setHeader("X-Forwarded-Proto", "http");
         // Signal HST to reset its internal state for this request (ensures test isolation)
@@ -82,7 +81,7 @@ public abstract class AbstractPageModelTest extends AbstractResourceTest {
         componentManager.setServletContext(servletContext);
         componentManager.initialize();
         registerWebApplicationContext();
-        HstServices.setComponentManager(componentManager);
+        IsolatingComponentManager.set(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
         String hstRoot = resolveExistingHstRoot(contributeHstConfigurationRootPath());
         containerConfiguration.setProperty("hst.configuration.rootPath", hstRoot);

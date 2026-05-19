@@ -10,6 +10,12 @@
     <Logger name="org.bloomreach.forge.brut.components.HippoRepositrySpecificTests" level="info"/>
     <Logger name="org.bloomreach.forge.brut.components.BaseComponentTestTest" level="info"/>
     <Logger name="org.bloomreach.forge.brut.components.demo.EssentialsListComponentTest" level="info"/>
+    <!--Suppress "Unclosed session" WARN — brut intentionally holds the session open for the test-class lifetime-->
+    <Logger name="org.apache.jackrabbit.core.SessionImpl" level="error"/>
+    <!--Suppress "jcr:uuid already in use" WARN — UUID collisions when importing YAML into a shared repo are structural noise-->
+    <Logger name="org.onehippo.cm.engine.JcrContentProcessor" level="error"/>
+    <!--Suppress "overwriting cached entry" WARN — internal Jackrabbit LRU cache management, never actionable-->
+    <Logger name="org.apache.jackrabbit.core.state.ItemStateReferenceCache" level="error"/>
     <Root level="warn">
       <AppenderRef ref="console"/>
     </Root>

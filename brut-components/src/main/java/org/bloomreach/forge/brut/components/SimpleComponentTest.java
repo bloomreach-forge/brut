@@ -44,7 +44,15 @@ public class SimpleComponentTest {
         }
     }
 
+    // Captured at class-load time so teardown() can restore whatever was registered before
+    // SimpleComponentTest replaced it — could be IsolatingComponentManager from brut-resources,
+    // or null when brut-components runs standalone.
+    private static final ComponentManager PRE_REGISTRATION_MANAGER;
     private static DelegatingComponentManager delegatingComponentManager = new DelegatingComponentManager();
+
+    static {
+        PRE_REGISTRATION_MANAGER = HstServices.getComponentManager();
+    }
 
     protected MockHstResponse response = new MockHstResponse();
     protected MockHstRequest request = new MockHstRequest();
@@ -66,6 +74,7 @@ public class SimpleComponentTest {
         try {
             clearRequestContextProvider();
             delegatingComponentManager.remove();
+            HstServices.setComponentManager(PRE_REGISTRATION_MANAGER);
         } catch (Exception e) {
             throw new SetupTeardownException(e);
         }
@@ -73,6 +82,7 @@ public class SimpleComponentTest {
 
     public void setup() {
         try {
+            HstServices.setComponentManager(delegatingComponentManager);
             setupParameterAndAttributeMaps();
 
             initializedRequest();
