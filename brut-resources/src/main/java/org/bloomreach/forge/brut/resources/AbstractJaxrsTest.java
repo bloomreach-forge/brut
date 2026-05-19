@@ -3,7 +3,6 @@ package org.bloomreach.forge.brut.resources;
 import org.hippoecm.hst.configuration.model.HstManager;
 import org.hippoecm.hst.configuration.model.HstManagerImpl;
 import org.hippoecm.hst.core.container.ContainerConfigurationImpl;
-import org.hippoecm.hst.site.HstServices;
 import org.hippoecm.hst.site.addon.module.model.ModuleDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +10,6 @@ import org.springframework.mock.web.DelegatingServletInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Abstract base class for testing JAX-RS resources with the HST container.
@@ -28,59 +25,13 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJaxrsTest.class);
     private static final int DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE = 1024;
-    private static final ReentrantLock initializationLock = new ReentrantLock();
-    private static final AtomicBoolean componentManagerInitialized = new AtomicBoolean(false);
 
     public void init() {
         setupHstRequest();
         setupServletContext();
-
-        if (isFirstInitialization()) {
-            performFirstTimeInitialization();
-        } else {
-            reuseSharedInstances();
-        }
-
+        setupComponentManager();
+        setupHstPlatform();
         setupForNewRequest();
-    }
-
-    private boolean isFirstInitialization() {
-        return !componentManagerInitialized.get();
-    }
-
-    private void performFirstTimeInitialization() {
-        initializationLock.lock();
-        try {
-            if (isFirstInitialization()) {
-                setupComponentManager();
-                setupHstPlatform();
-                storeSharedReferences();
-                componentManagerInitialized.set(true);
-            }
-        } finally {
-            initializationLock.unlock();
-        }
-    }
-
-    private void storeSharedReferences() {
-        sharedComponentManager = componentManager;
-        sharedHstModelRegistry = hstModelRegistry;
-        sharedPlatformServices = platformServices;
-        sharedPlatformModelAvailableService = platformModelAvailableService;
-    }
-
-    private void reuseSharedInstances() {
-        componentManager = sharedComponentManager;
-        hstModelRegistry = sharedHstModelRegistry;
-        platformServices = sharedPlatformServices;
-        platformModelAvailableService = sharedPlatformModelAvailableService;
-        restoreRepositoryReference();
-    }
-
-    private void restoreRepositoryReference() {
-        if (hstModelRegistry != null && componentManager != null) {
-            hstModelRegistry.setRepository(componentManager.getComponent(javax.jcr.Repository.class));
-        }
     }
 
     /**
@@ -106,7 +57,7 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
 
     protected void setupHstRequest() {
         this.hstRequest = new MockHstRequest();
-        hstRequest.setContextPath("/site");
+        hstRequest.setContextPath(contextPath());
         hstRequest.setHeader("Host", "localhost:8080");
         hstRequest.setHeader("X-Forwarded-Proto", "http");
         hstRequest.setInputStream(new DelegatingServletInputStream(new ByteArrayInputStream(new byte[getServletInputStreamSize()])));
@@ -118,7 +69,7 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         includeAdditionalSpringConfigurations();
         includeAdditionalAddonModules();
         componentManager.initialize();
-        HstServices.setComponentManager(componentManager);
+        IsolatingComponentManager.set(componentManager);
         ContainerConfigurationImpl containerConfiguration = componentManager.getComponent("containerConfiguration");
         String hstRoot = resolveExistingHstRoot(contributeHstConfigurationRootPath());
         containerConfiguration.setProperty("hst.configuration.rootPath", hstRoot);
@@ -139,14 +90,4 @@ public abstract class AbstractJaxrsTest extends AbstractResourceTest {
         return DEFAULT_BYTE_ARRAY_INPUT_STREAM_SIZE;
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        initializationLock.lock();
-        try {
-            componentManagerInitialized.set(false);
-        } finally {
-            initializationLock.unlock();
-        }
-    }
 }

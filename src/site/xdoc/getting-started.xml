@@ -37,7 +37,7 @@
         <div class="brush: xml">
           <source><![CDATA[
 <properties>
-    <brut.version>6.0.0</brut.version>
+    <brut.version>6.1.0</brut.version>
 </properties>
 
 <dependencyManagement>

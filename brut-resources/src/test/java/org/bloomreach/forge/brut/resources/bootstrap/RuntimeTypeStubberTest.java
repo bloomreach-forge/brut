@@ -181,6 +181,7 @@ class RuntimeTypeStubberTest {
         @BeforeEach
         void attachAppender() {
             stubberLogger = (Logger) LoggerFactory.getLogger(RuntimeTypeStubber.class);
+            stubberLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
             listAppender = new ListAppender<>();
             listAppender.start();
             stubberLogger.addAppender(listAppender);
@@ -189,10 +190,11 @@ class RuntimeTypeStubberTest {
         @AfterEach
         void detachAppender() {
             stubberLogger.detachAppender(listAppender);
+            stubberLogger.setLevel(null); // restore inherited level
         }
 
         @Test
-        void registerStubNamespace_logsAtWarnLevel() throws Exception {
+        void registerStubNamespace_logsAtDebugLevel() throws Exception {
             NamespaceRegistry registry = mock(NamespaceRegistry.class);
             Workspace workspace = mock(Workspace.class);
             when(workspace.getNamespaceRegistry()).thenReturn(registry);
@@ -201,22 +203,22 @@ class RuntimeTypeStubberTest {
 
             RuntimeTypeStubber.registerStubNamespace(session, "testprefix");
 
-            boolean hasWarn = listAppender.list.stream()
-                    .anyMatch(e -> e.getLevel() == Level.WARN && e.getFormattedMessage().contains("testprefix"));
-            assertTrue(hasWarn, "Expected a WARN log containing 'testprefix' but got: " + listAppender.list);
+            boolean hasDebug = listAppender.list.stream()
+                    .anyMatch(e -> e.getLevel() == Level.DEBUG && e.getFormattedMessage().contains("testprefix"));
+            assertTrue(hasDebug, "Expected a DEBUG log containing 'testprefix' but got: " + listAppender.list);
         }
 
         @Test
         @Tag("integration")
-        void registerStubNodeType_logsAtWarnLevelOnSuccess() throws Exception {
+        void registerStubNodeType_logsAtDebugLevelOnSuccess() throws Exception {
             // CndImporter.registerNodeTypes requires a real JCR session; use embedded repo
             try (BrxmTestingRepository repo = new BrxmTestingRepository()) {
                 Session session = repo.login(new SimpleCredentials("admin", "admin".toCharArray()));
                 try {
                     RuntimeTypeStubber.registerStubNodeType(session, "brut:testtype", new java.util.HashSet<>());
-                    boolean hasWarn = listAppender.list.stream()
-                            .anyMatch(e -> e.getLevel() == Level.WARN && e.getFormattedMessage().contains("brut:testtype"));
-                    assertTrue(hasWarn, "Expected a WARN log containing 'brut:testtype' but got: " + listAppender.list);
+                    boolean hasDebug = listAppender.list.stream()
+                            .anyMatch(e -> e.getLevel() == Level.DEBUG && e.getFormattedMessage().contains("brut:testtype"));
+                    assertTrue(hasDebug, "Expected a DEBUG log containing 'brut:testtype' but got: " + listAppender.list);
                 } finally {
                     session.logout();
                 }

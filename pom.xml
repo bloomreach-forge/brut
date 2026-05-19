@@ -13,7 +13,7 @@
     <description>Bloomreach Unit Testing Library for BrXM Delivery Tier</description>
     <groupId>org.bloomreach.forge.brut</groupId>
     <artifactId>brut</artifactId>
-    <version>6.0.0</version>
+    <version>6.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>https://code.onehippo.org/prof-services/brxm-unit-tester</url>
 
@@ -39,8 +39,6 @@
     <properties>
         <objensis.version>3.4</objensis.version>
         <logback.version>1.5.13</logback.version>
-
-        <project.build.javaVersion>17</project.build.javaVersion>
     </properties>
 
     <scm>
@@ -221,10 +219,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.plugin.compiler.version}</version>
-                <configuration>
-                    <source>${project.build.javaVersion}</source>
-                    <target>${project.build.javaVersion}</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -251,7 +245,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.plugin.surefire.version}</version>
                 <configuration>
-                    <argLine>@{argLine} -Xmx1g -Xms512m -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseParallelGC</argLine>
+                    <!-- ZGC (generational mode) gives sub-ms pauses during the heavy-alloc bootstrap phase. -->
+                    <!-- TieredStopAtLevel=1 trades JIT throughput for faster startup — re-evaluate if test -->
+                    <!-- method execution becomes the bottleneck rather than bootstrap. -->
+                    <argLine>@{argLine} -Xmx1g -Xms512m -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+UseZGC -XX:+ZGenerational</argLine>
                     <forkCount>1C</forkCount>
                     <reuseForks>true</reuseForks>
                 </configuration>
